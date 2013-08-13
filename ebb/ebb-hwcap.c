@@ -39,13 +39,13 @@
 #endif
 
 /* Contains the Hardware Capability from runtime.  */
-int __ppcebb_hwcap = 0;
+int __paf_ebb_hwcap = 0;
 
 /* Init the Hardware Capability mask.  */
 void
 attribute_hidden
 attribute_constructor
-__ppcebb_init_hwcap (void)
+__paf_ebb_init_hwcap (void)
 {
   int hwcap1 = 0;
   int hwcap2 = 0;
@@ -98,8 +98,8 @@ __ppcebb_init_hwcap (void)
   free (auxv);
 #endif
 
-  __ppcebb_hwcap |= (hwcap1 & PPC_FEATURE_HAS_ALTIVEC) ?
-                   PPCEBB_FEATURE_HAS_ALTIVEC : 0;
-  __ppcebb_hwcap |= (hwcap2 & PPC_FEATURE2_HAS_EBB) ?
-                   PPCEBB_FEATURE_HAS_EBB : 0;
+  __paf_ebb_hwcap |= (hwcap1 & PPC_FEATURE_HAS_ALTIVEC) ?
+                   PAF_EBB_FEATURE_HAS_ALTIVEC : 0;
+  __paf_ebb_hwcap |= (hwcap2 & PPC_FEATURE2_HAS_EBB) ?
+                   PAF_EBB_FEATURE_HAS_EBB : 0;
 }

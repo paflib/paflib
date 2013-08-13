@@ -11,8 +11,8 @@
  *     IBM Corporation, Adhemerval Zanella - Initial implementation.
  */
 
-#ifndef _PPCEBB_COMMON_H
-#define _PPCEBB_COMMON_H
+#ifndef _PAF_EBB_COMMON_H
+#define _PAF_EBB_COMMON_H
 
 /* Constants used to get/set the EBB register through m[t|f]spr.  */
 #define MMCR0	    779  /* Monitor Mode Control Register 0.  */

@@ -11,12 +11,12 @@
  *     IBM Corporation, Adhemerval Zanella - Initial implementation.
  */
 
-#ifndef _PPCEBB_INIT_H
-# define _PPCEBB_INIT_H
+#ifndef _PAF_EBB_INIT_H
+# define _PAF_EBB_INIT_H
 
 #include "ebb-priv.h"
 
 /* Defined if GLIBC allocates the EBB fiels in TCB internal structure.  */
-extern int __ppcebb_use_tcb attribute_hidden;
+extern int __paf_ebb_use_tcb attribute_hidden;
 
 #endif

@@ -11,8 +11,8 @@
  *     IBM Corporation, Adhemerval Zanella - Initial implementation.
  */
 
-#ifndef _PPCEBB_SYSDEP_H
-# define _PPCEBB_SYSDEP_H
+#ifndef _PAF_EBB_SYSDEP_H
+# define _PAF_EBB_SYSDEP_H
 
 #include "ebb-common.h"
 
@@ -165,4 +165,4 @@ BODY_LABEL(name):					\
 
 #endif
 
-#endif /* _PPCEBB_SYSDEP_H  */
+#endif /* _PAF_EBB_SYSDEP_H  */

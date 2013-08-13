@@ -44,7 +44,7 @@ ebb_handler_test (void *context)
 
 
 static int
-ebb_test_pmu_reset_flag (ppcebb_callback_type_t type)
+ebb_test_pmu_reset_flag (paf_ebb_callback_type_t type)
 {
   ebbhandler_t handler;
 
@@ -53,18 +53,18 @@ ebb_test_pmu_reset_flag (ppcebb_callback_type_t type)
 
   ebb_handler_triggered = 0;
 
-  handler = ppcebb_register_handler (ebb_handler_test,
+  handler = paf_ebb_register_handler (ebb_handler_test,
 				    (void*)&ebb_handler_triggered,
 				     type,
-				     PPCEBB_FLAGS_RESET_PMU);
+				     PAF_EBB_FLAGS_RESET_PMU);
   if (handler != ebb_handler_test)
     {
-      printf ("Error: ppc_register_ebb_handler \
+      printf ("Error: paf_ebb_register_handler \
 	      (ebb_handler_test) != handler\n");
       return -1;
     }
 
-  ppcebb_enable_branches ();
+  paf_ebb_enable_branches ();
 
   while (ebb_handler_triggered != TEST_LOOP_COUNT)
     {
@@ -72,7 +72,7 @@ ebb_test_pmu_reset_flag (ppcebb_callback_type_t type)
         return 1;
     }
 
-  ppcebb_disable_branches ();
+  paf_ebb_disable_branches ();
 
   return 0;
 }
@@ -83,18 +83,18 @@ ebb_test_pmu_reset_all (void)
   int ebbfd;
   int ret;
 
-  ebbfd = ppcebb_pmu_init (PM_RUN_INST_CMPL, -1);
+  ebbfd = paf_ebb_pmu_init (PM_RUN_INST_CMPL, -1);
   if (ebbfd == -1)
     {
-      printf("Error: ppcebb_init_pmu (PM_RUN_CYC, -1) failed "
+      printf("Error: paf_ebb_init_pmu (PM_RUN_CYC, -1) failed "
 	     "(errno = %i)\n", errno);
       return -1;
     }
 
-  ret  = ebb_test_pmu_reset_flag (PPCEBB_CALLBACK_GPR_SAVE);
-  ret += ebb_test_pmu_reset_flag (PPCEBB_CALLBACK_FPR_SAVE);
-  ret += ebb_test_pmu_reset_flag (PPCEBB_CALLBACK_VR_SAVE);
-  ret += ebb_test_pmu_reset_flag (PPCEBB_CALLBACK_VSR_SAVE);
+  ret  = ebb_test_pmu_reset_flag (PAF_EBB_CALLBACK_GPR_SAVE);
+  ret += ebb_test_pmu_reset_flag (PAF_EBB_CALLBACK_FPR_SAVE);
+  ret += ebb_test_pmu_reset_flag (PAF_EBB_CALLBACK_VR_SAVE);
+  ret += ebb_test_pmu_reset_flag (PAF_EBB_CALLBACK_VSR_SAVE);
 
   close (ebbfd);
 

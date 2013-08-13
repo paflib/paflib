@@ -22,11 +22,11 @@
 
 /* Sets if GLIBC supports the EBB fields (handler and context) in the
  * Thread Control Block.  */
-int __ppcebb_use_tcb = 0;
+int __paf_ebb_use_tcb = 0;
 
 #ifndef USE_EBB_TCB
 static inline const char *
-__ppcebb_init_readnumber (const char *str, int *ret)
+__paf_ebb_init_readnumber (const char *str, int *ret)
 {
 #define MAX_NUMBER_LEN 16
   char number[MAX_NUMBER_LEN];
@@ -55,12 +55,12 @@ __ppcebb_init_readnumber (const char *str, int *ret)
 void
 attribute_hidden
 attribute_constructor
-__ppcebb_init_tcb_usage (void)
+__paf_ebb_init_tcb_usage (void)
 {
 #if defined(USE_EBB_TCB)
-  __ppcebb_use_tcb = 1;
+  __paf_ebb_use_tcb = 1;
 #elif defined(USE_EBB_TLS)
-  __ppcebb_use_tcb = 0;
+  __paf_ebb_use_tcb = 0;
 #else
   const char *glibc_release;
   int major;
@@ -68,7 +68,7 @@ __ppcebb_init_tcb_usage (void)
 
   glibc_release = gnu_get_libc_version ();
 
-  glibc_release = __ppcebb_init_readnumber (glibc_release, &major);
+  glibc_release = __paf_ebb_init_readnumber (glibc_release, &major);
   if (glibc_release == NULL)
     {
       //WARN ("failed to parse GLIBC version");
@@ -76,12 +76,12 @@ __ppcebb_init_tcb_usage (void)
     }
 
   if (major >= 3)
-    __ppcebb_use_tcb = 1;
+    __paf_ebb_use_tcb = 1;
   else
     {
-      glibc_release = __ppcebb_init_readnumber (glibc_release, &minor);
+      glibc_release = __paf_ebb_init_readnumber (glibc_release, &minor);
       if (minor >= 18)
-        __ppcebb_use_tcb = 1;
+        __paf_ebb_use_tcb = 1;
     }
 #endif
 }

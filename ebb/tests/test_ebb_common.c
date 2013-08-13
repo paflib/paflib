@@ -29,21 +29,21 @@ ebb_check_mmcr0 (void)
 }
 
 const char *
-ebb_callback_type_string (ppcebb_callback_type_t type)
+ebb_callback_type_string (paf_ebb_callback_type_t type)
 {
   static const char *callback_types[] =
   {
-    "PPCEBB_CALLBACK_GPR_SAVE",
-    "PPCEBB_CALLBACK_FPR_SAVE",
-    "PPCEBB_CALLBACK_VR_SAVE",
-    "PPCEBB_CALLBACK_VSR_SAVE"
+    "PAF_EBB_CALLBACK_GPR_SAVE",
+    "PAF_EBB_CALLBACK_FPR_SAVE",
+    "PAF_EBB_CALLBACK_VR_SAVE",
+    "PAF_EBB_CALLBACK_VSR_SAVE"
   };
   switch (type)
     {
-      case PPCEBB_CALLBACK_GPR_SAVE: return callback_types[0];
-      case PPCEBB_CALLBACK_FPR_SAVE: return callback_types[1];
-      case PPCEBB_CALLBACK_VR_SAVE:  return callback_types[2];
-      case PPCEBB_CALLBACK_VSR_SAVE: return callback_types[3];
+      case PAF_EBB_CALLBACK_GPR_SAVE: return callback_types[0];
+      case PAF_EBB_CALLBACK_FPR_SAVE: return callback_types[1];
+      case PAF_EBB_CALLBACK_VR_SAVE:  return callback_types[2];
+      case PAF_EBB_CALLBACK_VSR_SAVE: return callback_types[3];
     }
   return NULL;
 }

@@ -11,8 +11,8 @@
  *     IBM Corporation, Adhemerval Zanella - Initial implementation.
  */
 
-#ifndef _PPCEBB_PRIV_H
-#define _PPCEBB_PRIV_H
+#ifndef _PAF_EBB_PRIV_H
+#define _PAF_EBB_PRIV_H
 
 #include <paf/ebb.h>
 #include "ebb-common.h"
@@ -52,18 +52,18 @@ struct ebb_thread_info_t
 extern __thread
 attribute_initial_exec
 attribute_hidden
-struct ebb_thread_info_t __ppcebb_thread_info;
+struct ebb_thread_info_t __paf_ebb_thread_info;
 
 /* Set to 1 if TCB fields to use TCB fields, 0 to use TLS ones.  */
-extern int __ppcebb_use_tcb attribute_hidden;
+extern int __paf_ebb_use_tcb attribute_hidden;
 
 
 static inline
 __attribute__((always_inline))
-ebbhandler_t __ppcebb_get_thread_handler ()
+ebbhandler_t __paf_ebb_get_thread_handler ()
 {
   ebbhandler_t ret;
-  if (__ppcebb_use_tcb)
+  if (__paf_ebb_use_tcb)
     {
       asm (LOAD_INST " %0,%1(" THREAD_REGISTER ")"
 	   : "=r" (ret)
@@ -71,33 +71,33 @@ ebbhandler_t __ppcebb_get_thread_handler ()
     }
   else
     {
-      ret = __ppcebb_thread_info.handler;
+      ret = __paf_ebb_thread_info.handler;
     }
   return ret;
 }
 
 static inline
 __attribute__((always_inline))
-void __ppcebb_set_thread_handler (ebbhandler_t handler)
+void __paf_ebb_set_thread_handler (ebbhandler_t handler)
 {
-  if (__ppcebb_use_tcb)
+  if (__paf_ebb_use_tcb)
     {
       asm (STORE_INST " %0,%1(" THREAD_REGISTER ")"
 	   : : "r" (handler), "i" (EBB_HANDLER));
     }
   else
     {
-      __ppcebb_thread_info.handler = handler;
+      __paf_ebb_thread_info.handler = handler;
     }
 }
 
 
 static inline
 __attribute__((always_inline))
-void* __ppcebb_get_thread_context ()
+void* __paf_ebb_get_thread_context ()
 {
   void *ret;
-  if (__ppcebb_use_tcb)
+  if (__paf_ebb_use_tcb)
     {
       asm (LOAD_INST " %0,%1(" THREAD_REGISTER ")"
 	   : "=r" (ret)
@@ -105,33 +105,33 @@ void* __ppcebb_get_thread_context ()
     }
   else
     {
-      ret = __ppcebb_thread_info.context;
+      ret = __paf_ebb_thread_info.context;
     }
   return ret;
 }
 
 static inline
 __attribute__((always_inline))
-void __ppcebb_set_thread_context (void *context)
+void __paf_ebb_set_thread_context (void *context)
 {
-  if (__ppcebb_use_tcb)
+  if (__paf_ebb_use_tcb)
     {
       asm (STORE_INST " %0,%1(" THREAD_REGISTER ")"
 	   : : "r" (context), "i" (EBB_CTX_POINTER));
     }
   else
     {
-      __ppcebb_thread_info.context = context;
+      __paf_ebb_thread_info.context = context;
     }
 }
 
 
 static inline
 __attribute__((always_inline))
-int __ppcebb_get_thread_flags ()
+int __paf_ebb_get_thread_flags ()
 {
   int ret;
-  if (__ppcebb_use_tcb)
+  if (__paf_ebb_use_tcb)
     {
       asm (LOAD_INST " %0,%1(" THREAD_REGISTER ")"
 	   : "=r" (ret)
@@ -139,23 +139,23 @@ int __ppcebb_get_thread_flags ()
     }
   else
     {
-      ret = __ppcebb_thread_info.flags;
+      ret = __paf_ebb_thread_info.flags;
     }
   return ret;
 }
 
 static inline
 __attribute__((always_inline))
-void __ppcebb_set_thread_flags (int flags)
+void __paf_ebb_set_thread_flags (int flags)
 {
-  if (__ppcebb_use_tcb)
+  if (__paf_ebb_use_tcb)
     {
       asm (STORE_INST " %0,%1(" THREAD_REGISTER ")"
 	   : : "r" (flags), "i" (EBB_FLAGS));
     }
   else
     {
-      __ppcebb_thread_info.flags = flags;
+      __paf_ebb_thread_info.flags = flags;
     }
 }
 

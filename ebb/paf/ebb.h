@@ -11,8 +11,8 @@
  *     IBM Corporation, Adhemerval Zanella - Initial implementation.
  */
 
-#ifndef _PPCEBB_H
-#define _PPCEBB_H
+#ifndef _PAF_EBB_H
+#define _PAF_EBB_H
 
 #include <stdint.h>
 
@@ -25,26 +25,26 @@ typedef void (*ebbhandler_t)(void *);
 
 typedef enum
 {
-  PPCEBB_CALLBACK_GPR_SAVE,
-#define PPCEBB_CALLBACK_GPR_SAVE PPCEBB_CALLBACK_GPR_SAVE
-  PPCEBB_CALLBACK_FPR_SAVE,
-#define PPCEBB_CALLBACK_FPR_SAVE PPCEBB_CALLBACK_FPR_SAVE
-  PPCEBB_CALLBACK_VR_SAVE,
-#define PPCEBB_CALLBACK_VR_SAVE PPCEBB_CALLBACK_VR_SAVE
-  PPCEBB_CALLBACK_VSR_SAVE,
-#define PPCEBB_CALLBACK_VSR_SAVE PPCEBB_CALLBACK_VSR_SAVE
-} ppcebb_callback_type_t;
+  PAF_EBB_CALLBACK_GPR_SAVE,
+#define PAF_EBB_CALLBACK_GPR_SAVE PAF_EBB_CALLBACK_GPR_SAVE
+  PAF_EBB_CALLBACK_FPR_SAVE,
+#define PAF_EBB_CALLBACK_FPR_SAVE PAF_EBB_CALLBACK_FPR_SAVE
+  PAF_EBB_CALLBACK_VR_SAVE,
+#define PAF_EBB_CALLBACK_VR_SAVE PAF_EBB_CALLBACK_VR_SAVE
+  PAF_EBB_CALLBACK_VSR_SAVE,
+#define PAF_EBB_CALLBACK_VSR_SAVE PAF_EBB_CALLBACK_VSR_SAVE
+} paf_ebb_callback_type_t;
 
-#define PPCEBB_FLAGS_RESET_PMU	0x1
+#define PAF_EBB_FLAGS_RESET_PMU	0x1
 
-int ppcebb_pmu_init (uint64_t raw_event, int group);
-void ppcebb_pmu_reset (void);
+int paf_ebb_pmu_init (uint64_t raw_event, int group);
+void paf_ebb_pmu_reset (void);
 
-ebbhandler_t ppcebb_handler (void);
-ebbhandler_t ppcebb_register_handler (ebbhandler_t handler, void *context,
-  ppcebb_callback_type_t type, int flags);
-int ppcebb_enable_branches (void);
-int ppcebb_disable_branches (void);
+ebbhandler_t paf_ebb_handler (void);
+ebbhandler_t paf_ebb_register_handler (ebbhandler_t handler, void *context,
+  paf_ebb_callback_type_t type, int flags);
+int paf_ebb_enable_branches (void);
+int paf_ebb_disable_branches (void);
 
 #ifdef __cplusplus
 }

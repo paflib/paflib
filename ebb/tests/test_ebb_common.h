@@ -11,12 +11,12 @@
  *     IBM Corporation, Adhemerval Zanella - Initial implementation.
  */
 
-#ifndef _TEST_PPCEBB_COMMON_H
-# define _TEST_PPCEBB_COMMON_H
+#ifndef _TEST_PAF_EBB_COMMON_H
+# define _TEST_PAF_EBB_COMMON_H
 
 #include "ebb-priv.h"
 
 int ebb_check_mmcr0 (void);
-const char *ebb_callback_type_string (ppcebb_callback_type_t type);
+const char *ebb_callback_type_string (paf_ebb_callback_type_t type);
 
 #endif

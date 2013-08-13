@@ -68,10 +68,10 @@ ebb_handler_backtrace (void *context)
     printf("%s: %s\n", __FUNCTION__, symbols[j]);
 
   /* Check if the function names make sense, the backtrace expected is:
-     test_ppcebb_backtrace : ebb_handler_backtrace
-     libebb.so             : internal symbol (__ppcebb_ebb_hook)
-     libebb.so             : internal symbol (__ppcebb_callback_handler_gpr
-     test_ppcebb_backtrce  : ebb_test_backtrace
+     test_paf_ebb_backtrace : ebb_handler_backtrace
+     libebb.so             : internal symbol (__paf_ebb_ebb_hook)
+     libebb.so             : internal symbol (__paf_ebb_callback_handler_gpr
+     test_paf_ebb_backtrce  : ebb_test_backtrace
      libc.so ...
    */
   if (!match_sym (symbols[0], "ebb_handler_backtrace"))
@@ -80,12 +80,12 @@ ebb_handler_backtrace (void *context)
 	__FUNCTION__, symbols[0], "ebb_handler_backtrace");
       exit (EXIT_FAILURE);
     }
-  if (!match_lib (symbols[1], "libppcebb.so") ||
-      !match_lib (symbols[2], "libppcebb.so"))
+  if (!match_lib (symbols[1], "libpaf_ebb.so") ||
+      !match_lib (symbols[2], "libpaf_ebb.so"))
     {
       fprintf (stderr, "%s: symbol[1] (%s) and symbol[2] (%s) "
         "does not math %s\n", __FUNCTION__, symbols[1], symbols[2],
-        "libppcebb.so");
+        "libpaf_ebb.so");
       exit (EXIT_FAILURE);
     }
   if (!match_sym (symbols[3], "ebb_test_backtrace"))
@@ -106,10 +106,10 @@ ebb_test_backtrace (void)
   ebbhandler_t handler;
   int ebbfd;
 
-  ebbfd = ppcebb_pmu_init (PM_RUN_INST_CMPL, -1);
+  ebbfd = paf_ebb_pmu_init (PM_RUN_INST_CMPL, -1);
   if (ebbfd == -1)
     {
-      printf("Error: ppcebb_init_pmu (PM_RUN_CYC, -1) failed "
+      printf("Error: paf_ebb_init_pmu (PM_RUN_CYC, -1) failed "
 	     "(errno = %i)\n", errno);
       return -1;
     }
@@ -118,17 +118,17 @@ ebb_test_backtrace (void)
 
   ebb_handler_triggered = 0;
 
-  handler = ppcebb_register_handler (ebb_handler_backtrace,
+  handler = paf_ebb_register_handler (ebb_handler_backtrace,
 				     (void*)&ebb_handler_triggered,
-				     PPCEBB_CALLBACK_GPR_SAVE, 0);
+				     PAF_EBB_CALLBACK_GPR_SAVE, 0);
   if (handler != ebb_handler_backtrace)
     {
-      printf ("Error: ppc_register_ebb_handler \
+      printf ("Error: paf_ebb_register_handler \
 	      (ebb_handler_test) != handler\n");
       return -1;
     }
 
-  ppcebb_enable_branches ();
+  paf_ebb_enable_branches ();
 
   while (ebb_handler_triggered == 0)
     {
@@ -136,7 +136,7 @@ ebb_test_backtrace (void)
         return 1;
     }
 
-  ppcebb_disable_branches ();
+  paf_ebb_disable_branches ();
 
   return 0;
 }

@@ -15,22 +15,22 @@
 
 /* The callback handler fetches the EBB function handler pointer and the
  * context from the TCB field inside GLIBC or from the per-thread variable
- * __ppceb_thread_info and calls the function pointer with provided context
+ * __paf_ebb_thread_info and calls the function pointer with provided context
  * as argument. Since it can be triggered in any time of program execution,
  * its currently state needs to be save.
  *
  * The stack frame layout is:
  *
  * Stack pointer (r1) offset     |  Contents
- *   --------------  __ppcebb_callback_handler_vsr_[tcb|tls]  -----------------
+ *   --------------  __paf_ebb_callback_handler_vsr_[tcb|tls]  -----------------
  *   r1 + STACK_OFFSET+1088:1600 |  VSR VS1:VS32 (must be aligned to 16 bytes)
- *   --------------  __ppcebb_callback_handler_vr_[tcb|tls]  ------------------
+ *   --------------  __paf_ebb_callback_handler_vr_[tcb|tls]  ------------------
  *   r1 + STACK_OFFSET+1072      |  VSCR (32-bits)
  *   r1 + STACK_OFFSET+560:1072  |  VR  V1:V31 (must be aligned to 16 bytes)
- *   --------------  __ppcebb_callback_handler_fpr_[tcb|tls]  -----------------
+ *   --------------  __paf_ebb_callback_handler_fpr_[tcb|tls]  -----------------
  *   r1 + STACK_OFFSET+296:552   |  FRP F1:F31
  *   r1 + STACK_OFFSET+288       |  FPSCR
- *   --------------  __ppcebb_callback_handler_gpr_[tcb|tls]  -----------------
+ *   --------------  __paf_ebb_callback_handler_gpr_[tcb|tls]  -----------------
  *   r1 + STACK_OFFSET+24:264    |  GRP R0,R2:R31
  *   r1 + STACK_OFFSET+16        |  XER
  *   r1 + STACK_OFFSET+8         |  LR
@@ -505,23 +505,23 @@
   ori      r2,r2,(__func)@l;                                       \
   ld       r2,8(r2);
 
-.hidden __ppcebb_ebb_hook
+.hidden __paf_ebb_ebb_hook
 #define CALL_EBB_HOOK                                              \
-  bl       __ppcebb_ebb_hook;                                      \
+  bl       __paf_ebb_ebb_hook;                                      \
   nop
 
 
 #define STACK_FRAME_GPR  (ABI_GAP + CALLER_FRAME + \
         CCR_SIZE + LR_SIZE + XER_SIZE + GPR_SIZE)
 
-ENTRY(__ppcebb_callback_handler_gpr)
+ENTRY(__paf_ebb_callback_handler_gpr)
   stdu  r1,-STACK_FRAME_GPR(r1)
 
   SAVE_GPR
 
   SAVE_SPEC_REG
 
-  SETUP_TOC (__ppcebb_callback_handler_gpr)
+  SETUP_TOC (__paf_ebb_callback_handler_gpr)
   CALL_EBB_HOOK
 
   RESTORE_SPEC_REG
@@ -531,12 +531,12 @@ ENTRY(__ppcebb_callback_handler_gpr)
   addi  r1,r1,STACK_FRAME_GPR
 
   RFEBB1
-END(__ppcebb_callback_handler_gpr)
+END(__paf_ebb_callback_handler_gpr)
 
 
 #define STACK_FRAME_FPR  (STACK_FRAME_GPR + FPR_SIZE + FPSR_SIZE)
 
-ENTRY(__ppcebb_callback_handler_fpr)
+ENTRY(__paf_ebb_callback_handler_fpr)
   /* Reserve stack-frame size.  */
   stdu  r1,-STACK_FRAME_FPR(r1)
 
@@ -546,7 +546,7 @@ ENTRY(__ppcebb_callback_handler_fpr)
 
   SAVE_FPR
 
-  SETUP_TOC (__ppcebb_callback_handler_fpr)
+  SETUP_TOC (__paf_ebb_callback_handler_fpr)
   CALL_EBB_HOOK
 
   RESTORE_FPR
@@ -558,13 +558,13 @@ ENTRY(__ppcebb_callback_handler_fpr)
   addi  r1,r1,STACK_FRAME_FPR
 
   RFEBB1
-END(__ppcebb_callback_handler_fpr)
+END(__paf_ebb_callback_handler_fpr)
 
 /* Add extra 16 in case the stack + VR_SAVE is not 16-bytes aligned.  */
 #define STACK_FRAME_VR  (STACK_FRAME_FPR + VR_SIZE + 16 + VSCR_SIZE)
 
   .machine "altivec"
-ENTRY(__ppcebb_callback_handler_vr)
+ENTRY(__paf_ebb_callback_handler_vr)
   /* Reserve stack-frame size.  */
   stdu  r1,-STACK_FRAME_VR(r1)
 
@@ -576,7 +576,7 @@ ENTRY(__ppcebb_callback_handler_vr)
 
   SAVE_VR
 
-  SETUP_TOC (__ppcebb_callback_handler_vr)
+  SETUP_TOC (__paf_ebb_callback_handler_vr)
   CALL_EBB_HOOK
 
   RESTORE_VR
@@ -590,14 +590,14 @@ ENTRY(__ppcebb_callback_handler_vr)
   addi  r1,r1,STACK_FRAME_VR
 
   RFEBB1
-END(__ppcebb_callback_handler_vr)
+END(__paf_ebb_callback_handler_vr)
 
 
 /* Add extra 16 in case the stack + VSR_SAVE is not 16-bytes aligned.  */
 #define STACK_FRAME_VSR  (STACK_FRAME_VR + VSR_SIZE + 16)
 
   .machine "power7"
-ENTRY(__ppcebb_callback_handler_vsr)
+ENTRY(__paf_ebb_callback_handler_vsr)
   /* Reserve stack-frame size.  */
   stdu  r1,-STACK_FRAME_VSR(r1)
 
@@ -611,7 +611,7 @@ ENTRY(__ppcebb_callback_handler_vsr)
 
   SAVE_VSR
 
-  SETUP_TOC (__ppcebb_callback_handler_vsr)
+  SETUP_TOC (__paf_ebb_callback_handler_vsr)
   CALL_EBB_HOOK
 
   RESTORE_VSR
@@ -627,4 +627,4 @@ ENTRY(__ppcebb_callback_handler_vsr)
   addi  r1,r1,STACK_FRAME_VSR
 
   RFEBB1
-END(__ppcebb_callback_handler_vsr)
+END(__paf_ebb_callback_handler_vsr)

@@ -40,7 +40,7 @@ ebb_handler_test (void *context)
   printf ("%s: ebb_handler_triggered address = %p\n", __FUNCTION__, trigger);
   *trigger += 1;
 
-  ppcebb_pmu_reset ();
+  paf_ebb_pmu_reset ();
 }
 
 static int
@@ -49,26 +49,26 @@ ebb_test_pmu_reset_flag (void)
   ebbhandler_t handler;
   int ebbfd;
 
-  ebbfd = ppcebb_pmu_init (PM_RUN_INST_CMPL, -1);
+  ebbfd = paf_ebb_pmu_init (PM_RUN_INST_CMPL, -1);
   if (ebbfd == -1)
     {
-      printf("Error: ppcebb_init_pmu (PM_RUN_CYC, -1) failed "
+      printf("Error: paf_ebb_init_pmu (PM_RUN_CYC, -1) failed "
 	     "(errno = %i)\n", errno);
       return -1;
     }
 
   printf ("%s: testing GPR save/restore:\n", __FUNCTION__);
-  handler = ppcebb_register_handler (ebb_handler_test,
+  handler = paf_ebb_register_handler (ebb_handler_test,
 				    (void*)&ebb_handler_triggered,
-				     PPCEBB_CALLBACK_GPR_SAVE, 0);
+				     PAF_EBB_CALLBACK_GPR_SAVE, 0);
   if (handler != ebb_handler_test)
     {
-      printf ("Error: ppc_register_ebb_handler \
+      printf ("Error: paf_ebb_register_handler \
 	      (ebb_handler_test) != handler\n");
       return -1;
     }
 
-  ppcebb_enable_branches ();
+  paf_ebb_enable_branches ();
 
   while (ebb_handler_triggered != TEST_LOOP_COUNT)
     {
@@ -76,7 +76,7 @@ ebb_test_pmu_reset_flag (void)
         return 1;
     }
 
-  ppcebb_disable_branches ();
+  paf_ebb_disable_branches ();
 
   close (ebbfd);
 

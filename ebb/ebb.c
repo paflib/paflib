@@ -33,11 +33,11 @@
 __thread
 attribute_initial_exec
 attribute_hidden
-struct ebb_thread_info_t __ppcebb_thread_info = { 0, NULL };
+struct ebb_thread_info_t __paf_ebb_thread_info = { 0, NULL };
 
 /* Helper function to start the Linux perf/EBB.  */
 int
-ppcebb_pmu_init (uint64_t raw_event, int group)
+paf_ebb_pmu_init (uint64_t raw_event, int group)
 {
   struct perf_event_attr pe;
   pid_t pid;
@@ -82,7 +82,7 @@ ppcebb_pmu_init (uint64_t raw_event, int group)
 }
 
 void
-ppcebb_pmu_reset (void)
+paf_ebb_pmu_reset (void)
 {
   reset_mmcr0 ();
   reset_pmcs ();
@@ -92,17 +92,17 @@ ppcebb_pmu_reset (void)
  * execute the first instruction from the address set into EBBHR, its
  * value should be the functions text, not its ODP.  */
 static inline uintptr_t
-__ebb_callback_handler_addr (ppcebb_callback_type_t type)
+__ebb_callback_handler_addr (paf_ebb_callback_type_t type)
 {
   void (*callback)(void);
-  if (type == PPCEBB_CALLBACK_GPR_SAVE)
-    callback = __ppcebb_callback_handler_gpr;
-  else if (type == PPCEBB_CALLBACK_FPR_SAVE)
-    callback = __ppcebb_callback_handler_fpr;
-  else if (type == PPCEBB_CALLBACK_VR_SAVE)
-    callback = __ppcebb_callback_handler_vr;
-  else // (type == PPCEBB_CALLBACK_VSR_SAVE)
-    callback = __ppcebb_callback_handler_vsr;
+  if (type == PAF_EBB_CALLBACK_GPR_SAVE)
+    callback = __paf_ebb_callback_handler_gpr;
+  else if (type == PAF_EBB_CALLBACK_FPR_SAVE)
+    callback = __paf_ebb_callback_handler_fpr;
+  else if (type == PAF_EBB_CALLBACK_VR_SAVE)
+    callback = __paf_ebb_callback_handler_vr;
+  else // (type == PAF_EBB_CALLBACK_VSR_SAVE)
+    callback = __paf_ebb_callback_handler_vsr;
 
 #ifdef __powerpc64__
   struct odp_entry_t {
@@ -116,28 +116,28 @@ __ebb_callback_handler_addr (ppcebb_callback_type_t type)
 }
 
 /* Return the thread handler registered with a previous
- * ppcebb_register_handler or NULL if it is not set yet.
+ * paf_ebb_register_handler or NULL if it is not set yet.
  */
 ebbhandler_t
-ppcebb_handler (void)
+paf_ebb_handler (void)
 {
   ebbhandler_t ret;
-  if (!(__ppcebb_hwcap & PPCEBB_FEATURE_HAS_EBB))
+  if (!(__paf_ebb_hwcap & PAF_EBB_FEATURE_HAS_EBB))
     {
       errno = ENOSYS;
       return EBB_REG_ERR;
     }
-  ret = __ppcebb_get_thread_handler ();
+  ret = __paf_ebb_get_thread_handler ();
   return ret == NULL ? EBB_REG_ERR : ret;
 }
 
 ebbhandler_t
-ppcebb_register_handler (ebbhandler_t handler, void *context,
-			 ppcebb_callback_type_t type, int flags)
+paf_ebb_register_handler (ebbhandler_t handler, void *context,
+			 paf_ebb_callback_type_t type, int flags)
 {
   uintptr_t handlerfp;
 
-  if (!(__ppcebb_hwcap & PPCEBB_FEATURE_HAS_EBB))
+  if (!(__paf_ebb_hwcap & PAF_EBB_FEATURE_HAS_EBB))
     {
       errno = ENOSYS;
       return EBB_REG_ERR;
@@ -146,9 +146,9 @@ ppcebb_register_handler (ebbhandler_t handler, void *context,
     return EBB_REG_ERR;
 
 
-  __ppcebb_set_thread_handler (handler);
-  __ppcebb_set_thread_context (context);
-  __ppcebb_set_thread_flags (flags);
+  __paf_ebb_set_thread_handler (handler);
+  __paf_ebb_set_thread_context (context);
+  __paf_ebb_set_thread_flags (flags);
    
   handlerfp = __ebb_callback_handler_addr (type);
   mtspr (EBBHR, handlerfp);
@@ -157,9 +157,9 @@ ppcebb_register_handler (ebbhandler_t handler, void *context,
 }
 
 int
-ppcebb_enable_branches (void)
+paf_ebb_enable_branches (void)
 {
-  if (!(__ppcebb_hwcap & PPCEBB_FEATURE_HAS_EBB))
+  if (!(__paf_ebb_hwcap & PAF_EBB_FEATURE_HAS_EBB))
     {
       errno = ENOSYS;
       return -1;
@@ -172,9 +172,9 @@ ppcebb_enable_branches (void)
 }
 
 int
-ppcebb_disable_branches (void)
+paf_ebb_disable_branches (void)
 {
-  if (!(__ppcebb_hwcap & PPCEBB_FEATURE_HAS_EBB))
+  if (!(__paf_ebb_hwcap & PAF_EBB_FEATURE_HAS_EBB))
     {
       errno = ENOSYS;
       return -1;

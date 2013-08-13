@@ -49,40 +49,40 @@ ebb_test_pmu_multi_counter (void)
 #define CHECK_OPEN(result, event)                        \
   if (result == -1)                                      \
     {                                                    \
-      printf("Error: ppcebb_init_pmu (%s, -1) failed "   \
+      printf("Error: paf_ebb_init_pmu (%s, -1) failed "   \
 	     "(errno = %i)\n", event, errno);            \
       return -1;                                         \
     }
 
-  ebbfd_group = ppcebb_pmu_init (PM_CMPLU_STALL_THRD, -1);
+  ebbfd_group = paf_ebb_pmu_init (PM_CMPLU_STALL_THRD, -1);
   CHECK_OPEN(ebbfd_group, "PM_CMPLU_STALL_THRD");
-  ebbfd_child = ppcebb_pmu_init (PM_CMPLU_STALL_FXU, ebbfd_group);
+  ebbfd_child = paf_ebb_pmu_init (PM_CMPLU_STALL_FXU, ebbfd_group);
   CHECK_OPEN(ebbfd_child, "PM_CMPLU_STALL_FXU");
-  ebbfd_child = ppcebb_pmu_init (PM_CMPLU_STALL_OTHER_CMPL, ebbfd_group);
+  ebbfd_child = paf_ebb_pmu_init (PM_CMPLU_STALL_OTHER_CMPL, ebbfd_group);
   CHECK_OPEN(ebbfd_child, "PM_CMPLU_STALL_OTHER_CMPL");
-  ebbfd_child = ppcebb_pmu_init (PM_CMPLU_STALL, ebbfd_group);
+  ebbfd_child = paf_ebb_pmu_init (PM_CMPLU_STALL, ebbfd_group);
   CHECK_OPEN(ebbfd_child, "PM_CMPLU_STALL");
-  ebbfd_child = ppcebb_pmu_init (PM_RUN_CYC, ebbfd_group);
+  ebbfd_child = paf_ebb_pmu_init (PM_RUN_CYC, ebbfd_group);
   CHECK_OPEN(ebbfd_child, "PM_RUN_CYC");
-  ebbfd_child = ppcebb_pmu_init (PM_RUN_INST_CMPL, ebbfd_group);
+  ebbfd_child = paf_ebb_pmu_init (PM_RUN_INST_CMPL, ebbfd_group);
   CHECK_OPEN(ebbfd_child, "PM_RUN_INST_CMPL");
 
   printf ("%s: testing multi events\n", __FUNCTION__);
 
   ebb_handler_triggered = 0;
 
-  handler = ppcebb_register_handler (ebb_handler_test,
+  handler = paf_ebb_register_handler (ebb_handler_test,
 				     (void*)&ebb_handler_triggered,
-				     PPCEBB_CALLBACK_GPR_SAVE,
-				     PPCEBB_FLAGS_RESET_PMU);
+				     PAF_EBB_CALLBACK_GPR_SAVE,
+				     PAF_EBB_FLAGS_RESET_PMU);
   if (handler != ebb_handler_test)
     {
-      printf ("Error: ppc_register_ebb_handler \
+      printf ("Error: paf_ebb_register_handler \
 	      (ebb_handler_test) != handler\n");
       return -1;
     }
 
-  ppcebb_enable_branches ();
+  paf_ebb_enable_branches ();
 
   while (ebb_handler_triggered != TEST_LOOP_COUNT)
     {
@@ -90,7 +90,7 @@ ebb_test_pmu_multi_counter (void)
         return 1;
     }
 
-  ppcebb_disable_branches ();
+  paf_ebb_disable_branches ();
 
   return 0;
 }

@@ -11,12 +11,12 @@
  *     IBM Corporation, Adhemerval Zanella - Initial implementation.
  */
 
-#ifndef _PPCEBB_CALLBACK_H
-# define _PPCEBB_CALLBACK_H
+#ifndef _PAF_EBB_CALLBACK_H
+# define _PAF_EBB_CALLBACK_H
 
-void __ppcebb_callback_handler_gpr (void);
-void __ppcebb_callback_handler_fpr (void);
-void __ppcebb_callback_handler_vr  (void);
-void __ppcebb_callback_handler_vsr (void);
+void __paf_ebb_callback_handler_gpr (void);
+void __paf_ebb_callback_handler_fpr (void);
+void __paf_ebb_callback_handler_vr  (void);
+void __paf_ebb_callback_handler_vsr (void);
 
 #endif

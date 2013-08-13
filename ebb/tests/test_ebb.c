@@ -47,20 +47,20 @@ ebb_interface_test (void)
   int ret;
 
   /* Register an invalid function to result in an error.  */
-  handler = ppcebb_register_handler (NULL, NULL, PPCEBB_CALLBACK_GPR_SAVE, 0);
+  handler = paf_ebb_register_handler (NULL, NULL, PAF_EBB_CALLBACK_GPR_SAVE, 0);
   if (handler != EBB_REG_ERR)
     {
-      printf ("Error: ppc_register_ebb_handler (NULL) != EBB_REG_ERR\n");
+      printf ("Error: paf_ebb_register_handler (NULL) != EBB_REG_ERR\n");
       return -1;
     }
 
   bescr = get_bescr ();
   printf ("Initial EBB state: bescr %lx\n", bescr);
 
-  ret = ppcebb_enable_branches ();
+  ret = paf_ebb_enable_branches ();
   if (ret != 0)
     {
-      printf ("Error: ppc_enable_branches () returned %i\n", ret);
+      printf ("Error: paf_ebb_enable_branches () returned %i\n", ret);
       return -1;
     }
 
@@ -72,15 +72,15 @@ ebb_interface_test (void)
   bescr = get_bescr ();
   if (!(bescr & mask))
     {
-      printf ("Error: ppc_enable_branches () resulted in 0x%lx\n", bescr); 
+      printf ("Error: get_descr () resulted in 0x%lx\n", bescr); 
       return -1;
     }
   printf ("Enable EBB       : bescr %lx\n", bescr);
 
-  ppcebb_disable_branches ();
+  paf_ebb_disable_branches ();
   if (ret != 0)
     {
-      printf ("Error: ppc_disable_eb_branches () returned %i\n", ret);
+      printf ("Error: paf_ebb_disable_branches () returned %i\n", ret);
       return -1;
     }
 
@@ -88,17 +88,17 @@ ebb_interface_test (void)
   bescr = get_bescr ();
   if (bescr & mask)
     {
-      printf ("Error: ppc_disable_eb_branches () resulted in 0x%lx\n", bescr);
+      printf ("Error: get_bescr () resulted in 0x%lx\n", bescr);
       return -1;
     }
   printf ("Disable EBB      : bescr %lx\n", bescr);
 
   /* Register a valid callback and check its address.  */
-  handler = ppcebb_register_handler (ebb_handler_test, &ebb_context_test,
-				     PPCEBB_CALLBACK_GPR_SAVE, 0);
+  handler = paf_ebb_register_handler (ebb_handler_test, &ebb_context_test,
+				     PAF_EBB_CALLBACK_GPR_SAVE, 0);
   if (handler != ebb_handler_test)
     {
-      printf ("Error: ppc_register_ebb_handler \
+      printf ("Error: paf_ebb_register_handler \
 	      (ebb_handler_test) != handler\n");
       return -1;
     }
