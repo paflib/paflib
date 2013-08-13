@@ -131,7 +131,7 @@ check_dscr_support(void)
   return dscr_support_mask;
 }
 
-long int ppcdsc_get(void)
+long int paf_dsc_get(void)
 {
   unsigned long int dscr;
 
@@ -147,7 +147,7 @@ long int ppcdsc_get(void)
   return dscr;
 }
 
-int ppcdsc_set(unsigned long dscr)
+int paf_dsc_set(unsigned long dscr)
 {
   /* check whether DSCR support is available */
   if (!dscr_support_mask)

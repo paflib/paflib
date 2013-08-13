@@ -6,19 +6,19 @@ int main(void)
 {
   long int dscr;
 
-  if ((dscr = ppcdsc_get()) < 0)
+  if ((dscr = paf_dsc_get()) < 0)
     {
       perror("Cannot get dscr value.");
       return -1;
     }
 
   /* DSCR_LSD available only in ISA 2.06 */
-  if (ppcdsc_set(dscr | DSCR_LSD) < 0)
+  if (paf_dsc_set(dscr | DSCR_LSD) < 0)
     {
       perror("Cannot set DSCR_LSD flag (available only in ISA 2.06).");
       return -1;
     }
-  if ((dscr = ppcdsc_get()) < 0)
+  if ((dscr = paf_dsc_get()) < 0)
     {
       perror("Cannot get dscr value.");
       return -1;
@@ -30,12 +30,12 @@ int main(void)
     }
 
   /* DSCR_URG available only in ISA 2.06+ */
-  if (ppcdsc_set(dscr | DSCR_URG(7)) < 0)
+  if (paf_dsc_set(dscr | DSCR_URG(7)) < 0)
     {
       perror("Cannot set DSCR_URG flag (available only in ISA 2.06+).");
       return -1;
     }
-  if ((dscr = ppcdsc_get()) < 0)
+  if ((dscr = paf_dsc_get()) < 0)
     {
       perror("Cannot get dscr value.");
       return -1;
@@ -47,12 +47,12 @@ int main(void)
     }
 
   /* DSCR_HWUE available only in ISA 2.07 */
-  if (ppcdsc_set(dscr | DSCR_HWUE) < 0)
+  if (paf_dsc_set(dscr | DSCR_HWUE) < 0)
     {
       perror("Cannot set DSCR_HWUE flag (available only in ISA 2.07).\n");
       return -1;
     }
-  if ((dscr = ppcdsc_get()) < 0)
+  if ((dscr = paf_dsc_get()) < 0)
     {
       perror("Cannot get dscr value.");
       return -1;

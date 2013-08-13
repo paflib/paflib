@@ -1,5 +1,5 @@
-#ifndef _PPCDSC_H
-#define _PPCDSC_H
+#ifndef _PAF_DSC_H
+#define _PAF_DSC_H
 
 /* ISA 2.05 features (POWER6) */
 #define DSCR_DPFD_MAX	7	/* Default Prefetch Depth max value */
@@ -38,11 +38,11 @@
 
 /* Returns the DSCR value. If unsupported, it returns -1 and errno is set to
    ENOSYS (DSCR support not available). */
-long int ppcdsc_get(void);
+long int paf_dsc_get(void);
 
 /* Sets the DSCR value to 'dscr'. If unsupported, it returns -1 and errno is
    set to ENOSYS in case of DSCR support not available or EINVAL if parameter
    'dscr' is invalid. */
-int ppcdsc_set(unsigned long dscr);
+int paf_dsc_set(unsigned long dscr);
 
-#endif /* _PPCDSC_H */
+#endif /* _PAF_DSC_H */

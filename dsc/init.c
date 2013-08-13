@@ -1,4 +1,4 @@
-/* Libppcdsc constructor function. */
+/* libpaf-dsc constructor function. */
 
 #include "config.h"
 #include "common.h"
@@ -7,7 +7,7 @@
 void
 __attribute__ ((constructor))
 attribute_hidden
-__ppcdsc_init (void)
+__paf_dsc_init (void)
 {
   check_dscr_support();
 }
