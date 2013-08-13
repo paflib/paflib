@@ -1,0 +1,100 @@
+.\" Copyright (c) 2013 IBM Corporation.
+.\" All rights reserved. This program and the accompanying materials
+.\" are made available under the terms of the Eclipse Public License v1.0
+.\" which accompanies this distribution, and is available at
+.\" http://www.eclipse.org/legal/epl-v10.html
+.\"
+.\" Contributors:
+.\"     IBM Corporation, Adhemerval Zanella - Initial implementation.
+.TH LIBPPCEBB 2 2013-07-01 "Linux" "Event-Based Branch Library"
+.SH NAME
+libppcebb \- PowerPC Event-Based Branch Library
+.SH SYNOPSIS
+.B #include <ppcebb.h>
+.sp
+.B typedef void (*ebbhandler_t)(void*);
+.sp
+.BI "int ppcebb_pmu_init(uint64_t " raw_event ", int " group ");
+.sp
+.BI "void ppcebb_pmu_reset(void);
+.sp
+.BI "ebbhandler_t ppcebb_register_handler(ebbhandler_t " handler ", \
+void * "context ", ppcebb_callback_type_t " type ", int " flags ");
+.sp
+.BI "ebbhandler_t ppcebb_handler(void);
+.sp
+.BI "int ppcebb_enable_branches(void);
+.sp
+.Bi "int ppcebb_disable_branches(void);
+
+.SH DESCRIPTION
+
+The Event-Based Branch (EBB) facility allows the hardware to branch directly
+to a user space address when certain event occur. It does not require any
+kernel handling besides the its initialization. Only Performance Monitor Unit
+events (PMU) are supported.
+
+.BR ppcebb_pmu_init()
+initializes the PMU event generation configuring the hardware
+counter
+.I raw_event
+with the specified
+.I group.
+The first call should use -1 to start a new group. Subsequent calls may create
+new groups or use the returned file descriptor from
+.BR ppcebb_pmu_init
+to associate events in a group.
+
+The EBB is triggered when the PMU counter overflows. To reset it to potentially
+trigger another event call
+.BR ppcebb_pmu_reset().
+
+.BR ppcebb_register_handler() registers the 
+.I handler
+function to be called when the EBB is triggered with the argument
+.I context.
+Common state registers (LR, CR, CTR, XER) are always saved and
+.I type
+specifies which further set of registers will be saved and restored:
+
+.TP 3
+* PPCEBB_CALLBACK_GPR_SAVE: save/restore all General Purpose Registers.
+.TP
+* PPCEBB_CALLBACK_FPR_SAVE: save/restore all General Purpose Registers and all \
+Floating-Point Register.
+.TP
+* PPCEBB_CALLBACK_VRR_SAVE: save/restore all General Purpose Registers, all \
+Floating-Point Register, and all Vector Registers.
+.PP
+
+.BR ppcebb_handler()
+returns the registered handler previously issued by ppcebb_register_handler().
+
+.BR ppcebb_enable_branches()
+enables EBB triggering.
+
+.BR ppcebb_disable_branches()
+disables EBB triggering.
+
+.SH "RETURN VALUE"
+
+.BR ppcebb_pmu_init()
+returns a file descriptor to be used in group association or -1 case of error.
+
+.BR ppcebb_register_handler()
+returns the registered handler or EBB_REG_ERR in case of error.
+
+.BR ppcebb_handler()
+returns the previous registerd handler or EBB_REG_ERR case no handler has being
+registered.
+
+.BR ppcebb_enable_branches()
+and
+.BR ppcebb_disable_branches()
+return 0 in case of success or -1 otherwise.
+
+.SH ERRORS
+
+.TP
+.B ENOSYS
+system does not support EBB facility.
