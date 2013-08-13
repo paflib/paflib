@@ -4,9 +4,9 @@
 #include <signal.h>
 #include <pthread.h>
 
+#include <paf/dsc.h>
 #include "config.h"
 #include "common.h"
-#include "ppcdsc.h"
 #include "hwcap.h"
 
 /* PowerPC instruction length */

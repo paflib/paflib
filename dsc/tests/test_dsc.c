@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <errno.h>
-#include <ppcdsc.h>
+#include <paf/dsc.h>
 
 int main(void)
 {

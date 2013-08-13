@@ -2,7 +2,7 @@
 ## In general, the safest way to proceed is to run ./autogen.sh
 
 AC_PREREQ([2.61])
-AC_INIT([paflib], [0.1.0], [azanella@br.ibm.com emachado@br.ibm.com])
+AC_INIT([libpaf], [0.1.0], [azanella@br.ibm.com emachado@br.ibm.com])
 AM_INIT_AUTOMAKE([1.10 no-define foreign -Wall -Werror])
 AC_CANONICAL_HOST
 
