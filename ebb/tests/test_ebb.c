@@ -14,7 +14,7 @@
 
 #include <stdio.h>
 #include <inttypes.h>
-#include "ppcebb.h"
+#include <paf/ebb.h>
 
 
 #define BESCR   806

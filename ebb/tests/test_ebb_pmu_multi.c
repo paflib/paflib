@@ -14,8 +14,8 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "ppcebb.h"
-#include "test_ppcebb_common.h"
+#include <paf/ebb.h>
+#include "test_ebb_common.h"
 
 #define PM_CMPLU_STALL_THRD        0x1001C
 #define PM_CMPLU_STALL_FXU         0x2D016
@@ -97,4 +97,4 @@ ebb_test_pmu_multi_counter (void)
 
 #define EBB_TEST ebb_test_pmu_multi_counter
 
-#include "test_ppcebb-skeleton.c"
+#include "test_ebb-skeleton.c"

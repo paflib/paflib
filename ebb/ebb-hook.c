@@ -12,7 +12,7 @@
  */
 
 #include <stdio.h>
-#include "ppcebb-priv.h"
+#include "ebb-priv.h"
 
 void
 attribute_hidden

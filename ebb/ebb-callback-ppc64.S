@@ -1,5 +1,5 @@
 /*
- * Event-Based Branch Facility API.  PowerPC32 callback handler.
+ * Event-Based Branch Facility API.  PowerPC64 callback handler.
  *
  * Copyright (c) 2013 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
@@ -11,7 +11,7 @@
  *     IBM Corporation, Adhemerval Zanella - Initial implementation.
  */
 
-#include "ppcebb-sysdep.h"
+#include "ebb-sysdep.h"
 
 /* The callback handler fetches the EBB function handler pointer and the
  * context from the TCB field inside GLIBC or from the per-thread variable
@@ -21,38 +21,37 @@
  *
  * The stack frame layout is:
  *
- * STACK_OFFSET is 288 (default stack size) to not clobber the interrupted
- * function stack.
- *
  * Stack pointer (r1) offset     |  Contents
  *   --------------  __ppcebb_callback_handler_vsr_[tcb|tls]  -----------------
- *   r1 + STACK_OFFSET+936:1448  |  VSR VS1:VS32 (must be aligned to 16 bytes)
+ *   r1 + STACK_OFFSET+1088:1600 |  VSR VS1:VS32 (must be aligned to 16 bytes)
  *   --------------  __ppcebb_callback_handler_vr_[tcb|tls]  ------------------
- *   r1 + STACK_OFFSET+932       |  VSCR (32-bits)
- *   r1 + STACK_OFFSET+416:928   |  VR  V1:V31 (must be aligned to 16 bytes)
+ *   r1 + STACK_OFFSET+1072      |  VSCR (32-bits)
+ *   r1 + STACK_OFFSET+560:1072  |  VR  V1:V31 (must be aligned to 16 bytes)
  *   --------------  __ppcebb_callback_handler_fpr_[tcb|tls]  -----------------
- *   r1 + STACK_OFFSET+152:408   |  FRP F1:F31
- *   r1 + STACK_OFFSET+148       |  FPSCR
+ *   r1 + STACK_OFFSET+296:552   |  FRP F1:F31
+ *   r1 + STACK_OFFSET+288       |  FPSCR
  *   --------------  __ppcebb_callback_handler_gpr_[tcb|tls]  -----------------
- *   r1 + STACK_OFFSET+16:144    |  GRP r0,r3-r31
- *   r1 + STACK_OFFSET+12        |  XER
- *   r1 + STACK_OFFSET+8         |  CTR
- *   r1 + STACK_OFFSET+4         |  CR
- *   r1 + STACK_OFFSET           |  LR
+ *   r1 + STACK_OFFSET+24:264    |  GRP R0,R2:R31
+ *   r1 + STACK_OFFSET+16        |  XER
+ *   r1 + STACK_OFFSET+8         |  LR
+ *   r1 + STACK_OFFSET           |  CCR
  */
 
-#define CCR_SAVE        (0)
-#define CCR_SIZE        (4)
+#define ABI_GAP         288
+#define CALLER_FRAME    112
+
+#define CCR_SAVE        (CALLER_FRAME)
+#define CCR_SIZE        (8)
 #define LR_SAVE         (CCR_SAVE + CCR_SIZE)
-#define LR_SIZE         (4)
+#define LR_SIZE         (8)
 #define XER_SAVE        (LR_SAVE + LR_SIZE)
-#define XER_SIZE        (4)
-#define GPR_SAVE(n)     (XER_SAVE + XER_SIZE + (4 * n))
-#define GPR_SIZE        (30 * 4)
-#define FPR_SAVE(n)     (GPR_SAVE(30) + GPR_SIZE + (4 * n))
+#define XER_SIZE        (8)
+#define GPR_SAVE(n)     (XER_SAVE + XER_SIZE + (8 * n))
+#define GPR_SIZE        (30 * 8)
+#define FPR_SAVE(n)     (GPR_SAVE(30) + (8 * n))
 #define FPR_SIZE        (32 * 8)
 #define FPSR_SAVE       (FPR_SAVE(32))
-#define FPSR_SIZE       (4)
+#define FPSR_SIZE       (8)
 #define VR_SAVE         (FPSR_SAVE + FPSR_SIZE)
 #define VR_SIZE         (32 * 16)
 #define VSCR_SAVE       (VR_SAVE + VR_SIZE)
@@ -60,71 +59,71 @@
 #define VSR_SAVE        (VSCR_SAVE + VSCR_SIZE)
 #define VSR_SIZE        (32 * 16)
 
-/* Save all General Purpose Register (GPR), but r1 (SP) and r2 (thr. id).  */
+/* Save all General Purpose Register (GPR), but r1 (SP) and r13 (thr. id).  */
 #define SAVE_GPR                                                   \
-  stw       r0, GPR_SAVE(0)(r1);                                   \
-  stw       r3, GPR_SAVE(1)(r1);                                   \
-  stw       r4, GPR_SAVE(2)(r1);                                   \
-  stw       r5, GPR_SAVE(3)(r1);                                   \
-  stw       r6, GPR_SAVE(4)(r1);                                   \
-  stw       r7, GPR_SAVE(5)(r1);                                   \
-  stw       r8, GPR_SAVE(6)(r1);                                   \
-  stw       r9, GPR_SAVE(7)(r1);                                   \
-  stw      r10, GPR_SAVE(8)(r1);                                   \
-  stw      r11, GPR_SAVE(9)(r1);                                   \
-  stw      r12, GPR_SAVE(10)(r1);                                  \
-  stw      r13, GPR_SAVE(11)(r1);                                  \
-  stw      r14, GPR_SAVE(12)(r1);                                  \
-  stw      r15, GPR_SAVE(13)(r1);                                  \
-  stw      r16, GPR_SAVE(14)(r1);                                  \
-  stw      r17, GPR_SAVE(15)(r1);                                  \
-  stw      r18, GPR_SAVE(16)(r1);                                  \
-  stw      r19, GPR_SAVE(17)(r1);                                  \
-  stw      r20, GPR_SAVE(18)(r1);                                  \
-  stw      r21, GPR_SAVE(19)(r1);                                  \
-  stw      r22, GPR_SAVE(20)(r1);                                  \
-  stw      r23, GPR_SAVE(21)(r1);                                  \
-  stw      r24, GPR_SAVE(22)(r1);                                  \
-  stw      r25, GPR_SAVE(23)(r1);                                  \
-  stw      r26, GPR_SAVE(24)(r1);                                  \
-  stw      r27, GPR_SAVE(25)(r1);                                  \
-  stw      r28, GPR_SAVE(26)(r1);                                  \
-  stw      r29, GPR_SAVE(27)(r1);                                  \
-  stw      r30, GPR_SAVE(28)(r1);                                  \
-  stw      r31, GPR_SAVE(29)(r1);
+  std       r0, GPR_SAVE(0)(r1);                                   \
+  std       r2, GPR_SAVE(1)(r1);                                   \
+  std       r3, GPR_SAVE(2)(r1);                                   \
+  std       r4, GPR_SAVE(3)(r1);                                   \
+  std       r5, GPR_SAVE(4)(r1);                                   \
+  std       r6, GPR_SAVE(5)(r1);                                   \
+  std       r7, GPR_SAVE(6)(r1);                                   \
+  std       r8, GPR_SAVE(7)(r1);                                   \
+  std       r9, GPR_SAVE(8)(r1);                                   \
+  std      r10, GPR_SAVE(9)(r1);                                   \
+  std      r11, GPR_SAVE(10)(r1);                                  \
+  std      r12, GPR_SAVE(11)(r1);                                  \
+  std      r14, GPR_SAVE(12)(r1);                                  \
+  std      r15, GPR_SAVE(13)(r1);                                  \
+  std      r16, GPR_SAVE(14)(r1);                                  \
+  std      r17, GPR_SAVE(15)(r1);                                  \
+  std      r18, GPR_SAVE(16)(r1);                                  \
+  std      r19, GPR_SAVE(17)(r1);                                  \
+  std      r20, GPR_SAVE(18)(r1);                                  \
+  std      r21, GPR_SAVE(19)(r1);                                  \
+  std      r22, GPR_SAVE(20)(r1);                                  \
+  std      r23, GPR_SAVE(21)(r1);                                  \
+  std      r24, GPR_SAVE(22)(r1);                                  \
+  std      r25, GPR_SAVE(23)(r1);                                  \
+  std      r26, GPR_SAVE(24)(r1);                                  \
+  std      r27, GPR_SAVE(25)(r1);                                  \
+  std      r28, GPR_SAVE(26)(r1);                                  \
+  std      r29, GPR_SAVE(27)(r1);                                  \
+  std      r30, GPR_SAVE(28)(r1);                                  \
+  std      r31, GPR_SAVE(29)(r1);
 
-/* Restore GRP registers, but r1 (stack) and r2 (thread id).  */
+/* Restore GRP registers, but r1 (stack) and r13 (thread id).  */
 #define RESTORE_GPR                                                \
-  lwz       r0, GPR_SAVE(0)(r1);                                   \
-  lwz       r3, GPR_SAVE(1)(r1);                                   \
-  lwz       r4, GPR_SAVE(2)(r1);                                   \
-  lwz       r5, GPR_SAVE(3)(r1);                                   \
-  lwz       r6, GPR_SAVE(4)(r1);                                   \
-  lwz       r7, GPR_SAVE(5)(r1);                                   \
-  lwz       r8, GPR_SAVE(6)(r1);                                   \
-  lwz       r9, GPR_SAVE(7)(r1);                                   \
-  lwz      r10, GPR_SAVE(8)(r1);                                   \
-  lwz      r11, GPR_SAVE(9)(r1);                                   \
-  lwz      r12, GPR_SAVE(10)(r1);                                  \
-  lwz      r13, GPR_SAVE(11)(r1);                                  \
-  lwz      r14, GPR_SAVE(12)(r1);                                  \
-  lwz      r15, GPR_SAVE(13)(r1);                                  \
-  lwz      r16, GPR_SAVE(14)(r1);                                  \
-  lwz      r17, GPR_SAVE(15)(r1);                                  \
-  lwz      r18, GPR_SAVE(16)(r1);                                  \
-  lwz      r19, GPR_SAVE(17)(r1);                                  \
-  lwz      r20, GPR_SAVE(18)(r1);                                  \
-  lwz      r21, GPR_SAVE(19)(r1);                                  \
-  lwz      r22, GPR_SAVE(20)(r1);                                  \
-  lwz      r23, GPR_SAVE(21)(r1);                                  \
-  lwz      r24, GPR_SAVE(22)(r1);                                  \
-  lwz      r25, GPR_SAVE(23)(r1);                                  \
-  lwz      r26, GPR_SAVE(24)(r1);                                  \
-  lwz      r27, GPR_SAVE(25)(r1);                                  \
-  lwz      r28, GPR_SAVE(26)(r1);                                  \
-  lwz      r29, GPR_SAVE(27)(r1);                                  \
-  lwz      r30, GPR_SAVE(28)(r1);                                  \
-  lwz      r31, GPR_SAVE(29)(r1);
+  ld        r0, GPR_SAVE(0)(r1);                                   \
+  ld        r2, GPR_SAVE(1)(r1);                                   \
+  ld        r3, GPR_SAVE(2)(r1);                                   \
+  ld        r4, GPR_SAVE(3)(r1);                                   \
+  ld        r5, GPR_SAVE(4)(r1);                                   \
+  ld        r6, GPR_SAVE(5)(r1);                                   \
+  ld        r7, GPR_SAVE(6)(r1);                                   \
+  ld        r8, GPR_SAVE(7)(r1);                                   \
+  ld        r9, GPR_SAVE(8)(r1);                                   \
+  ld       r10, GPR_SAVE(9)(r1);                                   \
+  ld       r11, GPR_SAVE(10)(r1);                                  \
+  ld       r12, GPR_SAVE(11)(r1);                                  \
+  ld       r14, GPR_SAVE(12)(r1);                                  \
+  ld       r15, GPR_SAVE(13)(r1);                                  \
+  ld       r16, GPR_SAVE(14)(r1);                                  \
+  ld       r17, GPR_SAVE(15)(r1);                                  \
+  ld       r18, GPR_SAVE(16)(r1);                                  \
+  ld       r19, GPR_SAVE(17)(r1);                                  \
+  ld       r20, GPR_SAVE(18)(r1);                                  \
+  ld       r21, GPR_SAVE(19)(r1);                                  \
+  ld       r22, GPR_SAVE(20)(r1);                                  \
+  ld       r23, GPR_SAVE(21)(r1);                                  \
+  ld       r24, GPR_SAVE(22)(r1);                                  \
+  ld       r25, GPR_SAVE(23)(r1);                                  \
+  ld       r26, GPR_SAVE(24)(r1);                                  \
+  ld       r27, GPR_SAVE(25)(r1);                                  \
+  ld       r28, GPR_SAVE(26)(r1);                                  \
+  ld       r29, GPR_SAVE(27)(r1);                                  \
+  ld       r30, GPR_SAVE(28)(r1);                                  \
+  ld       r31, GPR_SAVE(29)(r1);
 
 /* Save status registers.  */
 #define SAVE_SPEC_REG                                              \
@@ -498,20 +497,31 @@
   lxvd2x   v30,0,r10;                                              \
   lxvd2x   v31,0,r9;
 
+#define SETUP_TOC(__func)                                          \
+  lis      r2,(__func)@highest;                                    \
+  ori      r2,r2,(__func)@higher;                                  \
+  rldicr   r2,r2,32,31;                                            \
+  oris     r2,r2,(__func)@h;                                       \
+  ori      r2,r2,(__func)@l;                                       \
+  ld       r2,8(r2);
+
 .hidden __ppcebb_ebb_hook
 #define CALL_EBB_HOOK                                              \
-  bl       __ppcebb_ebb_hook;
+  bl       __ppcebb_ebb_hook;                                      \
+  nop
 
 
-#define STACK_FRAME_GPR  (CCR_SIZE + LR_SIZE + XER_SIZE + GPR_SIZE)
+#define STACK_FRAME_GPR  (ABI_GAP + CALLER_FRAME + \
+        CCR_SIZE + LR_SIZE + XER_SIZE + GPR_SIZE)
 
 ENTRY(__ppcebb_callback_handler_gpr)
-  stwu  r1,-STACK_FRAME_GPR(r1)
+  stdu  r1,-STACK_FRAME_GPR(r1)
 
   SAVE_GPR
 
   SAVE_SPEC_REG
 
+  SETUP_TOC (__ppcebb_callback_handler_gpr)
   CALL_EBB_HOOK
 
   RESTORE_SPEC_REG
@@ -527,7 +537,8 @@ END(__ppcebb_callback_handler_gpr)
 #define STACK_FRAME_FPR  (STACK_FRAME_GPR + FPR_SIZE + FPSR_SIZE)
 
 ENTRY(__ppcebb_callback_handler_fpr)
-  stwu  r1,-STACK_FRAME_FPR(r1)
+  /* Reserve stack-frame size.  */
+  stdu  r1,-STACK_FRAME_FPR(r1)
 
   SAVE_GPR
 
@@ -535,6 +546,7 @@ ENTRY(__ppcebb_callback_handler_fpr)
 
   SAVE_FPR
 
+  SETUP_TOC (__ppcebb_callback_handler_fpr)
   CALL_EBB_HOOK
 
   RESTORE_FPR
@@ -548,14 +560,13 @@ ENTRY(__ppcebb_callback_handler_fpr)
   RFEBB1
 END(__ppcebb_callback_handler_fpr)
 
-
 /* Add extra 16 in case the stack + VR_SAVE is not 16-bytes aligned.  */
 #define STACK_FRAME_VR  (STACK_FRAME_FPR + VR_SIZE + 16 + VSCR_SIZE)
 
   .machine "altivec"
 ENTRY(__ppcebb_callback_handler_vr)
   /* Reserve stack-frame size.  */
-  stwu  r1,-STACK_FRAME_VR(r1)
+  stdu  r1,-STACK_FRAME_VR(r1)
 
   SAVE_GPR
 
@@ -565,6 +576,7 @@ ENTRY(__ppcebb_callback_handler_vr)
 
   SAVE_VR
 
+  SETUP_TOC (__ppcebb_callback_handler_vr)
   CALL_EBB_HOOK
 
   RESTORE_VR
@@ -587,7 +599,7 @@ END(__ppcebb_callback_handler_vr)
   .machine "power7"
 ENTRY(__ppcebb_callback_handler_vsr)
   /* Reserve stack-frame size.  */
-  stwu  r1,-STACK_FRAME_VSR(r1)
+  stdu  r1,-STACK_FRAME_VSR(r1)
 
   SAVE_GPR
 
@@ -599,6 +611,7 @@ ENTRY(__ppcebb_callback_handler_vsr)
 
   SAVE_VSR
 
+  SETUP_TOC (__ppcebb_callback_handler_vsr)
   CALL_EBB_HOOK
 
   RESTORE_VSR

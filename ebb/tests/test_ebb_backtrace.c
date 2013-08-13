@@ -17,9 +17,9 @@
 #include <string.h>
 #include <execinfo.h>
 
-#include "ppcebb.h"
-#include "ppcebb-callback.h"
-#include "test_ppcebb_common.h"
+#include <paf/ebb.h>
+#include "ebb-callback.h"
+#include "test_ebb_common.h"
 
 #define PM_RUN_INST_CMPL  0x400FA
 
@@ -143,4 +143,4 @@ ebb_test_backtrace (void)
 
 #define EBB_TEST ebb_test_backtrace
 
-#include "test_ppcebb-skeleton.c"
+#include "test_ebb-skeleton.c"

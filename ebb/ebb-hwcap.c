@@ -12,7 +12,7 @@
  */
 
 #include "config.h"
-#include "ppcebb-hwcap.h"
+#include "ebb-hwcap.h"
 
 /* Although glibc 2.16+ provides getauxval, only 2.18+ provides access
  * to AT_HWCAP2. To avoid rely on glibc version to correctly discover if

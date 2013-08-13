@@ -7,52 +7,52 @@ AM_CFLAGS = -Wall
 AM_LDFLAGS = -rdynamic
 AM_CPPFLAGS = -I$(top_srcdir)/ebb
 
-include_HEADERS = ppcebb.h
-LIBPPCEBB_PRIVATE_INCLUDE = ppcebb-callback.h \
-			    ppcebb-common.h \
-			    ppcebb-hwcap.h \
-			    ppcebb-init.h \
-			    ppcebb-priv.h \
-			    ppcebb-sysdep.h
-lib_LTLIBRARIES = libppcebb.la
-libppcebb_la_SOURCES = ppcebb.c \
-                       ppcebb-init.c \
-                       ppcebb-hwcap.c \
-                       ppcebb-hook.c \
+nobase_include_HEADERS = paf/ebb.h
+LIBPPCEBB_PRIVATE_INCLUDE = ebb-callback.h \
+			    ebb-common.h \
+			    ebb-hwcap.h \
+			    ebb-init.h \
+			    ebb-priv.h \
+			    ebb-sysdep.h
+lib_LTLIBRARIES = libpaf-ebb.la
+libpaf_ebb_la_SOURCES = ebb.c \
+                       ebb-init.c \
+                       ebb-hwcap.c \
+                       ebb-hook.c \
                        $(include_HEADERS) \
 		       $(LIBPPCEBB_PRIVATE_INCLUDE)
 if POWERPC64
-libppcebb_la_SOURCES += ppcebb-callback-ppc64.S
+libpaf_ebb_la_SOURCES += ebb-callback-ppc64.S
 else
-libppcebb_la_SOURCES += ppcebb-callback-ppc32.S
+libpaf_ebb_la_SOURCES += ebb-callback-ppc32.S
 endif
 
-man3_MANS = doc/libppcebb.3
+man3_MANS = doc/libpaf-ebb.3
 
 # Test programs invoked with 'make check'
 TESTS =
-TESTS               += test_ppcebb
-test_ppcebb_SOURCES  = tests/test_ppcebb.c
-test_ppcebb_LDADD    = libppcebb.la
+TESTS               += test_ebb
+test_ebb_SOURCES  = tests/test_ebb.c
+test_ebb_LDADD    = libpaf-ebb.la
 
-TESTS                   += test_ppcebb_pmu
-test_ppcebb_pmu_SOURCES  = tests/test_ppcebb_pmu.c \
-                           tests/test_ppcebb_common.c
-test_ppcebb_pmu_LDADD    = libppcebb.la
+TESTS                   += test_ebb_pmu
+test_ebb_pmu_SOURCES  = tests/test_ebb_pmu.c \
+                           tests/test_ebb_common.c
+test_ebb_pmu_LDADD    = libpaf-ebb.la
 
-TESTS                         += test_ppcebb_pmu_reset
-test_ppcebb_pmu_reset_SOURCES  = tests/test_ppcebb_pmu_reset.c \
-                                 tests/test_ppcebb_common.c
-test_ppcebb_pmu_reset_LDADD    = libppcebb.la
+TESTS                         += test_ebb_pmu_reset
+test_ebb_pmu_reset_SOURCES  = tests/test_ebb_pmu_reset.c \
+                                 tests/test_ebb_common.c
+test_ebb_pmu_reset_LDADD    = libpaf-ebb.la
 
-TESTS                         += test_ppcebb_backtrace
-test_ppcebb_backtrace_SOURCES  = tests/test_ppcebb_backtrace.c \
-                                 tests/test_ppcebb_common.c
-test_ppcebb_backtrace_LDADD    = libppcebb.la
+TESTS                         += test_ebb_backtrace
+test_ebb_backtrace_SOURCES  = tests/test_ebb_backtrace.c \
+                                 tests/test_ebb_common.c
+test_ebb_backtrace_LDADD    = libpaf-ebb.la
 
-TESTS                         += test_ppcebb_pmu_multi
-test_ppcebb_pmu_multi_SOURCES  = tests/test_ppcebb_pmu_multi.c \
-                                 tests/test_ppcebb_common.c
-test_ppcebb_pmu_multi_LDADD    = libppcebb.la
+TESTS                         += test_ebb_pmu_multi
+test_ebb_pmu_multi_SOURCES  = tests/test_ebb_pmu_multi.c \
+                                 tests/test_ebb_common.c
+test_ebb_pmu_multi_LDADD    = libpaf-ebb.la
 
 noinst_PROGRAMS = $(TESTS)

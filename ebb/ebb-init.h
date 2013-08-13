@@ -1,5 +1,5 @@
 /*
- * Event-Based Branch Facility Tests.  Test common functions.
+ * Event-Based Branch Facility API.  Per-thread data init.
  *
  * Copyright (c) 2013 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
@@ -11,12 +11,12 @@
  *     IBM Corporation, Adhemerval Zanella - Initial implementation.
  */
 
-#ifndef _TEST_PPCEBB_COMMON_H
-# define _TEST_PPCEBB_COMMON_H
+#ifndef _PPCEBB_INIT_H
+# define _PPCEBB_INIT_H
 
-#include "ppcebb-priv.h"
+#include "ebb-priv.h"
 
-int ebb_check_mmcr0 (void);
-const char *ebb_callback_type_string (ppcebb_callback_type_t type);
+/* Defined if GLIBC allocates the EBB fiels in TCB internal structure.  */
+extern int __ppcebb_use_tcb attribute_hidden;
 
 #endif

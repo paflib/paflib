@@ -14,7 +14,7 @@
 #ifndef _PPCEBB_SYSDEP_H
 # define _PPCEBB_SYSDEP_H
 
-#include "ppcebb-common.h"
+#include "ebb-common.h"
 
 /* Instruction 'rfebb 1' - Return from EBB handler (ISA 2.07).  */
 #define RFEBB1      .long 0x4c000924

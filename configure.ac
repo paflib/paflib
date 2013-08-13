@@ -14,7 +14,7 @@ PPCEBB_SO_VERSION=0:1:0
 
 AC_SUBST(PPCEBB_SO_VERSION)
 
-AC_CONFIG_SRCDIR([ebb/ppcebb.c])
+AC_CONFIG_SRCDIR([ebb/ebb.c])
 
 # We want to prevent building/configuration in the source directory
 if test "`cd $srcdir; /bin/pwd`" = "`/bin/pwd`"; then

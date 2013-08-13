@@ -14,7 +14,7 @@
 #ifndef _PPCEBB_HWCAP_H
 # define _PPCEBB_HWCAP_H
 
-#include "ppcebb-priv.h"
+#include "ebb-priv.h"
 
 #define PPCEBB_FEATURE_HAS_ALTIVEC 0x1
 #define PPCEBB_FEATURE_HAS_EBB     0x2

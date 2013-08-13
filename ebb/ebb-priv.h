@@ -14,8 +14,8 @@
 #ifndef _PPCEBB_PRIV_H
 #define _PPCEBB_PRIV_H
 
-#include "ppcebb.h"
-#include "ppcebb-common.h"
+#include <paf/ebb.h>
+#include "ebb-common.h"
 
 #define attribute_hidden       __attribute__ ((visibility ("hidden")))
 #define attribute_constructor  __attribute__ ((constructor))

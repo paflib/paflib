@@ -17,8 +17,8 @@
 #include <gnu/libc-version.h>
 
 #include "config.h"
-#include "ppcebb-priv.h"
-#include "ppcebb-init.h"
+#include "ebb-priv.h"
+#include "ebb-init.h"
 
 /* Sets if GLIBC supports the EBB fields (handler and context) in the
  * Thread Control Block.  */

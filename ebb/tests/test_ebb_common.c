@@ -13,7 +13,7 @@
 
 #include <stdio.h>
 
-#include "test_ppcebb_common.h"
+#include "test_ebb_common.h"
 
 /* Called outside of the EBB handler to check MMCR0 is sane */
 int

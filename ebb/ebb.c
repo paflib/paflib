@@ -23,10 +23,10 @@
 #include <linux/perf_event.h>
 
 #include "config.h"
-#include "ppcebb.h"
-#include "ppcebb-priv.h"
-#include "ppcebb-callback.h"
-#include "ppcebb-hwcap.h"
+#include <paf/ebb.h>
+#include "ebb-priv.h"
+#include "ebb-callback.h"
+#include "ebb-hwcap.h"
 
 
 /* Per-thread EBB handler information if TCB fields are not available.  */
