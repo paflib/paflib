@@ -1,5 +1,5 @@
-ACLOCAL_AMFLAGS =  -I m4
 AM_CFLAGS = -Wall
+AM_LDFLAGS = -rdynamic
 AM_CPPFLAGS = -I$(top_srcdir)/dsc
 
 nobase_include_HEADERS = paf/dsc.h
@@ -13,6 +13,7 @@ libpaf_dsc_la_SOURCES = init.c \
 			$(include_HEADERS) \
 			$(INTERNAL_INCLUDES)
 libpaf_dsc_la_LIBADD = $(LIBAUXV)
+libpaf_dsc_la_LDFLAGS = -version-info $(LIBPAF_SO_VERSION)
 
 TESTS = test_dsc
 test_dsc_SOURCES = tests/test_dsc.c

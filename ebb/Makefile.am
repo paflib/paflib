@@ -1,8 +1,4 @@
 ## Process this file with automake to produce Makefile.in
-
-# Make sure that when we re-make ./configure, we get the macros we need
-ACLOCAL_AMFLAGS = -I m4
-
 AM_CFLAGS = -Wall
 AM_LDFLAGS = -rdynamic
 AM_CPPFLAGS = -I$(top_srcdir)/ebb
@@ -26,6 +22,7 @@ libpaf_ebb_la_SOURCES += ebb-callback-ppc64.S
 else
 libpaf_ebb_la_SOURCES += ebb-callback-ppc32.S
 endif
+libpaf_ebb_la_LDFLAGS = -version-info $(LIBPAF_SO_VERSION)
 
 man3_MANS = doc/libpaf-ebb.3
 

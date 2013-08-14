@@ -10,9 +10,9 @@ AC_CONFIG_MACRO_DIR([m4])
 
 # Update this value for every release: (A:B:C will map to foo.so.(A-C).C.B)
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
-PPCEBB_SO_VERSION=0:1:0
+LIBPAF_SO_VERSION=0:1:0
 
-AC_SUBST(PPCEBB_SO_VERSION)
+AC_SUBST(LIBPAF_SO_VERSION)
 
 AC_CONFIG_SRCDIR([ebb/ebb.c])
 
@@ -20,6 +20,16 @@ AC_CONFIG_SRCDIR([ebb/ebb.c])
 if test "`cd $srcdir; /bin/pwd`" = "`/bin/pwd`"; then
 	AC_MSG_ERROR([you must configure in a separate build directory])
 fi
+
+# Check for supported platforms (currently only Linux on POWER)
+case "$host_cpu-$host_os" in
+  powerpc64*-linux* | ppc64*-linux* | powerpc32*-linux | ppc32*-linux* )
+    # Supported platforms
+  ;;
+  *)
+    AC_MSG_ERROR([Unsupported architecture/os])
+  ;;
+esac
 
 AC_ARG_ENABLE([debug],
 	      AS_HELP_STRING([--enable-debug],
@@ -53,6 +63,7 @@ fi
 AM_CONDITIONAL([DSC], [test "$enable_dsc" = yes])
 AM_CONDITIONAL([EBB], [test "$enable_ebb" = yes])
 
+# Checkings for libpaf-ebb
 AC_ARG_ENABLE([save-area],
 	      AS_HELP_STRING([--enable-save-area=AREA],
 			     [define the default EBB internal save area\
@@ -65,36 +76,26 @@ elif test $save_area = tls; then
   AC_DEFINE([USE_EBB_TLS], 1, [Define to 1 to force use of __thread vars])
 fi
 
-# Check for supported platforms (currently only Linux on POWER)
-case "$host_cpu-$host_os" in
-  powerpc64*-linux* | ppc64*-linux* | powerpc32*-linux | ppc32*-linux* )
-    # Supported platforms
-  ;;
-  *)
-    AC_MSG_ERROR([Unsupported architecture/os])
-  ;;
-esac
-
 # Check if build is for 32 or 64 bits, Used in Makefile.am to select the
 # callback implementation
-AC_CACHE_CHECK([if GCC sets __powerpc64__], ppcebb_cv_powerpc64, [dnl
+AC_CACHE_CHECK([if GCC sets __powerpc64__], paf_ebb_cv_powerpc64, [dnl
 cat > conftest.c <<EOF
 int foo () {}
 EOF
 if ${CC-cc} $CFLAGS $CPPFLAGS -E -dD conftest.c -o - 2>&1 | \
 grep __powerpc64__ > /dev/null; then
-  ppcebb_cv_powerpc64=yes
+  paf_ebb_cv_powerpc64=yes
 else
-  ppcebb_cv_powerpc64=no
+  paf_ebb_cv_powerpc64=no
 fi
 rm -f conftest*])
-if test $ppcebb_cv_powerpc64 = yes; then
+if test $paf_ebb_cv_powerpc64 = yes; then
   AM_CONDITIONAL(POWERPC64, [true])
 else
   AM_CONDITIONAL(POWERPC64, [false])
 fi
 
-#checkings for libdsc
+# Checkings for libpaf-dsc
 AC_LANG(C)
 
 AC_CHECK_HEADER(pthread.h, [],
