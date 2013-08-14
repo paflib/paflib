@@ -8,7 +8,7 @@
 .\"     IBM Corporation, Adhemerval Zanella - Initial implementation.
 .TH LIBPAF-EBB 2 2013-07-01 "Linux" "Event-Based Branch Library"
 .SH NAME
-libpaf-ebb \- PowerPC Event-Based Branch Library
+libpaf-ebb \- The Power Architecture Facilities Event-Based Branch Library
 .SH SYNOPSIS
 .B #include <paf/ebb.h>
 .sp
@@ -29,10 +29,26 @@ void * "context ", paf_ebb_callback_type_t " type ", int " flags ");
 
 .SH DESCRIPTION
 
-The Event-Based Branch (EBB) facility allows the hardware to branch directly
-to a user space address when certain event occur. It does not require any
-kernel handling besides the its initialization. Only Performance Monitor Unit
-events (PMU) are supported.
+The Power Architecture\(rg Facilities
+.B Event-Based Branch Library
+.RB ( libpaf-ebb )
+is a part of the Power Architecture Facilities Library
+.RB ( PAFLib )
+.
+
+The Event-Based Branch Library provides an easy-to-use framework for using the Power Architecture Event-Based Branch facility
+.RB ( EBB ).
+
+If enabled, the EBB facility generates an
+.I event-based exception
+when a user-specified event occurs, which causes the hardware to branch
+directly to a user-space address (EBB handler). The facility does not require
+any kernel handling besides initialization.  Only Performance Monitor Unit
+(PMU) events are supported.
+
+The Event-Based Branch Library framework registers a proxy-handler with the hardware, on behalf of a user program, so that the program doesn't need to directly control the Power Architecture EBB facility (which would require assembly language instructions and an understanding of the EBB ELF ABI).
+
+The EBB Library proxy-handler will properly stack an ELF ABI EBB exception frame on the user-stack, preserve the current register context in that stack frame, and then pass control to a user registered (thread specific) handler. When the user-space handler has completed its task and returned control to the EBB Library proxy-handler, the proxy-handler will perform the tasks necessary to restore the register context, pop the EBB exception frame, and return control to the process that was interrupted by the event-based exception.
 
 .BR paf_ebb_pmu_init()
 initializes the PMU event generation configuring the hardware
@@ -45,26 +61,31 @@ new groups or use the returned file descriptor from
 .BR paf_ebb_pmu_init
 to associate events in a group.
 
-The EBB is triggered when the PMU counter overflows. To reset it to potentially
+The
+.I event-based exception
+is triggered when the PMU counter overflows. To reset it to potentially
 trigger another event call
 .BR paf_ebb_pmu_reset().
 
-.BR paf_ebb_register_handler() registers the 
+.BR paf_ebb_register_handler()
+registers the user
 .I handler
+.RB ( ebbhandler_t )
 function to be called when the EBB is triggered with the argument
 .I context.
 Common state registers (LR, CR, CTR, XER) are always saved and
 .I type
 specifies which further set of registers will be saved and restored:
 
-.TP 3
-* PPCEBB_CALLBACK_GPR_SAVE: save/restore all General Purpose Registers.
-.TP
-* PPCEBB_CALLBACK_FPR_SAVE: save/restore all General Purpose Registers and all \
-Floating-Point Register.
-.TP
-* PPCEBB_CALLBACK_VRR_SAVE: save/restore all General Purpose Registers, all \
-Floating-Point Register, and all Vector Registers.
+.IP \[bu] 2
+.BR PPCEBB_CALLBACK_GPR_SAVE:
+save/restore all General Purpose Registers.
+.IP \[bu] 
+.BR PPCEBB_CALLBACK_FPR_SAVE:
+save/restore all General Purpose Registers and all Floating-Point Register.
+.IP \[bu]
+.BR PPCEBB_CALLBACK_VRR_SAVE:
+save/restore all General Purpose Registers, all Floating-Point Register, and all Vector Registers.
 .PP
 
 .BR paf_ebb_handler()
@@ -82,11 +103,10 @@ disables EBB triggering.
 returns a file descriptor to be used in group association or -1 case of error.
 
 .BR paf_ebb_register_handler()
-returns the registered handler or EBB_REG_ERR in case of error.
+returns the registered handler or EBB_REG_ERR on error.
 
 .BR paf_ebb_handler()
-returns the previous registerd handler or EBB_REG_ERR case no handler has being
-registered.
+returns the previous registered handler or EBB_REG_ERR if no handler has been registered.
 
 .BR paf_ebb_enable_branches()
 and
@@ -98,3 +118,21 @@ return 0 in case of success or -1 otherwise.
 .TP
 .B ENOSYS
 system does not support EBB facility.
+
+.SH VERSIONS
+The EBB facility is part of Power ISA [category: Server] first appearing in Power ISA 2.07.
+
+Linux support for the EBB facility first appeared in Linux kernel version 3.10.
+
+Support for the ELF EBB ABI first appeared in glibc version 2.18 though the ABI is not runtime incompatible with backporting to earlier glibc versions.
+
+.SH REFERENCES
+.TP
+.B Power ISA\(tm Version 2.07
+.SH REPORTING BUGS
+.PP
+Email bug reports to Adhemerval Zanella <azanella@linux.vnet.ibm.com>.
+.SH AUTHORS
+This manual page was written by Adhemerval Zanella <azanella@linux.vnet.ibm.com> and Ryan S. Arnold <rsa@linux.vnet.ibm.com>.
+
+
