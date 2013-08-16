@@ -123,8 +123,8 @@ if test "x$with_libauxv" != "xno"; then
 else 
 # check for getauxval(), added to glibc in version 2.16.
 AC_CHECK_FUNC(getauxval,
-	      AC_DEFINE([HAVE_GETAUXVAL], 1, [Define if you have glibc getauxval()]),	       ,
-	      AC_MSG_ERROR([getauxval() not found.]))
+	      [AC_DEFINE([HAVE_GETAUXVAL], 1, [Define if you have glibc getauxval()])],
+	      [AC_MSG_ERROR([getauxval() not found.])])
 fi
 
 # Checks for programs
