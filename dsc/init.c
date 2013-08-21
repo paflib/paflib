@@ -1,4 +1,5 @@
 /* libpaf-dsc constructor function. */
+#include <paf/dsc.h>
 
 #include "config.h"
 #include "common.h"
@@ -9,5 +10,5 @@ __attribute__ ((constructor))
 attribute_hidden
 __paf_dsc_init (void)
 {
-  check_dscr_support();
+  paf_dsc_check_support();
 }

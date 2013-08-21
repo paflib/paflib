@@ -2,6 +2,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
+#include <inttypes.h>
 
 #include <paf/dsc.h>
 #include "common.h"
@@ -63,7 +64,7 @@ check_hwcap(void)
       if (!strcmp(base_platform, "power7+"))
         {
           DEBUG("ISA 2.06+ (POWER7+) found");
-          return DSCR_ISA_2_06p_MASK;
+          return DSCR_ISA_2_06P_MASK;
 	}
 
       DEBUG("ISA 2.06 (POWER7) found");

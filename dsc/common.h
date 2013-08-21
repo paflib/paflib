@@ -11,6 +11,4 @@
 #define DEBUG(fmt, args...) do { } while(0)
 #endif
 
-long int check_dscr_support(void);
-
 #endif /* _COMMON_H */

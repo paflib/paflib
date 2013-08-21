@@ -3,6 +3,7 @@
 #include <ucontext.h>
 #include <signal.h>
 #include <pthread.h>
+#include <inttypes.h>
 
 #include <paf/dsc.h>
 #include "config.h"
@@ -40,7 +41,7 @@ typedef enum {
 		mtspr(value, SPRN_DSCR_USER) : mtspr(value, SPRN_DSCR))
 
 /* mask of DSCR features supported  (0 if not supported) */
-static volatile long int dscr_support_mask = -1;
+static volatile uint64_t dscr_support_mask = -1;
 
 static dscr_sprn_t dscr_sprn = SPRN_DSCR_USER;
 
@@ -106,9 +107,8 @@ check_dscr_insn(void)
   return dscr_support_mask;
 }
 
-long int
-attribute_hidden
-check_dscr_support(void)
+uint64_t
+paf_dsc_check_support(void)
 {
   if (dscr_support_mask == -1)
     {
@@ -116,48 +116,50 @@ check_dscr_support(void)
 			(void (*)(void))check_dscr_insn))
 	{ 
 	  perror("Error pthread_once(check_dscr_insn()) failed");
-	  return -1;
+	  return 0;
 	}
-
       /* check if something went wrong when calling check_dscr_insn() and set
-	 errno properly */
+         errno properly */
       if (init_errno != 0)
 	{
 	  errno = init_errno;
-	  return -1;
+	  return 0;
 	}
     }
 
+  if (dscr_support_mask == 0)
+      errno = ENOSYS;
+      
   return dscr_support_mask;
 }
 
-long int paf_dsc_get(void)
+int
+paf_dsc_get(uint64_t *dscr)
 {
-  unsigned long int dscr;
-
   if (!dscr_support_mask)
     {
       errno = ENOSYS;
       return -1;
     }
 
-  dscr = mfspr_dscr(dscr_sprn);
+  *dscr = mfspr_dscr(dscr_sprn);
 
-  DEBUG("get 0x%lx", dscr);
-  return dscr;
+  DEBUG("get 0x%lx", *dscr);
+  return 0;
 }
 
-int paf_dsc_set(unsigned long dscr)
+int
+paf_dsc_set(uint64_t dscr)
 {
   /* check whether DSCR support is available */
-  if (!dscr_support_mask)
+  if (dscr_support_mask == 0)
     {
       errno = ENOSYS;
       return -1;
     }
 
   /* check whether the value to be set in DSCR is supported in this machine */
-  if (dscr_support_mask == 0 || (dscr | dscr_support_mask) != dscr_support_mask)
+  if ((dscr | dscr_support_mask) != dscr_support_mask)
     {
       DEBUG("Cannot set dscr 0x%lx (supported mask 0x%lx)", dscr, dscr_support_mask);
       errno = EINVAL;
