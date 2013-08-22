@@ -4,6 +4,7 @@
 #include <signal.h>
 #include <pthread.h>
 #include <inttypes.h>
+#include <stdlib.h>
 
 #include <paf/dsc.h>
 #include "config.h"
@@ -41,7 +42,7 @@ typedef enum {
 		mtspr(value, SPRN_DSCR_USER) : mtspr(value, SPRN_DSCR))
 
 /* mask of DSCR features supported  (0 if not supported) */
-static volatile uint64_t dscr_support_mask = -1;
+static volatile uint64_t *dscr_support_mask = NULL;
 
 static dscr_sprn_t dscr_sprn = SPRN_DSCR_USER;
 
@@ -56,7 +57,7 @@ sigill_callback(int sig, siginfo_t *si, void *ctx)
   ucontext_t *uctx = (ucontext_t*)(ctx);
   DEBUG("Caught signal %d. No DSCR support available in kernel using SPR %d", sig, dscr_sprn);
   /* set dscr_support_mask as support unavailable */
-  dscr_support_mask = 0;
+  *dscr_support_mask = 0;
   /* manually increment PC register in order to step over the illegal insn */
   uctx->uc_mcontext.regs->nip += PPC_INSN_LEN;
 }
@@ -75,16 +76,16 @@ check_dscr_insn(void)
     {
       /* dscr_support_mask will be used to check if mfspr insn does not sigill.
          Marking as support available initially.  */
-      dscr_support_mask = 1;
+      *dscr_support_mask = 1;
       /* try to issue a simple get dscr using non privileged SPR */
       dscr_sprn = SPRN_DSCR_USER;
       mfspr(SPRN_DSCR_USER);
 
       /* check if the previous mfspr was unsuccessful (i.e., SIGILLed) */
-      if (dscr_support_mask == 0)
+      if (*dscr_support_mask == 0)
 	{
 	  /* if unsuccessful, try using the former (privileged) SPR */
-	  dscr_support_mask = 1;
+	  *dscr_support_mask = 1;
 	  dscr_sprn = SPRN_DSCR;
 	  mfspr(SPRN_DSCR);
 	}
@@ -93,50 +94,54 @@ check_dscr_insn(void)
       sigaction(SIGILL, &old_sa, NULL);
 
       /* if the insn is not illegal, check for hw supported features */
-      if (dscr_support_mask != 0)
-        dscr_support_mask = check_hwcap();
+      if (*dscr_support_mask != 0)
+        *dscr_support_mask = check_hwcap();
     }
   else
     {
       perror("Cannot set signal handler to check dscr support.\n");
-      dscr_support_mask = 0;
+      *dscr_support_mask = 0;
       init_errno = ENOSYS;
       return -1;
     }
 
-  return dscr_support_mask;
+  return 0;
 }
 
 uint64_t
 paf_dsc_check_support(void)
 {
-  if (dscr_support_mask == -1)
+  if (dscr_support_mask == NULL)
     {
+      dscr_support_mask = (uint64_t *)malloc(sizeof(uint64_t));
       if (pthread_once (&check_dscr_once_control,
 			(void (*)(void))check_dscr_insn))
 	{ 
 	  perror("Error pthread_once(check_dscr_insn()) failed");
+	  *dscr_support_mask = 0;
+	  errno = ENOSYS;
 	  return 0;
 	}
       /* check if something went wrong when calling check_dscr_insn() and set
          errno properly */
       if (init_errno != 0)
 	{
+	  *dscr_support_mask = 0;
 	  errno = init_errno;
 	  return 0;
 	}
     }
 
-  if (dscr_support_mask == 0)
+  if (*dscr_support_mask == 0)
       errno = ENOSYS;
       
-  return dscr_support_mask;
+  return *dscr_support_mask;
 }
 
 int
 paf_dsc_get(uint64_t *dscr)
 {
-  if (!dscr_support_mask)
+  if (*dscr_support_mask == 0)
     {
       errno = ENOSYS;
       return -1;
@@ -152,16 +157,16 @@ int
 paf_dsc_set(uint64_t dscr)
 {
   /* check whether DSCR support is available */
-  if (dscr_support_mask == 0)
+  if (*dscr_support_mask == 0)
     {
       errno = ENOSYS;
       return -1;
     }
 
   /* check whether the value to be set in DSCR is supported in this machine */
-  if ((dscr | dscr_support_mask) != dscr_support_mask)
+  if ((dscr | *dscr_support_mask) != *dscr_support_mask)
     {
-      DEBUG("Cannot set dscr 0x%lx (supported mask 0x%lx)", dscr, dscr_support_mask);
+      DEBUG("Cannot set dscr 0x%lx (supported mask 0x%lx)", dscr, *dscr_support_mask);
       errno = EINVAL;
       return -1;
     }
