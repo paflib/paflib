@@ -15,6 +15,8 @@ libpaf_dsc_la_SOURCES = init.c \
 libpaf_dsc_la_LIBADD = $(LIBAUXV)
 libpaf_dsc_la_LDFLAGS = -version-info $(LIBPAF_SO_VERSION)
 
+man3_MANS = doc/libpaf-dsc.3
+
 TESTS = test_dsc
 test_dsc_SOURCES = tests/test_dsc.c
 test_dsc_LDADD = libpaf-dsc.la

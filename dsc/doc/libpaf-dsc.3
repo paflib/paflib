@@ -1,0 +1,158 @@
+.TH LIBPAF-DSC 2 2013-08-13 "Linux" "Data Stream Control Library"
+.SH NAME
+libpaf-dsc \- The Power Architecture Facilities Data Stream Control Library
+.SH SYNOPSIS
+.B #include <paf/dsc.h>
+.sp
+.BI "uint64_t paf_dsc_check_support(void);
+.sp
+.BI "int paf_dsc_get(uint64_t " *dscr ");
+.sp
+.BI "int paf_dsc_set(uint64_t " dscr ");
+
+.SH DESCRIPTION
+
+The Power Architecture\(rg Facilities
+.B Data Stream Control Library
+.RB ( libpaf-dsc )
+is a part of the Power Architecture Facilities Library
+.RB ( PAFLib )
+.
+
+The Data Stream Control Library provides a mechanism to interact with the Data
+Stream Control Register
+.RB ( DSCR )
+available on Power Architecture.
+
+The function
+.BR paf_dsc_check_support()
+checks the supported DSCR features, returning a bitmap of flags from the
+following list.
+
+These are features supported by Power ISA 2.05:
+.TP
+.BR DSCR_DPFD(val)
+Default Prefetch Depth.
+.TP
+.BR DSCR_SSE
+Store Stream Enable.
+
+.PP
+These features were added on Power ISA 2.06:
+.TP
+.BR DSCR_SNSE
+Stride-N Stream Enable.
+.TP
+.BR DSCR_LSD
+Load Stream Disable.
+
+.PP
+The following was added on Power ISA 2.07+:
+.TP
+.BR DSCR_URG(val)
+Depth Attainment Urgency.
+
+.PP
+These are supported only on Power ISA 2.07:
+.TP
+.BR DSCR_UNITCNT(val)
+Number of units in data stream.
+.TP
+.BR DSCR_HWUE
+Hardware Unit count Enable.
+.TP
+.BR DSCR_SWUE
+Software Unit count Enable.
+.TP
+.BR DSCR_LTE
+Load Transient Enable.
+.TP
+.BR DSCR_STE
+Software Transient Enable.
+.TP
+.BR DSCR_HTE
+Hardware Transient Enable.
+.TP
+.BR DSCR_SWTE
+Software Transient Enable. 
+
+.PP
+The function
+.BR paf_dsc_get()
+retrieves the current DSCR value and copies to
+.I *dscr
+.
+
+The function
+.BR paf_dsc_set()
+sets the current DSCR value to
+.I dscr
+.
+
+.SH RETURN VALUE
+.BR paf_dsc_check_support()
+returns a bitmask with the value of Data Stream Control Register or 0 if
+unsupported.
+
+.BR paf_dsc_get()
+return 0 in case of success or -1 otherwise.
+
+.BR paf_dsc_set()
+return 0 in case of success or -1 otherwise.
+
+.SH ERRORS
+.TP
+.B ENOSYS
+if the system does not support DSCR facility.
+
+.SH EXAMPLES
+.BD -literal
+#include <inttypes.h>
+#include <paf/dsc.h>
+
+int main(void)
+{
+        uint64_t dscr, dscr_support;
+
+        assert((dscr_support = paf_dsc_check_support()) > 0);
+
+        /* Check if the system supports DSCR_SSE */
+        if ((dscr_support | DSCR_SSE) == dscr_support)
+          {
+            assert(paf_dsc_get(&dscr) == 0);
+            assert(paf_dsc_get(dscr | DSCR_SSE) == 0);
+          }
+        return 0;
+}
+.ED
+
+.SH NOTES
+In order to check if the DSCR instructions are supported by the kernel, the
+library uses a signal handler for SIGILL during its initialization.
+
+.SH VERSIONS
+The Data Stream Control Register (DSCR) [Category: Stream] is a Power
+Architecture hardware facility available since Power ISA 2.05 as
+privileged-state, and ISA 2.07 as problem-state, that affects how the processor
+handles hardware-detected and software-defined data streams.
+
+DSCR emulation on pre-ISA 2.07 hardware is provided in Linux Kernel 3.10-cr1.
+DSCR problem-state availability is exported in Linux Kernel 3.10-rc1.
+
+.SH REFERENCES
+.TP
+.B Power ISA\(tm Version 2.05
+.TP
+.B Power ISA\(tm Version 2.06
+.TP
+.B Power ISA\(tm Version 2.06+
+.TP
+.B Power ISA\(tm Version 2.07
+
+.SH REPORTING BUGS
+.PP
+Email bug reports to Edjunior B. Machado <emachado@linux.vnet.ibm.com>.
+.SH AUTHORS
+This manual page was written by Edjunior B. Machado <emachado@linux.vnet.ibm.com> and Ryan S. Arnold <rsa@linux.vnet.ibm.com>.
+
+
