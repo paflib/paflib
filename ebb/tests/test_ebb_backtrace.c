@@ -69,8 +69,8 @@ ebb_handler_backtrace (void *context)
 
   /* Check if the function names make sense, the backtrace expected is:
      test_paf_ebb_backtrace : ebb_handler_backtrace
-     libebb.so             : internal symbol (__paf_ebb_ebb_hook)
-     libebb.so             : internal symbol (__paf_ebb_callback_handler_gpr
+     libpaf-ebb.so          : internal symbol (__paf_ebb_ebb_hook)
+     libpaf-ebb.so          : internal symbol (__paf_ebb_callback_handler_gpr
      test_paf_ebb_backtrce  : ebb_test_backtrace
      libc.so ...
    */
@@ -80,8 +80,8 @@ ebb_handler_backtrace (void *context)
 	__FUNCTION__, symbols[0], "ebb_handler_backtrace");
       exit (EXIT_FAILURE);
     }
-  if (!match_lib (symbols[1], "libpaf_ebb.so") ||
-      !match_lib (symbols[2], "libpaf_ebb.so"))
+  if (!match_lib (symbols[1], "libpaf-ebb.so") ||
+      !match_lib (symbols[2], "libpaf-ebb.so"))
     {
       fprintf (stderr, "%s: symbol[1] (%s) and symbol[2] (%s) "
         "does not math %s\n", __FUNCTION__, symbols[1], symbols[2],
