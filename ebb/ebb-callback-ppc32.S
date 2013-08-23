@@ -37,11 +37,13 @@
  *   r1 + STACK_OFFSET+16:144    |  GRP r0,r3-r31
  *   r1 + STACK_OFFSET+12        |  XER
  *   r1 + STACK_OFFSET+8         |  CTR
- *   r1 + STACK_OFFSET+4         |  CR
- *   r1 + STACK_OFFSET           |  LR
+ *   r1 + STACK_OFFSET+4         |  LR
+ *   r1 + STACK_OFFSET           |  CCR
  */
 
-#define CCR_SAVE        (0)
+#define CALLER_FRAME    16
+
+#define CCR_SAVE        (CALLER_FRAME)
 #define CCR_SIZE        (4)
 #define LR_SAVE         (CCR_SAVE + CCR_SIZE)
 #define LR_SIZE         (4)
@@ -129,19 +131,19 @@
 /* Save status registers.  */
 #define SAVE_SPEC_REG                                              \
   mflr     r0;                                                     \
-  std      r0, LR_SAVE(r1);                                        \
+  stw      r0, LR_SAVE(r1);                                        \
   mfcr     r0;                                                     \
-  std      r0, CCR_SAVE(r1);                                       \
+  stw      r0, CCR_SAVE(r1);                                       \
   mfxer    r0;                                                     \
-  std      r0, XER_SAVE(r1);
+  stw      r0, XER_SAVE(r1);
 
 /* Restore state registers.  */
 #define RESTORE_SPEC_REG                                           \
-  ld       r0, LR_SAVE(r1);                                        \
+  lwz      r0, LR_SAVE(r1);                                        \
   mtlr     r0;                                                     \
-  ld       r0, CCR_SAVE(r1);                                       \
+  lwz      r0, CCR_SAVE(r1);                                       \
   mtcr     r0;                                                     \
-  ld       r0, XER_SAVE(r1);                                       \
+  lwz      r0, XER_SAVE(r1);                                       \
   mtxer    r0;
 
 /* Save all Floating-Point Registers (FPR).  */
@@ -503,7 +505,7 @@
   bl       __paf_ebb_ebb_hook;
 
 
-#define STACK_FRAME_GPR  (CCR_SIZE + LR_SIZE + XER_SIZE + GPR_SIZE)
+#define STACK_FRAME_GPR  (CALLER_FRAME + CCR_SIZE + LR_SIZE + XER_SIZE + GPR_SIZE)
 
 ENTRY(__paf_ebb_callback_handler_gpr)
   stwu  r1,-STACK_FRAME_GPR(r1)
