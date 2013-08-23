@@ -46,7 +46,7 @@ int main(void)
 	}
       if ((dscr & DSCR_DPFD(DSCR_DPFD_MAX)) != DSCR_DPFD(DSCR_DPFD_MAX))
 	{
-	  fprintf(stderr, "DSCR_DPFD(DSCR_DPFD_MAX) not set (returned 0x%lx).\n", dscr);
+	  fprintf(stderr, "DSCR_DPFD(DSCR_DPFD_MAX) not set (returned 0x%" PRIx64 ").\n", dscr);
 	  return -1;
 	}
     }
@@ -67,7 +67,7 @@ int main(void)
 	}
       if ((dscr & DSCR_LSD) != DSCR_LSD)
 	{
-	  fprintf(stderr, "DSCR_LSD not set (returned 0x%lx).\n", dscr);
+	  fprintf(stderr, "DSCR_LSD not set (returned 0x%" PRIx64 ").\n", dscr);
 	  return -1;
 	}
     }
@@ -89,7 +89,7 @@ int main(void)
 	}
       if ((dscr & DSCR_URG(7)) != DSCR_URG(7))
 	{
-	  fprintf(stderr, "DSCR_URG not set (returned 0x%lx).\n", dscr);
+	  fprintf(stderr, "DSCR_URG not set (returned 0x%" PRIx64 ").\n", dscr);
 	  return -1;
 	}
     }
@@ -111,7 +111,7 @@ int main(void)
 	}
       if ((dscr & DSCR_HWUE) != DSCR_HWUE)
 	{
-	  fprintf(stderr, "DSCR_HWUE not set (returned 0x%lx).\n", dscr);
+	  fprintf(stderr, "DSCR_HWUE not set (returned 0x%" PRIx64 ").\n", dscr);
 	  return -1;
 	}
     }
@@ -129,7 +129,7 @@ int main(void)
     }
   if (dscr != 0)
     {
-      fprintf(stderr, "DSCR is not fully disabled (returned 0x%lx).\n", dscr);
+      fprintf(stderr, "DSCR is not fully disabled (returned 0x%" PRIx64 ").\n", dscr);
       return -1;
     }
 

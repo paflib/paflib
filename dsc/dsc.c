@@ -34,8 +34,9 @@ typedef enum {
 		mfspr(SPRN_DSCR_USER) : mfspr(SPRN_DSCR))
 
 #define mtspr(value, SPRN) \
-	({ asm volatile("mtspr " __stringify(SPRN) ",%0"	\
-			 : : "r" (value));	\
+	({ unsigned long int __value = value;			\
+	   asm volatile("mtspr " __stringify(SPRN) ",%0"	\
+			 : : "r" (__value));	\
 	})
 
 #define mtspr_dscr(value, rn)	(rn == SPRN_DSCR_USER ? \
@@ -149,7 +150,7 @@ paf_dsc_get(uint64_t *dscr)
 
   *dscr = mfspr_dscr(dscr_sprn);
 
-  DEBUG("get 0x%lx", *dscr);
+  DEBUG("get 0x%" PRIx64, *dscr);
   return 0;
 }
 
@@ -166,12 +167,12 @@ paf_dsc_set(uint64_t dscr)
   /* check whether the value to be set in DSCR is supported in this machine */
   if ((dscr | *dscr_support_mask) != *dscr_support_mask)
     {
-      DEBUG("Cannot set dscr 0x%lx (supported mask 0x%lx)", dscr, *dscr_support_mask);
+      DEBUG("Cannot set dscr 0x%" PRIx64 " (supported mask 0x%" PRIx64 ")", dscr, *dscr_support_mask);
       errno = EINVAL;
       return -1;
     }
 
-  DEBUG("set 0x%lx", dscr);
+  DEBUG("set 0x%" PRIx64, dscr);
   mtspr_dscr(dscr, dscr_sprn);
 
   return 0;
