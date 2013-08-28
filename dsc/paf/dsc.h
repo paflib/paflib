@@ -3,53 +3,84 @@
 
 #include <inttypes.h>
 
-/* Default Prefetch Depth max value */
-#define DSCR_DPFD_MAX	7
-/* Default Prefetch Depth mask */
-#define DSCR_DPFD(val) (val & DSCR_DPFD_MAX)
-#define DSCR_DPFD_UNMASK(val) (val & DSCR_DPFD_MAX)
-/* Store Stream Enable */
-#define DSCR_SSE   (1 << 3)
-/* Bitmask of features supported by Power ISA 2.05 (Power6) */
-#define DSCR_ISA_2_05_MASK	(DSCR_SSE | DSCR_DPFD(DSCR_DPFD_MAX))
+/* Power ISA 2.05 (Power6) Features */
 
-/* Stride-N Stream Enable */
-#define DSCR_SNSE  (1 << 4)
-/* Load Stream Disable */
-#define DSCR_LSD   (1 << 5)
-/* Bitmask of features supported by Power ISA 2.06 (Power7) */
-#define DSCR_ISA_2_06_MASK	(DSCR_ISA_2_05_MASK | DSCR_SNSE | DSCR_LSD)
+/* Default Prefetch Depth max value */
+#define DSCR_DPFD_MAX			7
+/* Default Prefetch Depth mask */
+#define DSCR_DPFD_MASK			DSCR_DPFD_MAX
+/* Macros to get/set Default Prefetch Depth field */
+#define DSCR_DPFD_GET(dscr)		(dscr & DSCR_DPFD_MAX)
+#define DSCR_DPFD_SET(dscr, value)	((dscr & ~DSCR_DPFD_MASK) | \
+					 (value & DSCR_DPFD_MAX))
+
+/* Store Stream Enable bit */
+#define DSCR_SSE			(1L << 3)
+
+/* Bitmask of features supported by Power ISA */
+#define DSCR_ISA_2_05_MASK		(DSCR_SSE | DSCR_DPFD_MASK)
+
+/* Power ISA 2.06 (Power7) Features */
+
+/* Stride-N Stream Enable bit */
+#define DSCR_SNSE			(1L << 4)
+
+/* Load Stream Disable bit */
+#define DSCR_LSD			(1L << 5)
+
+/* Bitmask of features supported by Power ISA 2.06 */
+#define DSCR_ISA_2_06_MASK		(DSCR_ISA_2_05_MASK | DSCR_SNSE | \
+					 DSCR_LSD)
+
+/* Power ISA 2.06+ (Power7) Features */
 
 /* Depth Attainment Urgency max value */
-#define DSCR_URG_MAX	7
+#define DSCR_URG_MAX			7
 /* Depth Attainment Urgency mask */
-#define DSCR_URG(val) ((val & DSCR_URG_MAX) << 6)
-#define DSCR_URG_UNMASK(val) ((val >> 6) & DSCR_URG_MAX)
-/* Bitmask of features supported by Power ISA 2.06+ (Power7+) */
-#define DSCR_ISA_2_06P_MASK	(DSCR_ISA_2_06_MASK | DSCR_URG(DSCR_URG_MAX))
+#define DSCR_URG_MASK			(DSCR_URG_MAX << 6)
+/* Macros to get/set Depth Attainment Urgency field */
+#define DSCR_URG_GET(dscr)		((dscr & DSCR_URG_MASK) >> 6)
+#define DSCR_URG_SET(dscr, value)	((dscr & ~DSCR_URG_MASK) | \
+					 ((value & DSCR_URG_MAX) << 6))
+
+/* Bitmask of features supported by Power ISA 2.06+ */
+#define DSCR_ISA_2_06P_MASK		(DSCR_ISA_2_06_MASK | \
+					 DSCR_URG_MASK)
+
+/* Power ISA 2.07 (Power8) Features */
 
 /* Number of units in data stream max value*/
-#define DSCR_UNITCNT_MAX	1023
-/* Number of units in data stream */
-#define DSCR_UNITCNT(val)	((val & DSCR_UNITCNT_MAX) << 9)
-#define DSCR_UNITCNT_UNMASK(val)	((val >> 9) && DSCR_UNITCNT_MAX)
+#define DSCR_UNITCNT_MAX		1023
+/* Number of units in data stream mask */
+#define DSCR_UNITCNT_MASK		(DSCR_UNITCNT_MAX << 9)
+/* Macros to get/set number of units in data stream field */
+#define DSCR_UNITCNT_GET(dscr)		((dscr & DSCR_UNITCNT_MASK) >> 9)
+#define DSCR_UNITCNT_SET(dscr, value)	((dscr & ~DSCR_UNITCNT_MASK) | \
+					 ((value & DSCR_UNITCNT_MAX) << 9))
+
 /* Hardware Unit count Enable */
-#define DSCR_HWUE	(1 << 19)
+#define DSCR_HWUE	(1L << 19)
+
 /* Software Unit count Enable */
-#define DSCR_SWUE	(1 << 20)
+#define DSCR_SWUE	(1L << 20)
+
 /* Load Transient Enable */
-#define DSCR_LTE	(1 << 21)
+#define DSCR_LTE	(1L << 21)
+
 /* Store Transient Enable */
-#define DSCR_STE	(1 << 22)
+#define DSCR_STE	(1L << 22)
+
 /* Hardware Transient Enable */
-#define DSCR_HWTE	(1 << 23)
+#define DSCR_HWTE	(1L << 23)
+
 /* Software Transient Enable */
-#define DSCR_SWTE	(1 << 24)
-/* Bitmask of features supported by Power ISA 2.07 (Power8) */
-#define DSCR_ISA_2_07_MASK	(DSCR_ISA_2_06P_MASK | \
-				 DSCR_UNITCNT(DSCR_UNITCNT_MAX) | DSCR_HWUE | \
-				 DSCR_SWUE | DSCR_LTE | DSCR_STE | \
-				 DSCR_HWTE | DSCR_SWTE)
+#define DSCR_SWTE	(1L << 24)
+
+/* Bitmask of features supported by Power ISA 2.07 */
+#define DSCR_ISA_2_07_MASK		(DSCR_ISA_2_06P_MASK | \
+					 DSCR_UNITCNT_MASK | DSCR_HWUE | \
+					 DSCR_SWUE | DSCR_LTE | DSCR_STE | \
+					 DSCR_HWTE | DSCR_SWTE)
 
 /* Returns the bitmask of the current DSCR supported features. If unsupported,
    it returns 0 and errno is set to ENOSYS (DSCR support not available). */
