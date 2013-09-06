@@ -1,7 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 AM_CFLAGS = -Wall
 AM_LDFLAGS = -rdynamic
-AM_CPPFLAGS = -I$(top_srcdir)/ebb
+AM_CPPFLAGS = -I$(top_srcdir)/common -I$(top_srcdir)/ebb
 
 nobase_include_HEADERS = paf/ebb.h
 LIBPPCEBB_PRIVATE_INCLUDE = ebb-callback.h \

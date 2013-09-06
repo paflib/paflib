@@ -30,12 +30,8 @@
 #define _PAF_EBB_PRIV_H
 
 #include <paf/ebb.h>
+#include "paf-common.h"
 #include "ebb-common.h"
-
-#define attribute_hidden       __attribute__ ((visibility ("hidden")))
-#define attribute_constructor  __attribute__ ((constructor))
-#define attribute_initial_exec __attribute__ ((tls_model ("initial-exec")))
-#define attribute_noinline     __attribute__ ((noinline))
 
 #ifdef __powerpc64__
 # define LOAD_INST        "ld"
@@ -52,9 +48,6 @@
 # define EBB_CTX_POINTER  (-28696)
 # define EBB_FLAGS        (-28692)
 #endif
-
-typedef unsigned long int spr_t;
-
 
 /* EBB per-thread information to use where TCB fields are not available.  */
 struct ebb_thread_info_t
@@ -105,7 +98,6 @@ void __paf_ebb_set_thread_handler (ebbhandler_t handler)
       __paf_ebb_thread_info.handler = handler;
     }
 }
-
 
 static inline
 __attribute__((always_inline))
@@ -173,20 +165,6 @@ void __paf_ebb_set_thread_flags (int flags)
       __paf_ebb_thread_info.flags = flags;
     }
 }
-
-
-#define __stringify_1(x)	#x
-#define __stringify(x)		__stringify_1(x)
-
-#define mfspr(rn)				\
-  ({spr_t spr; 					\
-    asm volatile("mfspr %0," __stringify(rn)	\
-                 : "=r" (spr));			\
-    spr;					\
-  })
-#define mtspr(rn, v)				\
-  asm volatile("mtspr " __stringify(rn) ",%0"	\
-	       : : "r" (v))
 
 static inline
 __attribute__((always_inline))
