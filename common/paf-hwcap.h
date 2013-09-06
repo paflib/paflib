@@ -24,6 +24,14 @@
 # define PPC_FEATURE2_HAS_EBB    0x10000000
 #endif
 
-int __paf_get_hwcap (uint32_t *hwcap1, uint32_t *hwcap2) attribute_hidden;
+struct hwcap_t
+{
+  uint32_t hwcap1;
+  uint32_t hwcap2;
+#define PAFPLATLEN 64
+  char     platform[PAFPLATLEN];
+};
+
+int __paf_get_hwcap (struct hwcap_t *hwcap) attribute_hidden;
 
 #endif

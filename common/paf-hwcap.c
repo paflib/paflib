@@ -11,6 +11,7 @@
  *     IBM Corporation, Adhemerval Zanella - Initial implementation.
  */
 
+#include <string.h>
 #include <fcntl.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -30,9 +31,10 @@
 
 /*#define __USE_ENVIRON*/
 
-int
-attribute_hidden
-__paf_get_hwcap (uint32_t *hwcap1, uint32_t *hwcap2)
+typedef void (*auxv_callback)(ElfW(auxv_t) *, void *);
+
+static inline int
+__paf_walk_auxv (auxv_callback callback, void *arg)
 {
   ElfW(auxv_t) *auxv;
   int i;
@@ -65,22 +67,33 @@ __paf_get_hwcap (uint32_t *hwcap1, uint32_t *hwcap2)
 #endif
 
   for (i=0; auxv[i].a_type != AT_NULL; ++i)
-    {
-      if (auxv[i].a_type == AT_HWCAP)
-	{
-	  if (hwcap1)
-	    *hwcap1 = auxv[i].a_un.a_val;
-	}
-      else if (auxv[i].a_type == AT_HWCAP2)
-	{
-	  if (hwcap2)
-	    *hwcap2 = auxv[i].a_un.a_val;
-	}
-    }
+    callback (&auxv[i], arg);
 
 #ifndef __USE_ENVIRON
   free (auxv);
 #endif
 
+  return 0;
+}
+
+
+static void
+__paf_get_hwcap_callback (ElfW(auxv_t) *auxv, void *arg)
+{
+  struct hwcap_t *hwcap = (struct hwcap_t*)(arg);
+  if (auxv->a_type == AT_HWCAP)
+    hwcap->hwcap1 = auxv->a_un.a_val;
+  else if (auxv->a_type == AT_HWCAP2)
+    hwcap->hwcap2 = auxv->a_un.a_val;
+  else if (auxv->a_type == AT_BASE_PLATFORM)
+    strncpy (hwcap->platform, (const char*)(auxv->a_un.a_val), PAFPLATLEN);
+}
+
+int
+attribute_hidden
+__paf_get_hwcap (struct hwcap_t *hwcap)
+{
+  if (__paf_walk_auxv (__paf_get_hwcap_callback, (void*)(hwcap)) != 0)
+    return 1;
   return 0;
 }

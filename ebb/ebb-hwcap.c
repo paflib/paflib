@@ -52,16 +52,16 @@ attribute_hidden
 attribute_constructor
 __paf_ebb_init_hwcap (void)
 {
-  uint32_t hwcap1, hwcap2;
+  struct hwcap_t hwcap;
 
-  if (__paf_get_hwcap (&hwcap1, &hwcap2) != 0)
+  if (__paf_get_hwcap (&hwcap) != 0)
     {
       /* TODO: print error */
       return;
     }
 
-  __paf_ebb_hwcap |= (hwcap1 & PPC_FEATURE_HAS_ALTIVEC) ?
+  __paf_ebb_hwcap |= (hwcap.hwcap1 & PPC_FEATURE_HAS_ALTIVEC) ?
                    PAF_EBB_FEATURE_HAS_ALTIVEC : 0;
-  __paf_ebb_hwcap |= (hwcap2 & PPC_FEATURE2_HAS_EBB) ?
+  __paf_ebb_hwcap |= (hwcap.hwcap2 & PPC_FEATURE2_HAS_EBB) ?
                    PAF_EBB_FEATURE_HAS_EBB : 0;
 }
