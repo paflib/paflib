@@ -1,6 +1,6 @@
 AM_CFLAGS = -Wall
 AM_LDFLAGS = -rdynamic
-AM_CPPFLAGS = -I$(top_srcdir)/dsc
+AM_CPPFLAGS = -I$(top_srcdir)/common -I$(top_srcdir)/dsc
 
 nobase_include_HEADERS = paf/dsc.h
 INTERNAL_INCLUDES = hwcap.h \

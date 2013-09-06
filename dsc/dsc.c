@@ -35,6 +35,7 @@
 #include <stdlib.h>
 
 #include <paf/dsc.h>
+#include "paf-common.h"
 #include "config.h"
 #include "common.h"
 #include "hwcap.h"
@@ -43,32 +44,17 @@
 #define PPC_INSN_LEN	4
 /* SPR number used for DSCR */
 typedef enum {
-	SPRN_DSCR_USER = 0x03,
+  SPRN_DSCR_USER = 0x03,
 #define SPRN_DSCR_USER 0x03
-	SPRN_DSCR = 0x11
+  SPRN_DSCR = 0x11
 #define SPRN_DSCR 0x11
 } dscr_sprn_t;
 
-#define __stringify(x)        #x
+#define mfspr_dscr(rn) \
+  (rn == SPRN_DSCR_USER ? mfspr(SPRN_DSCR_USER) : mfspr(SPRN_DSCR))
 
-#define mfspr(SPRN)	\
-	({ unsigned long int value;		\
-	   asm volatile("mfspr %0," __stringify(SPRN)	\
-			 : "=r" (value));	\
-	   value;				\
-	})
-
-#define mfspr_dscr(rn)	(rn == SPRN_DSCR_USER ? \
-		mfspr(SPRN_DSCR_USER) : mfspr(SPRN_DSCR))
-
-#define mtspr(value, SPRN) \
-	({ unsigned long int __value = value;			\
-	   asm volatile("mtspr " __stringify(SPRN) ",%0"	\
-			 : : "r" (__value));	\
-	})
-
-#define mtspr_dscr(value, rn)	(rn == SPRN_DSCR_USER ? \
-		mtspr(value, SPRN_DSCR_USER) : mtspr(value, SPRN_DSCR))
+#define mtspr_dscr(rn, value) \
+  (rn == SPRN_DSCR_USER ? mtspr(SPRN_DSCR_USER, value) : mtspr(SPRN_DSCR, value))
 
 /* mask of DSCR features supported  (0 if not supported) */
 static volatile uint64_t *dscr_support_mask = NULL;
@@ -201,7 +187,7 @@ paf_dsc_set(uint64_t dscr)
     }
 
   DEBUG("set 0x%" PRIx64, dscr);
-  mtspr_dscr(dscr, dscr_sprn);
+  mtspr_dscr(dscr_sprn, dscr);
 
   return 0;
 }
