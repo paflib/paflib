@@ -1,5 +1,5 @@
 /*
- * Event-Based Branch Facility API. Private definitions.
+ * PAFlib common definitions.
  *
  * Copyright (c) 2013 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
