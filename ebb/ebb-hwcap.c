@@ -60,8 +60,6 @@ __paf_ebb_init_hwcap (void)
       return;
     }
 
-  __paf_ebb_hwcap |= (hwcap.hwcap1 & PPC_FEATURE_HAS_ALTIVEC) ?
-                   PAF_EBB_FEATURE_HAS_ALTIVEC : 0;
   __paf_ebb_hwcap |= (hwcap.hwcap2 & PPC_FEATURE2_HAS_EBB) ?
-                   PAF_EBB_FEATURE_HAS_EBB : 0;
+                     PAF_EBB_FEATURE_HAS_EBB : 0;
 }

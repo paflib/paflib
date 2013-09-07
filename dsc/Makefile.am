@@ -4,14 +4,16 @@ AM_CPPFLAGS = -I$(top_srcdir)/common -I$(top_srcdir)/dsc
 
 nobase_include_HEADERS = paf/dsc.h
 INTERNAL_INCLUDES = hwcap.h \
-			common.h
+                    common.h
 
 lib_LTLIBRARIES = libpaf-dsc.la
+LIBPPCEBB_COMMON_SOURCES = $(top_srcdir)/common/paf-hwcap.c
 libpaf_dsc_la_SOURCES = init.c \
-			dsc.c \
-			hwcap.c \
-			$(include_HEADERS) \
-			$(INTERNAL_INCLUDES)
+                        dsc.c \
+                        hwcap.c \
+                        $(include_HEADERS) \
+                        $(INTERNAL_INCLUDES) \
+                        $(LIBPPCEBB_COMMON_SOURCES)
 libpaf_dsc_la_LIBADD = $(LIBAUXV)
 libpaf_dsc_la_LDFLAGS = -version-info $(LIBPAF_SO_VERSION)
 

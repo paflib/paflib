@@ -110,30 +110,6 @@ AC_CHECK_HEADER(pthread.h, [],
 AC_CHECK_LIB([pthread], [pthread_create], [],
     AC_MSG_ERROR([pthread_create() not found.  libppsdsc requires libpthread.]))
 
-# libauxv disabled by default
-AC_ARG_WITH([libauxv],
-	    AS_HELP_STRING([--with-libauxv],
-			   [enable support for libauxv]),
-	    [if test "x$enableval" = "xyes"; then
-	      AC_DEFINE([WITH_LIBAUXV], 1, [Enable libauxv support])
-	    fi],
-            [with_libauxv="no"])
-
-LIBAUXV=
-if test "x$with_libauxv" != "xno"; then
-  AC_CHECK_LIB([auxv], [prefetch_auxv],
-	  [AC_SUBST([LIBAUXV], ["-lauxv -lpthread"])
-	   AC_DEFINE([HAVE_LIBAUXV], [1], [Define if you have libauvx])
-	  ],
-	  [AC_MSG_FAILURE([--with-libauxv was given, but test for libauxv failed])],
-	  [-lauxv -lpthread])
-else 
-# check for getauxval(), added to glibc in version 2.16.
-AC_CHECK_FUNC(getauxval,
-	      [AC_DEFINE([HAVE_GETAUXVAL], 1, [Define if you have glibc getauxval()])],
-	      [AC_MSG_ERROR([getauxval() not found.])])
-fi
-
 # Checks for programs
 AM_PROG_AS
 AC_PROG_CC

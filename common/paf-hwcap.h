@@ -15,13 +15,17 @@
 # define _PAF_HWCAP_H
 
 #include <stdint.h>
+#include <sys/auxv.h>
 #include "paf-common.h"
 
-#ifndef PPC_FEATURE_HAS_ALTIVEC
-# define PPC_FEATURE_HAS_ALTIVEC 0x10000000
+#ifndef PPC_FEATURE2_ARCH_2_07
+# define PPC_FEATURE2_ARCH_2_07  0x80000000 /* ISA 2.07 */ 
 #endif
 #ifndef PPC_FEATURE2_HAS_EBB
-# define PPC_FEATURE2_HAS_EBB    0x10000000
+# define PPC_FEATURE2_HAS_EBB    0x10000000 /* Event Base Branching */
+#endif
+#ifndef PPC_FEATURE2_HAS_DSCR
+# define PPC_FEATURE2_HAS_DSCR   0x20000000 /* Data Stream Control Register */ 
 #endif
 
 struct hwcap_t

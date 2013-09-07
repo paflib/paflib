@@ -31,7 +31,6 @@
 
 #include "ebb-priv.h"
 
-#define PAF_EBB_FEATURE_HAS_ALTIVEC 0x1
 #define PAF_EBB_FEATURE_HAS_EBB     0x2
 
 extern int __paf_ebb_hwcap attribute_hidden;
