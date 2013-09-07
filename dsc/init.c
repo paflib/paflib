@@ -27,13 +27,12 @@
  */
 
 #include <paf/dsc.h>
-
+#include "paf-common.h"
 #include "config.h"
-#include "common.h"
 #include "hwcap.h"
 
 void
-__attribute__ ((constructor))
+attribute_constructor
 attribute_hidden
 __paf_dsc_init (void)
 {

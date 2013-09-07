@@ -34,7 +34,6 @@
 
 #include <paf/dsc.h>
 #include "paf-hwcap.h"
-#include "common.h"
 #include "config.h"
 
 int

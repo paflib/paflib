@@ -37,4 +37,12 @@ typedef unsigned long int spr_t;
 	       : : "r" (spr));				\
   })
 
+
+#ifdef ENABLE_DEBUG
+# define DEBUG(fmt, args...) fprintf(stderr, "%s:%d: debug: " fmt "\n", \
+  __FUNCTION__, __LINE__, ## args)
+#else
+# define DEBUG(fmt, args...) do { } while(0)
+#endif
+
 #endif
