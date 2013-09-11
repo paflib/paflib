@@ -1,8 +1,15 @@
 ## Process this file with autoconf to produce configure.
 ## In general, the safest way to proceed is to run ./autogen.sh
 
+# These are m4 macros because autoconf won't allow non-statically determined
+# variables in AC_INIT.   We put these here because libtool mixes up the order
+# in the -version-info statement.
+m4_define([CURRENT], 0)
+m4_define([AGE], 0)
+m4_define([REVISION], 1)
+
 AC_PREREQ([2.61])
-AC_INIT([libpaf], [0.1.0], [azanella@br.ibm.com emachado@br.ibm.com])
+AC_INIT([libpaf], [CURRENT.AGE.REVISION], [azanella@br.ibm.com emachado@br.ibm.com])
 AM_INIT_AUTOMAKE([1.10 no-define foreign -Wall -Werror])
 AC_CANONICAL_HOST
 
@@ -10,7 +17,7 @@ AC_CONFIG_MACRO_DIR([m4])
 
 # Update this value for every release: (A:B:C will map to foo.so.(A-C).C.B)
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
-LIBPAF_SO_VERSION=0:1:0
+LIBPAF_SO_VERSION=CURRENT:REVISION:AGE
 
 AC_SUBST(LIBPAF_SO_VERSION)
 
