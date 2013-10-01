@@ -1,5 +1,5 @@
 ## Process this file with automake to produce Makefile.in
-AM_CFLAGS = -Wall
+AM_CFLAGS = -Wall -rdynamic
 AM_CPPFLAGS = -I$(top_srcdir)/common -I$(top_srcdir)/ebb
 
 nobase_include_HEADERS = paf/ebb.h
@@ -26,7 +26,7 @@ else
 libpaf_ebb_la_SOURCES += ebb-callback-ppc32.S
 endif
 libpaf_ebb_la_CFLAGS = -Wl,-entry=__paflib_ebb_main
-libpaf_ebb_la_LDFLAGS = -version-info $(LIBPAF_SO_VERSION) -rdynamic \
+libpaf_ebb_la_LDFLAGS = -version-info $(LIBPAF_SO_VERSION) \
 -e __paflib_ebb_main
 
 man3_MANS = doc/libpaf-ebb.3

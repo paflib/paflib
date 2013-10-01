@@ -80,12 +80,12 @@ ebb_handler_backtrace (void *context)
     }
 
   for (j = 0; j < n; j++)
-    printf("%s: %s\n", __FUNCTION__, symbols[j]);
+    printf("%s [%i]: %s\n", __FUNCTION__, j, symbols[j]);
 
   /* Check if the function names make sense, the backtrace expected is:
      test_paf_ebb_backtrace : ebb_handler_backtrace
      libpaf-ebb.so          : internal symbol (__paf_ebb_ebb_hook)
-     libpaf-ebb.so          : internal symbol (__paf_ebb_callback_handler_gpr
+     libpaf-ebb.so          : internal symbol (__paf_ebb_callback_handler_gpr)
      test_paf_ebb_backtrce  : ebb_test_backtrace
      libc.so ...
    */
@@ -105,7 +105,7 @@ ebb_handler_backtrace (void *context)
     }
   if (!match_sym (symbols[3], "ebb_test_backtrace"))
     {
-      fprintf (stderr, "%s: symbol[0] (%s) does not math %s\n",
+      fprintf (stderr, "%s: symbol[3 || 4] (%s) does not math %s\n",
 	__FUNCTION__, symbols[0], "ebb_test_backtrace");
       exit (EXIT_FAILURE);
     }
