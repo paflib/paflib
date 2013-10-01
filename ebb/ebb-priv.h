@@ -32,6 +32,7 @@
 #include <paf/ebb.h>
 #include "paf-common.h"
 #include "ebb-common.h"
+#include "ebb-init.h"
 
 #ifdef __powerpc64__
 # define LOAD_INST        "ld"
@@ -61,10 +62,6 @@ extern __thread
 attribute_initial_exec
 attribute_hidden
 struct ebb_thread_info_t __paf_ebb_thread_info;
-
-/* Set to 1 if TCB fields to use TCB fields, 0 to use TLS ones.  */
-extern int __paf_ebb_use_tcb attribute_hidden;
-
 
 static inline
 __attribute__((always_inline))
