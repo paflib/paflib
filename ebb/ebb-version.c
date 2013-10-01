@@ -1,5 +1,4 @@
-/*
- * PAFlib common definitions.
+/* Event-Based Branch Facility API.
  *
  * Copyright IBM Corp. 2013
  *
@@ -22,44 +21,36 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- * 
+ *
  * Contributors:
  *     IBM Corporation, Adhemerval Zanella - Initial implementation.
  */
 
-#ifndef _PAF_COMMON_H
-# define _PAF_COMMON_H
+#include <stdio.h>
+#include <unistd.h>
 
-#define attribute_hidden       __attribute__ ((visibility ("hidden")))
-#define attribute_constructor  __attribute__ ((constructor))
-#define attribute_initial_exec __attribute__ ((tls_model ("initial-exec")))
-#define attribute_noinline     __attribute__ ((noinline))
-#define attribute_noreturn     __attribute__ ((noreturn))
+#include "config.h"
+#include "paf-common.h"
 
+#include "ebb-hwcap.h"
+#include "ebb-init.h"
 
-typedef unsigned long int spr_t;
+void
+attribute_noreturn
+__paflib_ebb_main (void)
+{
+  __paf_ebb_init_hwcap ();
+  __paf_ebb_init_usage ();
 
-#define __stringify_1(x)	#x
-#define __stringify(x)		__stringify_1(x)
-
-#define mfspr(rn)					\
-  ({ spr_t spr; 					\
-     asm volatile("mfspr %0," __stringify(rn)		\
-                  : "=r" (spr));			\
-     spr;						\
-  })
-#define mtspr(rn, v)					\
-  ({ spr_t spr = (spr_t)v;				\
-     asm volatile("mtspr " __stringify(rn) ",%0"	\
-	       : : "r" (spr));				\
-  })
-
-
-#ifdef ENABLE_DEBUG
-# define DEBUG(fmt, args...) fprintf(stderr, "%s:%d: debug: " fmt "\n", \
-  __FUNCTION__, __LINE__, ## args)
-#else
-# define DEBUG(fmt, args...) do { } while(0)
-#endif
-
-#endif
+  printf ("POWER Platform Library " PACKAGE_STRING".\n"
+          "Copyright IBM Corp. 2013.\n"
+          "Compiled by GNU version "__VERSION__".\n"
+          "Runtime information:\n"
+          "    System EBB capable: %s\n"
+          "    Context data area: %s\n"
+          "For bug reporting instructions, please see:\n"
+          PACKAGE_BUGREPORT".\n",
+          (__paf_ebb_hwcap & PAF_EBB_FEATURE_HAS_EBB) ? "yes" : "no",
+          (__paf_ebb_use_tcb) ? "TCB" : "TLS");
+  _exit (0);
+}

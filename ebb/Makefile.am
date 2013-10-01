@@ -1,6 +1,5 @@
 ## Process this file with automake to produce Makefile.in
 AM_CFLAGS = -Wall
-AM_LDFLAGS = -rdynamic
 AM_CPPFLAGS = -I$(top_srcdir)/common -I$(top_srcdir)/ebb
 
 nobase_include_HEADERS = paf/ebb.h
@@ -11,11 +10,13 @@ LIBPPCEBB_PRIVATE_INCLUDE = ebb-callback.h \
                             ebb-priv.h \
                             ebb-sysdep.h
 lib_LTLIBRARIES = libpaf-ebb.la
-LIBPPCEBB_COMMON_SOURCES = $(top_srcdir)/common/paf-hwcap.c
+LIBPPCEBB_COMMON_SOURCES = $(top_srcdir)/common/paf-hwcap.c \
+                           $(top_srcdir)/common/paf-interp.c
 libpaf_ebb_la_SOURCES = ebb.c \
                         ebb-init.c \
                         ebb-hwcap.c \
                         ebb-hook.c \
+                        ebb-version.c \
                         $(include_HEADERS) \
                         $(LIBPPCEBB_PRIVATE_INCLUDE) \
                         $(LIBPPCEBB_COMMON_SOURCES)
@@ -24,7 +25,9 @@ libpaf_ebb_la_SOURCES += ebb-callback-ppc64.S
 else
 libpaf_ebb_la_SOURCES += ebb-callback-ppc32.S
 endif
-libpaf_ebb_la_LDFLAGS = -version-info $(LIBPAF_SO_VERSION)
+libpaf_ebb_la_CFLAGS = -Wl,-entry=__paflib_ebb_main
+libpaf_ebb_la_LDFLAGS = -version-info $(LIBPAF_SO_VERSION) -rdynamic \
+-e __paflib_ebb_main
 
 man3_MANS = doc/libpaf-ebb.3
 

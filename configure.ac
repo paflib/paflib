@@ -83,24 +83,46 @@ elif test $save_area = tls; then
   AC_DEFINE([USE_EBB_TLS], 1, [Define to 1 to force use of __thread vars])
 fi
 
+AC_CHECK_PROG(AWK, gawk)
+
 # Check if build is for 32 or 64 bits, Used in Makefile.am to select the
 # callback implementation
-AC_CACHE_CHECK([if GCC sets __powerpc64__], paf_ebb_cv_powerpc64, [dnl
+AC_CACHE_CHECK([if GCC sets __powerpc64__], paflib_cv_powerpc64, [dnl
 cat > conftest.c <<EOF
 int foo () {}
 EOF
 if ${CC-cc} $CFLAGS $CPPFLAGS -E -dD conftest.c -o - 2>&1 | \
 grep __powerpc64__ > /dev/null; then
-  paf_ebb_cv_powerpc64=yes
+  paflib_cv_powerpc64=yes
 else
-  paf_ebb_cv_powerpc64=no
+  paflib_cv_powerpc64=no
 fi
 rm -f conftest*])
-if test $paf_ebb_cv_powerpc64 = yes; then
+if test $paflib_cv_powerpc64 = yes; then
   AM_CONDITIONAL(POWERPC64, [true])
 else
   AM_CONDITIONAL(POWERPC64, [false])
 fi
+
+# Check which is the loader
+paflib_cv_loader=`
+cat > conftest.c <<EOF
+int main () {}
+EOF
+${CC-cc} $CFLAGS $CPPFLAGS -o conftest conftest.c && ldd conftest | $AWK '
+BEGIN {
+  loader=$0 ~ "ld.*so"
+}
+{
+  gsub (/[[[:space:]]]*/, "", $loader)
+  split ($loader, fields, "[[=(]]")
+}
+END {
+  print fields[[1]]
+}'
+rm -f conftest*`
+AC_DEFINE_UNQUOTED([PAFLIB_RUNTIME_LOADER], ["$paflib_cv_loader"],
+                   [The loader to use in direct DSO call])
 
 # Checkings for libpaf-dsc
 AC_LANG(C)
