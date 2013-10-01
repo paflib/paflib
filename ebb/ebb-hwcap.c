@@ -26,22 +26,16 @@
  *     IBM Corporation, Adhemerval Zanella - Initial implementation.
  */
 
-#include "config.h"
-#include "paf-hwcap.h"
-#include "ebb-hwcap.h"
-
-/* Although glibc 2.16+ provides getauxval, only 2.18+ provides access
- * to AT_HWCAP2. To avoid rely on glibc version to correctly discover if
- * the kernel supports EBB, parse the hardware capabilities bits using the
- * either the /proc/self/auxv or the environment directly (__USE_ENVIRON).  */
-
-//#define __USE_ENVIRON
-
 #include <fcntl.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <link.h>
 #include <sys/stat.h>
+
+#include "config.h"
+#include "paf-hwcap.h"
+#include "ebb-hwcap.h"
+
 
 /* Contains the Hardware Capability from runtime.  */
 int __paf_ebb_hwcap = 0;
