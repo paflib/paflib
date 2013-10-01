@@ -99,8 +99,9 @@ paf_ebb_pmu_init (uint64_t raw_event, int group)
 void
 paf_ebb_pmu_reset (void)
 {
+  uint32_t sample_period = __paf_ebb_get_thread_sample_period ();
   reset_mmcr0 ();
-  reset_pmcs ();
+  reset_pmcs (sample_period);
 }
 
 /* Return the internal EBB callback function. Since EBB it will just
@@ -148,7 +149,8 @@ paf_ebb_handler (void)
 
 ebbhandler_t
 paf_ebb_register_handler (ebbhandler_t handler, void *context,
-			 paf_ebb_callback_type_t type, int flags)
+			 paf_ebb_callback_type_t type, int flags,
+			 uint32_t sample_period)
 {
   uintptr_t handlerfp;
 
@@ -164,6 +166,7 @@ paf_ebb_register_handler (ebbhandler_t handler, void *context,
   __paf_ebb_set_thread_handler (handler);
   __paf_ebb_set_thread_context (context);
   __paf_ebb_set_thread_flags (flags);
+  __paf_ebb_set_thread_sample_period (sample_period);
    
   handlerfp = __ebb_callback_handler_addr (type);
   mtspr (EBBHR, handlerfp);

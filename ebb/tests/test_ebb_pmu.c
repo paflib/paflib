@@ -72,7 +72,7 @@ ebb_test_pmu_reset_flag (paf_ebb_callback_type_t type)
   handler = paf_ebb_register_handler (ebb_handler_test,
 				    (void*)&ebb_handler_triggered,
 				     type,
-				     PAF_EBB_FLAGS_RESET_PMU);
+				     PAF_EBB_FLAGS_RESET_PMU, 0);
   if (handler != ebb_handler_test)
     {
       printf ("Error: paf_ebb_register_handler \

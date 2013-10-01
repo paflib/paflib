@@ -75,7 +75,7 @@ ebb_test_pmu_reset_flag (void)
   printf ("%s: testing GPR save/restore:\n", __FUNCTION__);
   handler = paf_ebb_register_handler (ebb_handler_test,
 				    (void*)&ebb_handler_triggered,
-				     PAF_EBB_CALLBACK_GPR_SAVE, 0);
+				     PAF_EBB_CALLBACK_GPR_SAVE, 0, 0);
   if (handler != ebb_handler_test)
     {
       printf ("Error: paf_ebb_register_handler \

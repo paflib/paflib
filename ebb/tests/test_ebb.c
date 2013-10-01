@@ -61,7 +61,8 @@ ebb_interface_test (void)
   int ret;
 
   /* Register an invalid function to result in an error.  */
-  handler = paf_ebb_register_handler (NULL, NULL, PAF_EBB_CALLBACK_GPR_SAVE, 0);
+  handler = paf_ebb_register_handler (NULL, NULL, PAF_EBB_CALLBACK_GPR_SAVE,
+                                      0, 0);
   if (handler != EBB_REG_ERR)
     {
       printf ("Error: paf_ebb_register_handler (NULL) != EBB_REG_ERR\n");
@@ -109,7 +110,7 @@ ebb_interface_test (void)
 
   /* Register a valid callback and check its address.  */
   handler = paf_ebb_register_handler (ebb_handler_test, &ebb_context_test,
-				     PAF_EBB_CALLBACK_GPR_SAVE, 0);
+				     PAF_EBB_CALLBACK_GPR_SAVE, 0, 0);
   if (handler != ebb_handler_test)
     {
       printf ("Error: paf_ebb_register_handler \

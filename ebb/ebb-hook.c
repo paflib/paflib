@@ -37,6 +37,7 @@ __paf_ebb_ebb_hook (void)
   void *context;
   spr_t val;
   int flags;
+  uint32_t sample_period;
 
   val = mfspr (BESCR);
   if (!(val & BESCR_PMEO))
@@ -51,8 +52,9 @@ out:
   flags = __paf_ebb_get_thread_flags ();
   if (flags & PAF_EBB_FLAGS_RESET_PMU)
     {
+      uint32_t sample_period = __paf_ebb_get_thread_sample_period ();
       reset_mmcr0 ();
-      reset_pmcs ();
+      reset_pmcs (sample_period);
     }
 
   mtspr (BESCRR,  BESCR_PMEO);

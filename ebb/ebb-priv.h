@@ -38,9 +38,10 @@
 # define LOAD_INST        "ld"
 # define STORE_INST       "std"
 # define THREAD_REGISTER  "13"
-# define EBB_HANDLER      (-28728)
-# define EBB_CTX_POINTER  (-28720)
-# define EBB_FLAGS        (-28712)
+# define EBB_HANDLER      (-28728)  /* TCB field ebb_handler.  */
+# define EBB_CTX_POINTER  (-28720)  /* TCB field ebb_context.  */
+# define EBB_FLAGS        (-28712)  /* TCB field ebb_reserved1.  */
+# define EBB_SAMPLE_PER   (-28704)  /* TCB field ebb_reserved2.  */
 #else
 # define LOAD_INST        "lwz"
 # define STORE_INST       "stw"
@@ -48,6 +49,7 @@
 # define EBB_HANDLER      (-28700)
 # define EBB_CTX_POINTER  (-28696)
 # define EBB_FLAGS        (-28692)
+# define EBB_SAMPLE_PER   (-28688)
 #endif
 
 /* EBB per-thread information to use where TCB fields are not available.  */
@@ -55,7 +57,8 @@ struct ebb_thread_info_t
 {
   ebbhandler_t handler;
   void *context;
-  unsigned long int flags;
+  int flags;
+  uint32_t sample_period;
 };
 
 extern __thread
@@ -64,107 +67,109 @@ attribute_hidden
 struct ebb_thread_info_t __paf_ebb_thread_info;
 
 static inline
-__attribute__((always_inline))
+attribute_alwaysinline
 ebbhandler_t __paf_ebb_get_thread_handler ()
 {
   ebbhandler_t ret;
   if (__paf_ebb_use_tcb)
-    {
-      asm (LOAD_INST " %0,%1(" THREAD_REGISTER ")"
-	   : "=r" (ret)
-	   : "i" (EBB_HANDLER));
-    }
+    asm (LOAD_INST " %0,%1(" THREAD_REGISTER ")"
+	 : "=r" (ret)
+	 : "i" (EBB_HANDLER));
   else
-    {
       ret = __paf_ebb_thread_info.handler;
-    }
   return ret;
 }
 
 static inline
-__attribute__((always_inline))
+attribute_alwaysinline
 void __paf_ebb_set_thread_handler (ebbhandler_t handler)
 {
   if (__paf_ebb_use_tcb)
-    {
-      asm (STORE_INST " %0,%1(" THREAD_REGISTER ")"
-	   : : "r" (handler), "i" (EBB_HANDLER));
-    }
+    asm (STORE_INST " %0,%1(" THREAD_REGISTER ")"
+	 : : "r" (handler), "i" (EBB_HANDLER));
   else
-    {
-      __paf_ebb_thread_info.handler = handler;
-    }
+    __paf_ebb_thread_info.handler = handler;
 }
 
 static inline
-__attribute__((always_inline))
+attribute_alwaysinline
 void* __paf_ebb_get_thread_context ()
 {
   void *ret;
   if (__paf_ebb_use_tcb)
-    {
-      asm (LOAD_INST " %0,%1(" THREAD_REGISTER ")"
-	   : "=r" (ret)
-	   : "i" (EBB_CTX_POINTER));
-    }
+    asm (LOAD_INST " %0,%1(" THREAD_REGISTER ")"
+	 : "=r" (ret)
+	 : "i" (EBB_CTX_POINTER));
   else
-    {
       ret = __paf_ebb_thread_info.context;
-    }
   return ret;
 }
 
 static inline
-__attribute__((always_inline))
+attribute_alwaysinline
 void __paf_ebb_set_thread_context (void *context)
 {
   if (__paf_ebb_use_tcb)
-    {
-      asm (STORE_INST " %0,%1(" THREAD_REGISTER ")"
-	   : : "r" (context), "i" (EBB_CTX_POINTER));
-    }
+    asm (STORE_INST " %0,%1(" THREAD_REGISTER ")"
+	 : : "r" (context), "i" (EBB_CTX_POINTER));
   else
-    {
-      __paf_ebb_thread_info.context = context;
-    }
+    __paf_ebb_thread_info.context = context;
 }
 
-
 static inline
-__attribute__((always_inline))
+attribute_alwaysinline
 int __paf_ebb_get_thread_flags ()
 {
   int ret;
   if (__paf_ebb_use_tcb)
-    {
-      asm (LOAD_INST " %0,%1(" THREAD_REGISTER ")"
-	   : "=r" (ret)
-	   : "i" (EBB_FLAGS));
-    }
+    asm (LOAD_INST " %0,%1(" THREAD_REGISTER ")"
+	 : "=r" (ret)
+	 : "i" (EBB_FLAGS));
   else
-    {
-      ret = __paf_ebb_thread_info.flags;
-    }
+    ret = __paf_ebb_thread_info.flags;
   return ret;
 }
 
 static inline
-__attribute__((always_inline))
+attribute_alwaysinline
 void __paf_ebb_set_thread_flags (int flags)
 {
   if (__paf_ebb_use_tcb)
-    {
-      asm (STORE_INST " %0,%1(" THREAD_REGISTER ")"
-	   : : "r" (flags), "i" (EBB_FLAGS));
-    }
+    asm (STORE_INST " %0,%1(" THREAD_REGISTER ")"
+	 : : "r" (flags), "i" (EBB_FLAGS));
   else
-    {
-      __paf_ebb_thread_info.flags = flags;
-    }
+    __paf_ebb_thread_info.flags = flags;
 }
 
 static inline
-__attribute__((always_inline))
+attribute_alwaysinline
+uint32_t
+__paf_ebb_get_thread_sample_period (void)
+{
+  uint32_t ret;
+  if (__paf_ebb_use_tcb)
+    asm (LOAD_INST " %0,%1(" THREAD_REGISTER ")"
+	 : "=r" (ret)
+	 : "i" (EBB_SAMPLE_PER));
+  else
+    ret = __paf_ebb_thread_info.sample_period;
+  return ret;
+}
+
+static inline
+attribute_alwaysinline
+void
+__paf_ebb_set_thread_sample_period (uint32_t sample_period)
+{
+  if (__paf_ebb_use_tcb)
+    asm (STORE_INST " %0,%1(" THREAD_REGISTER ")"
+	 : : "r" (sample_period), "i" (EBB_SAMPLE_PER));
+  else
+    __paf_ebb_thread_info.sample_period = sample_period;
+}
+
+static inline
+attribute_alwaysinline
 void reset_mmcr0 (void)
 {
   spr_t val = mfspr (MMCR0);
@@ -172,15 +177,15 @@ void reset_mmcr0 (void)
 }
 
 static inline
-__attribute__((always_inline))
-void reset_pmcs (void)
+attribute_alwaysinline
+void reset_pmcs (uint32_t sample_period)
 {
-  mtspr (PMC1, 0);
-  mtspr (PMC2, 0);
-  mtspr (PMC3, 0);
-  mtspr (PMC4, 0);
-  mtspr (PMC5, 0);
-  mtspr (PMC6, 0);
+  mtspr (PMC1, sample_period);
+  mtspr (PMC2, sample_period);
+  mtspr (PMC3, sample_period);
+  mtspr (PMC4, sample_period);
+  mtspr (PMC5, sample_period);
+  mtspr (PMC6, sample_period);
 }
 
 #endif

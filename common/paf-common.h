@@ -34,6 +34,7 @@
 #define attribute_constructor  __attribute__ ((constructor))
 #define attribute_initial_exec __attribute__ ((tls_model ("initial-exec")))
 #define attribute_noinline     __attribute__ ((noinline))
+#define attribute_alwaysinline __attribute__ ((always_inline))
 #define attribute_noreturn     __attribute__ ((noreturn))
 
 
