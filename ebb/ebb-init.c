@@ -70,7 +70,7 @@ __paf_ebb_init_readnumber (const char *str, int *ret)
 void
 attribute_hidden
 attribute_constructor
-__paf_ebb_init_tcb_usage (void)
+__paf_ebb_init_usage (void)
 {
 #if defined(USE_EBB_TCB)
   __paf_ebb_use_tcb = 1;
