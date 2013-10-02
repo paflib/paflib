@@ -1,5 +1,4 @@
-/* Event-Based Branch Facility API.
- *
+/*
  * Copyright IBM Corp. 2013
  *
  * The MIT License (MIT)
@@ -21,36 +20,40 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- *
- * Contributors:
- *     IBM Corporation, Adhemerval Zanella - Initial implementation.
  */
 
 #include <stdio.h>
 #include <unistd.h>
+#include <errno.h>
 
+#include <paf/dsc.h>
 #include "config.h"
 #include "paf-common.h"
 
-#include "ebb-hwcap.h"
-#include "ebb-init.h"
-
 void
 attribute_noreturn
-__paflib_ebb_main (void)
+__paflib_dsc_main (void)
 {
-  __paf_ebb_init_hwcap ();
-  __paf_ebb_init_usage ();
+  uint64_t dscr_support = paf_dsc_check_support ();
+  const char *dscr_str = NULL;
+  if (errno == ENOSYS)
+    dscr_str = "not supported";
+  else if (dscr_support == DSCR_ISA_2_05_MASK)
+    dscr_str = "ISA 2.05 (POWER6)";
+  else if (dscr_support == DSCR_ISA_2_06_MASK)
+    dscr_str = "ISA 2.06 (POWER7)";
+  else if (dscr_support == DSCR_ISA_2_06P_MASK)
+    dscr_str = "ISA 2.06+ (POWER7+)";
+  else if (dscr_support == DSCR_ISA_2_07_MASK)
+    dscr_str = "ISA 2.07 (POWER8)";
 
   printf ("POWER Platform Library " PACKAGE_STRING".\n"
           "Copyright IBM Corp. 2013.\n"
           "Compiled by GNU version "__VERSION__".\n"
           "Runtime information:\n"
-          "    System EBB capable: %s\n"
-          "    Context data area: %s\n"
+          "    System DSC capability: %s\n"
           "For bug reporting please contact:\n"
-          PACKAGE_BUGREPORT".\n",
-          (__paf_ebb_hwcap & PAF_EBB_FEATURE_HAS_EBB) ? "yes" : "no",
-          (__paf_ebb_use_tcb) ? "TCB" : "TLS");
+          PACKAGE_BUGREPORT".\n", dscr_str);
+          
   _exit (0);
 }
