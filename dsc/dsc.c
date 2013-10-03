@@ -34,9 +34,9 @@
 #include <inttypes.h>
 #include <stdlib.h>
 
+#include "config.h"
 #include <paf/dsc.h>
 #include "paf-common.h"
-#include "config.h"
 #include "hwcap.h"
 
 /* PowerPC instruction length */
