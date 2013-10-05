@@ -238,8 +238,8 @@
 /* Save all VMX/Altive registers, VR0-VR31. Setup r9 with the VR base stack
  * address align to 16-bytes and r10 as r9 plus 16.  */
 #define SAVE_VR                                                    \
-  addi     r9,r1,(16+VR_SAVE);                                     \
-  rldicr   r3,r3,0,59;                                             \
+  addi     r9,r1,(15+VR_SAVE);                                     \
+  rlwinm   r9,r9,0,0,27;                                           \
   addi     r10,r9,16;                                              \
   stvx     v0,0,r10;                                               \
   stvx     v1,0,r9;                                                \
@@ -309,8 +309,8 @@
 
 /* Restore all VMX/Altivec registers, VR0-VR31.  */
 #define RESTORE_VR                                                 \
-  addi     r9,r1,(16+VR_SAVE);                                     \
-  rldicr   r3,r3,0,59;                                             \
+  addi     r9,r1,(15+VR_SAVE);                                     \
+  rlwinm   r9,r9,0,0,27;                                           \
   addi     r10,r9,16;                                              \
   lvx      v0,0,r10;                                               \
   lvx      v1,0,r9;                                                \
