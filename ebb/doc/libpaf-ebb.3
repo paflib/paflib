@@ -32,6 +32,8 @@ libpaf-ebb \- The Power Architecture Facilities Event-Based Branch Library
 .sp
 .BI "int paf_ebb_pmu_init(uint64_t " raw_event ", int " group ");
 .sp
+.BI "void paf_ebb_pmu_set_period(uint32_t " sample_period ");
+.sp
 .BI "void paf_ebb_pmu_reset(void);
 .sp
 .BI "ebbhandler_t paf_ebb_register_handler(ebbhandler_t " handler ", \
@@ -79,7 +81,9 @@ to associate events in a group.
 
 The
 .I event-based exception
-is triggered when the PMU counter overflows. To reset it to potentially
+is triggered when the PMU counter overflows. To set the PMC to an initial value different from default (0) use
+.BR paf_ebb_pmu_set_period
+To reset it to potentially
 trigger another event call
 .BR paf_ebb_pmu_reset().
 

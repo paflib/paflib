@@ -135,7 +135,7 @@ ebb_test_backtrace (void)
 
   handler = paf_ebb_register_handler (ebb_handler_backtrace,
 				     (void*)&ebb_handler_triggered,
-				     PAF_EBB_CALLBACK_GPR_SAVE, 0, 0);
+				     PAF_EBB_CALLBACK_GPR_SAVE, 0);
   if (handler != ebb_handler_backtrace)
     {
       printf ("Error: paf_ebb_register_handler \

@@ -89,7 +89,7 @@ ebb_test_pmu_multi_counter (void)
   handler = paf_ebb_register_handler (ebb_handler_test,
 				     (void*)&ebb_handler_triggered,
 				     PAF_EBB_CALLBACK_GPR_SAVE,
-				     PAF_EBB_FLAGS_RESET_PMU, 0);
+				     PAF_EBB_FLAGS_RESET_PMU);
   if (handler != ebb_handler_test)
     {
       printf ("Error: paf_ebb_register_handler \

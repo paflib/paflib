@@ -53,11 +53,12 @@ typedef enum
 #define PAF_EBB_FLAGS_RESET_PMU	0x1
 
 int paf_ebb_pmu_init (uint64_t raw_event, int group);
+void paf_ebb_pmu_set_period (uint32_t sample_period);
 void paf_ebb_pmu_reset (void);
 
 ebbhandler_t paf_ebb_handler (void);
 ebbhandler_t paf_ebb_register_handler (ebbhandler_t handler, void *context,
-  paf_ebb_callback_type_t type, int flags, uint32_t sample_period);
+  paf_ebb_callback_type_t type, int flags);
 int paf_ebb_enable_branches (void);
 int paf_ebb_disable_branches (void);
 

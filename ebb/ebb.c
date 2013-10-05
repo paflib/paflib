@@ -104,6 +104,12 @@ paf_ebb_pmu_reset (void)
   reset_pmcs (sample_period);
 }
 
+void
+paf_ebb_pmu_set_period (uint32_t sample_period)
+{
+  __paf_ebb_set_thread_sample_period (sample_period);
+}
+
 /* Return the internal EBB callback function. Since EBB it will just
  * execute the first instruction from the address set into EBBHR, its
  * value should be the functions text, not its ODP.  */
@@ -149,8 +155,7 @@ paf_ebb_handler (void)
 
 ebbhandler_t
 paf_ebb_register_handler (ebbhandler_t handler, void *context,
-			 paf_ebb_callback_type_t type, int flags,
-			 uint32_t sample_period)
+			 paf_ebb_callback_type_t type, int flags)
 {
   uintptr_t handlerfp;
 
@@ -166,7 +171,6 @@ paf_ebb_register_handler (ebbhandler_t handler, void *context,
   __paf_ebb_set_thread_handler (handler);
   __paf_ebb_set_thread_context (context);
   __paf_ebb_set_thread_flags (flags);
-  __paf_ebb_set_thread_sample_period (sample_period);
    
   handlerfp = __ebb_callback_handler_addr (type);
   mtspr (EBBHR, handlerfp);
