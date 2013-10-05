@@ -381,139 +381,139 @@
 /* Save all VSX registers, VSR0-VSR31. Setup r9 with the VR base stack
  * address align to 16-bytes and r10 as r9 plus 16.  */
 #define SAVE_VSR                                                   \
-  addi     r9,r1,(16+VSR_SAVE);                                    \
-  rldicr   r3,r3,0,59;                                             \
+  addi     r9,r1,(15+VSR_SAVE);                                    \
+  rlwinm   r9,r9,0,0,27;                                           \
   addi     r10,r9,16;                                              \
-  stxvd2x  v0,0,r10;                                               \
-  stxvd2x  v1,0,r9;                                                \
-  addi     r10,r10,32;                                             \
+  stxvd2x  v0,0,r9;                                                \
+  stxvd2x  v1,0,r10;                                               \
   addi     r9,r9,32;                                               \
-  stxvd2x  v2,0,r10;                                               \
-  stxvd2x  v3,0,r9;                                                \
   addi     r10,r10,32;                                             \
+  stxvd2x  v2,0,r9;                                                \
+  stxvd2x  v3,0,r10;                                               \
   addi     r9,r9,32;                                               \
-  stxvd2x  v4,0,r10;                                               \
-  stxvd2x  v5,0,r9;                                                \
   addi     r10,r10,32;                                             \
+  stxvd2x  v4,0,r9;                                                \
+  stxvd2x  v5,0,r10;                                               \
   addi     r9,r9,32;                                               \
-  stxvd2x  v6,0,r10;                                               \
-  stxvd2x  v7,0,r9;                                                \
   addi     r10,r10,32;                                             \
+  stxvd2x  v6,0,r9;                                                \
+  stxvd2x  v7,0,r10;                                               \
   addi     r9,r9,32;                                               \
-  stxvd2x  v8,0,r10;                                               \
-  stxvd2x  v9,0,r9;                                                \
   addi     r10,r10,32;                                             \
+  stxvd2x  v8,0,r9;                                                \
+  stxvd2x  v9,0,r10;                                               \
   addi     r9,r9,32;                                               \
-  stxvd2x  v10,0,r10;                                              \
-  stxvd2x  v11,0,r9;                                               \
   addi     r10,r10,32;                                             \
+  stxvd2x  v10,0,r9;                                               \
+  stxvd2x  v11,0,r10;                                              \
   addi     r9,r9,32;                                               \
-  stxvd2x  v12,0,r10;                                              \
-  stxvd2x  v13,0,r9;                                               \
   addi     r10,r10,32;                                             \
+  stxvd2x  v12,0,r9;                                               \
+  stxvd2x  v13,0,r10;                                              \
   addi     r9,r9,32;                                               \
-  stxvd2x  v14,0,r10;                                              \
-  stxvd2x  v15,0,r9;                                               \
   addi     r10,r10,32;                                             \
+  stxvd2x  v14,0,r9;                                               \
+  stxvd2x  v15,0,r10;                                              \
   addi     r9,r9,32;                                               \
-  stxvd2x  v16,0,r10;                                              \
-  stxvd2x  v17,0,r9;                                               \
   addi     r10,r10,32;                                             \
+  stxvd2x  v16,0,r9;                                               \
+  stxvd2x  v17,0,r10;                                              \
   addi     r9,r9,32;                                               \
-  stxvd2x  v18,0,r10;                                              \
-  stxvd2x  v19,0,r9;                                               \
   addi     r10,r10,32;                                             \
+  stxvd2x  v18,0,r9;                                               \
+  stxvd2x  v19,0,r10;                                              \
   addi     r9,r9,32;                                               \
-  stxvd2x  v20,0,r10;                                              \
-  stxvd2x  v21,0,r9;                                               \
   addi     r10,r10,32;                                             \
+  stxvd2x  v20,0,r9;                                               \
+  stxvd2x  v21,0,r10;                                              \
   addi     r9,r9,32;                                               \
-  stxvd2x  v22,0,r10;                                              \
-  stxvd2x  v23,0,r9;                                               \
   addi     r10,r10,32;                                             \
+  stxvd2x  v22,0,r9;                                               \
+  stxvd2x  v23,0,r10;                                              \
   addi     r9,r9,32;                                               \
-  stxvd2x  v24,0,r10;                                              \
-  stxvd2x  v25,0,r9;                                               \
   addi     r10,r10,32;                                             \
+  stxvd2x  v24,0,r9;                                               \
+  stxvd2x  v25,0,r10;                                              \
   addi     r9,r9,32;                                               \
-  stxvd2x  v26,0,r10;                                              \
-  stxvd2x  v27,0,r9;                                               \
   addi     r10,r10,32;                                             \
+  stxvd2x  v26,0,r9;                                               \
+  stxvd2x  v27,0,r10;                                              \
   addi     r9,r9,32;                                               \
-  stxvd2x  v28,0,r10;                                              \
-  stxvd2x  v29,0,r9;                                               \
   addi     r10,r10,32;                                             \
+  stxvd2x  v28,0,r9;                                               \
+  stxvd2x  v29,0,r10;                                              \
   addi     r9,r9,32;                                               \
-  stxvd2x  v30,0,r10;                                              \
-  stxvd2x  v31,0,r9;
+  addi     r10,r10,32;                                             \
+  stxvd2x  v30,0,r9;                                               \
+  stxvd2x  v31,0,r11;
 
 /* Restore all VSR registers, VSR0-VSR31.  */
 #define RESTORE_VSR                                                \
-  addi     r9,r1,(16+VSR_SAVE);                                    \
-  rldicr   r3,r3,0,59;                                             \
+  addi     r9,r1,(15+VSR_SAVE);                                    \
+  rlwinm   r9,r9,0,0,27;                                           \
   addi     r10,r9,16;                                              \
-  lxvd2x   v0,0,r10;                                               \
-  lxvd2x   v1,0,r9;                                                \
-  addi     r10,r10,32;                                             \
+  lxvd2x   v0,0,r9;                                                \
+  lxvd2x   v1,0,r10;                                               \
   addi     r9,r9,32;                                               \
-  lxvd2x   v2,0,r10;                                               \
-  lxvd2x   v3,0,r9;                                                \
   addi     r10,r10,32;                                             \
+  lxvd2x   v2,0,r9;                                                \
+  lxvd2x   v3,0,r10;                                               \
   addi     r9,r9,32;                                               \
-  lxvd2x   v4,0,r10;                                               \
-  lxvd2x   v5,0,r9;                                                \
   addi     r10,r10,32;                                             \
+  lxvd2x   v4,0,r9;                                                \
+  lxvd2x   v5,0,r10;                                               \
   addi     r9,r9,32;                                               \
-  lxvd2x   v6,0,r10;                                               \
-  lxvd2x   v7,0,r9;                                                \
   addi     r10,r10,32;                                             \
+  lxvd2x   v6,0,r9;                                                \
+  lxvd2x   v7,0,r10;                                               \
   addi     r9,r9,32;                                               \
-  lxvd2x   v8,0,r10;                                               \
-  lxvd2x   v9,0,r9;                                                \
   addi     r10,r10,32;                                             \
+  lxvd2x   v8,0,r9;                                                \
+  lxvd2x   v9,0,r10;                                               \
   addi     r9,r9,32;                                               \
-  lxvd2x   v10,0,r10;                                              \
-  lxvd2x   v11,0,r9;                                               \
   addi     r10,r10,32;                                             \
+  lxvd2x   v10,0,r9;                                               \
+  lxvd2x   v11,0,r10;                                              \
   addi     r9,r9,32;                                               \
-  lxvd2x   v12,0,r10;                                              \
-  lxvd2x   v13,0,r9;                                               \
   addi     r10,r10,32;                                             \
+  lxvd2x   v12,0,r9;                                               \
+  lxvd2x   v13,0,r10;                                              \
   addi     r9,r9,32;                                               \
-  lxvd2x   v14,0,r10;                                              \
-  lxvd2x   v15,0,r9;                                               \
   addi     r10,r10,32;                                             \
+  lxvd2x   v14,0,r9;                                               \
+  lxvd2x   v15,0,r10;                                              \
   addi     r9,r9,32;                                               \
-  lxvd2x   v16,0,r10;                                              \
-  lxvd2x   v17,0,r9;                                               \
   addi     r10,r10,32;                                             \
-  addi     r9,r9,32;                                               \
+  lxvd2x   v16,0,r9;                                               \
   lxvd2x   v17,0,r10;                                              \
+  addi     r9,r9,32;                                               \
+  addi     r10,r10,32;                                             \
   lxvd2x   v18,0,r9;                                               \
-  addi     r10,r10,32;                                             \
+  lxvd2x   v19,0,r10;                                              \
   addi     r9,r9,32;                                               \
-  lxvd2x   v20,0,r10;                                              \
-  lxvd2x   v21,0,r9;                                               \
   addi     r10,r10,32;                                             \
+  lxvd2x   v20,0,r9;                                               \
+  lxvd2x   v21,0,r10;                                              \
   addi     r9,r9,32;                                               \
-  lxvd2x   v22,0,r10;                                              \
-  lxvd2x   v23,0,r9;                                               \
   addi     r10,r10,32;                                             \
+  lxvd2x   v22,0,r9;                                               \
+  lxvd2x   v23,0,r10;                                              \
   addi     r9,r9,32;                                               \
-  lxvd2x   v24,0,r10;                                              \
-  lxvd2x   v25,0,r9;                                               \
   addi     r10,r10,32;                                             \
+  lxvd2x   v24,0,r9;                                               \
+  lxvd2x   v25,0,r10;                                              \
   addi     r9,r9,32;                                               \
-  lxvd2x   v26,0,r10;                                              \
-  lxvd2x   v27,0,r9;                                               \
   addi     r10,r10,32;                                             \
+  lxvd2x   v26,0,r9;                                               \
+  lxvd2x   v27,0,r10;                                              \
   addi     r9,r9,32;                                               \
-  lxvd2x   v28,0,r10;                                              \
-  lxvd2x   v29,0,r9;                                               \
   addi     r10,r10,32;                                             \
+  lxvd2x   v28,0,r9;                                               \
+  lxvd2x   v29,0,r10;                                              \
   addi     r9,r9,32;                                               \
-  lxvd2x   v30,0,r10;                                              \
-  lxvd2x   v31,0,r9;
+  addi     r10,r10,32;                                             \
+  lxvd2x   v30,0,r9;                                               \
+  lxvd2x   v31,0,r11;
 
 .hidden __paf_ebb_ebb_hook
 #define CALL_EBB_HOOK                                              \
