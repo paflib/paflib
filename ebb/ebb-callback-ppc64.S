@@ -235,143 +235,143 @@
 /* Save all VMX/Altive registers, VR0-VR31. Setup r9 with the VR base stack
  * address align to 16-bytes and r10 as r9 plus 16.  */
 #define SAVE_VR                                                    \
-  addi     r9,r1,(16+VR_SAVE);                                     \
-  rldicr   r3,r3,0,59;                                             \
+  addi     r9,r1,(15+VR_SAVE);                                     \
+  rldicr   r9,r9,0,59;                                             \
   addi     r10,r9,16;                                              \
-  stvx     v0,0,r10;                                               \
-  stvx     v1,0,r9;                                                \
-  addi     r10,r10,32;                                             \
+  stvx     v0,0,r9;                                                \
+  stvx     v1,0,r10;                                               \
   addi     r9,r9,32;                                               \
-  stvx     v2,0,r10;                                               \
-  stvx     v3,0,r9;                                                \
   addi     r10,r10,32;                                             \
+  stvx     v2,0,r9;                                                \
+  stvx     v3,0,r10;                                               \
   addi     r9,r9,32;                                               \
-  stvx     v4,0,r10;                                               \
-  stvx     v5,0,r9;                                                \
   addi     r10,r10,32;                                             \
+  stvx     v4,0,r9;                                                \
+  stvx     v5,0,r10;                                               \
   addi     r9,r9,32;                                               \
-  stvx     v6,0,r10;                                               \
-  stvx     v7,0,r9;                                                \
   addi     r10,r10,32;                                             \
+  stvx     v6,0,r9;                                                \
+  stvx     v7,0,r10;                                               \
   addi     r9,r9,32;                                               \
-  stvx     v8,0,r10;                                               \
-  stvx     v9,0,r9;                                                \
   addi     r10,r10,32;                                             \
+  stvx     v8,0,r9;                                                \
+  stvx     v9,0,r10;                                               \
   addi     r9,r9,32;                                               \
-  stvx     v10,0,r10;                                              \
-  stvx     v11,0,r9;                                               \
   addi     r10,r10,32;                                             \
+  stvx     v10,0,r9;                                               \
+  stvx     v11,0,r10;                                              \
   addi     r9,r9,32;                                               \
-  stvx     v12,0,r10;                                              \
-  stvx     v13,0,r9;                                               \
   addi     r10,r10,32;                                             \
+  stvx     v12,0,r9;                                               \
+  stvx     v13,0,r10;                                              \
   addi     r9,r9,32;                                               \
-  stvx     v14,0,r10;                                              \
-  stvx     v15,0,r9;                                               \
   addi     r10,r10,32;                                             \
+  stvx     v14,0,r9;                                               \
+  stvx     v15,0,r10;                                              \
   addi     r9,r9,32;                                               \
-  stvx     v16,0,r10;                                              \
-  stvx     v17,0,r9;                                               \
   addi     r10,r10,32;                                             \
-  addi     r9,r9,32;                                               \
+  stvx     v16,0,r9;                                               \
   stvx     v17,0,r10;                                              \
-  stvx     v18,0,r9;                                               \
-  addi     r10,r10,32;                                             \
   addi     r9,r9,32;                                               \
-  stvx     v20,0,r10;                                              \
-  stvx     v21,0,r9;                                               \
   addi     r10,r10,32;                                             \
+  stvx     v17,0,r9;                                               \
+  stvx     v18,0,r10;                                              \
   addi     r9,r9,32;                                               \
-  stvx     v22,0,r10;                                              \
-  stvx     v23,0,r9;                                               \
   addi     r10,r10,32;                                             \
+  stvx     v20,0,r9;                                               \
+  stvx     v21,0,r10;                                              \
   addi     r9,r9,32;                                               \
-  stvx     v24,0,r10;                                              \
-  stvx     v25,0,r9;                                               \
   addi     r10,r10,32;                                             \
+  stvx     v22,0,r9;                                               \
+  stvx     v23,0,r10;                                              \
   addi     r9,r9,32;                                               \
-  stvx     v26,0,r10;                                              \
-  stvx     v27,0,r9;                                               \
   addi     r10,r10,32;                                             \
+  stvx     v24,0,r9;                                               \
+  stvx     v25,0,r10;                                              \
   addi     r9,r9,32;                                               \
-  stvx     v28,0,r10;                                              \
-  stvx     v29,0,r9;                                               \
   addi     r10,r10,32;                                             \
+  stvx     v26,0,r9;                                               \
+  stvx     v27,0,r10;                                              \
   addi     r9,r9,32;                                               \
-  stvx     v30,0,r10;                                              \
-  stvx     v31,0,r9;                                               \
   addi     r10,r10,32;                                             \
+  stvx     v28,0,r9;                                               \
+  stvx     v29,0,r10;                                              \
+  addi     r9,r9,32;                                               \
+  addi     r10,r10,32;                                             \
+  stvx     v30,0,r9;                                               \
+  stvx     v31,0,r10;                                              \
+  addi     r9,r9,32;                                               \
   mfspr    r0,VRSAVE;                                              \
-  stw      r0,0(r10);
+  stw      r0,0(r9);
 
 /* Restore all VMX/Altivec registers, VR0-VR31.  */
 #define RESTORE_VR                                                 \
-  addi     r9,r1,(16+VR_SAVE);                                     \
-  rldicr   r3,r3,0,59;                                             \
+  addi     r9,r1,(15+VR_SAVE);                                     \
+  rldicr   r9,r9,0,59;                                             \
   addi     r10,r9,16;                                              \
-  lvx      v0,0,r10;                                               \
-  lvx      v1,0,r9;                                                \
-  addi     r10,r10,32;                                             \
+  lvx      v0,0,r9;                                                \
+  lvx      v1,0,r10;                                               \
   addi     r9,r9,32;                                               \
-  lvx      v2,0,r10;                                               \
-  lvx      v3,0,r9;                                                \
   addi     r10,r10,32;                                             \
+  lvx      v2,0,r9;                                                \
+  lvx      v3,0,r10;                                               \
   addi     r9,r9,32;                                               \
-  lvx      v4,0,r10;                                               \
-  lvx      v5,0,r9;                                                \
   addi     r10,r10,32;                                             \
+  lvx      v4,0,r9;                                                \
+  lvx      v5,0,r10;                                               \
   addi     r9,r9,32;                                               \
-  lvx      v6,0,r10;                                               \
-  lvx      v7,0,r9;                                                \
   addi     r10,r10,32;                                             \
+  lvx      v6,0,r9;                                                \
+  lvx      v7,0,r10;                                               \
   addi     r9,r9,32;                                               \
-  lvx      v8,0,r10;                                               \
-  lvx      v9,0,r9;                                                \
   addi     r10,r10,32;                                             \
+  lvx      v8,0,r9;                                                \
+  lvx      v9,0,r10;                                               \
   addi     r9,r9,32;                                               \
-  lvx      v10,0,r10;                                              \
-  lvx      v11,0,r9;                                               \
   addi     r10,r10,32;                                             \
+  lvx      v10,0,r9;                                               \
+  lvx      v11,0,r10;                                              \
   addi     r9,r9,32;                                               \
-  lvx      v12,0,r10;                                              \
-  lvx      v13,0,r9;                                               \
   addi     r10,r10,32;                                             \
+  lvx      v12,0,r9;                                               \
+  lvx      v13,0,r10;                                              \
   addi     r9,r9,32;                                               \
-  lvx      v14,0,r10;                                              \
-  lvx      v15,0,r9;                                               \
   addi     r10,r10,32;                                             \
+  lvx      v14,0,r9;                                               \
+  lvx      v15,0,r10;                                              \
   addi     r9,r9,32;                                               \
-  lvx      v16,0,r10;                                              \
-  lvx      v17,0,r9;                                               \
   addi     r10,r10,32;                                             \
-  addi     r9,r9,32;                                               \
+  lvx      v16,0,r9;                                               \
   lvx      v17,0,r10;                                              \
-  lvx      v18,0,r9;                                               \
-  addi     r10,r10,32;                                             \
   addi     r9,r9,32;                                               \
-  lvx      v20,0,r10;                                              \
-  lvx      v21,0,r9;                                               \
   addi     r10,r10,32;                                             \
+  lvx      v17,0,r9;                                               \
+  lvx      v18,0,r10;                                              \
   addi     r9,r9,32;                                               \
-  lvx      v22,0,r10;                                              \
-  lvx      v23,0,r9;                                               \
   addi     r10,r10,32;                                             \
+  lvx      v20,0,r9;                                               \
+  lvx      v21,0,r10;                                              \
   addi     r9,r9,32;                                               \
-  lvx      v24,0,r10;                                              \
-  lvx      v25,0,r9;                                               \
   addi     r10,r10,32;                                             \
+  lvx      v22,0,r9;                                               \
+  lvx      v23,0,r10;                                              \
   addi     r9,r9,32;                                               \
-  lvx      v26,0,r10;                                              \
-  lvx      v27,0,r9;                                               \
   addi     r10,r10,32;                                             \
+  lvx      v24,0,r9;                                               \
+  lvx      v25,0,r10;                                              \
   addi     r9,r9,32;                                               \
-  lvx      v28,0,r10;                                              \
-  lvx      v29,0,r9;                                               \
   addi     r10,r10,32;                                             \
+  lvx      v26,0,r9;                                               \
+  lvx      v27,0,r10;                                              \
   addi     r9,r9,32;                                               \
-  lvx      v30,0,r10;                                              \
-  lvx      v31,0,r9;                                               \
   addi     r10,r10,32;                                             \
+  lvx      v28,0,r9;                                               \
+  lvx      v29,0,r10;                                              \
+  addi     r9,r9,32;                                               \
+  addi     r10,r10,32;                                             \
+  lvx      v30,0,r9;                                               \
+  lvx      v31,0,r10;                                              \
+  addi     r9,r9,32;                                               \
   lwz      r0,0(r10);                                              \
   mtspr    VRSAVE,r0;
 
