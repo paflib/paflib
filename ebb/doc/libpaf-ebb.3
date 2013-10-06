@@ -44,6 +44,8 @@ void * "context ", paf_ebb_callback_type_t " type ", int " flags ");
 .BI "int paf_ebb_enable_branches(void);
 .sp
 .Bi "int paf_ebb_disable_branches(void);
+.sp
+Compile and link with \fI\-lpaf\-ebb\fP.
 
 .SH DESCRIPTION
 
@@ -104,8 +106,13 @@ save/restore all General Purpose Registers.
 .BR PPCEBB_CALLBACK_FPR_SAVE:
 save/restore all General Purpose Registers and all Floating-Point Register.
 .IP \[bu]
-.BR PPCEBB_CALLBACK_VRR_SAVE:
-save/restore all General Purpose Registers, all Floating-Point Register, and all Vector Registers.
+.BR PPCEBB_CALLBACK_VR_SAVE:
+save/restore all General Purpose Registers, all Floating-Point Register, and all
+Vector Registers (VMX).
+.IP \[bu]
+.BR PPCEBB_CALLBACK_VSR_SAVE:
+save/restore all General Purpose Registers, all Floating-Point Register, all
+Vector Registers (VMX), and all Vector Scalar Registers (VSX).
 .PP
 
 .BR paf_ebb_handler()
