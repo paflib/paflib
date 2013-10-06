@@ -33,6 +33,8 @@ libpaf-dsc \- The Power Architecture Facilities Data Stream Control Library
 .BI "int paf_dsc_get(uint64_t " *dscr ");
 .sp
 .BI "int paf_dsc_set(uint64_t " dscr ");
+.sp
+Compile and link with \fI\-lpaf\-dsc\fP.
 
 .SH DESCRIPTION
 
@@ -51,38 +53,47 @@ the corresponding Power ISA, with the following defined flags.
 
 These are features supported by Power ISA 2.05:
 .TP
+.IP \[bu] 2
 .BR DSCR_SSE
 Store Stream Enable.
 
 .PP
 These features were added on Power ISA 2.06:
 .TP
+.IP \[bu] 2
 .BR DSCR_SNSE
 Stride-N Stream Enable.
 .PP
 These features were added on Power ISA 2.06+:
 .TP
+.IP \[bu] 2
 .BR DSCR_LSD
 Load Stream Disable.
 
 .PP
 These are supported only on Power ISA 2.07:
 .TP
+.IP \[bu] 2
 .BR DSCR_HWUE
 Hardware Unit count Enable.
 .TP
+.IP \[bu] 2
 .BR DSCR_SWUE
 Software Unit count Enable.
 .TP
+.IP \[bu]
 .BR DSCR_LTE
 Load Transient Enable.
 .TP
+.IP \[bu]
 .BR DSCR_STE
 Software Transient Enable.
 .TP
+.IP \[bu]
 .BR DSCR_HTE
 Hardware Transient Enable.
 .TP
+.IP \[bu]
 .BR DSCR_SWTE
 Software Transient Enable. 
 
@@ -95,7 +106,7 @@ There are also other settings whose variable value can be accessed using the fol
 Default Prefetch Depth. This field supplies a prefetch depth for
 hardware-detected streams and for software-defined streams. The possible values
 for this field are the following:
-.IP \[bu]
+.IP \[bu] 2
 0 default
 .IP \[bu]
 1 none
@@ -185,37 +196,39 @@ return 0 in case of success or -1 otherwise.
 if the system does not support DSCR facility.
 
 .SH EXAMPLES
-.BD -literal
+.SS Program source
+\&
+.nf
 #include <inttypes.h>
 #include <paf/dsc.h>
 
 int main(void)
 {
-        uint64_t dscr, dscr_support;
-        int dpfd_value;
+  uint64_t dscr, dscr_support;
+  int dpfd_value;
 
-        assert((dscr_support = paf_dsc_check_support()) > 0);
+  assert((dscr_support = paf_dsc_check_support()) > 0);
 
-        /* Check if the system supports DSCR_SSE */
-        if ((dscr_support | DSCR_SSE) == dscr_support)
-          {
-            assert(paf_dsc_get(&dscr) == 0);
-            assert(paf_dsc_set(dscr | DSCR_SSE) == 0);
-          }
+  /* Check if the system supports DSCR_SSE */
+  if ((dscr_support | DSCR_SSE) == dscr_support)
+    {
+      assert(paf_dsc_get(&dscr) == 0);
+      assert(paf_dsc_set(dscr | DSCR_SSE) == 0);
+    }
 
-        assert(paf_dsc_get(&dscr) == 0);
+  assert(paf_dsc_get(&dscr) == 0);
 
-        /* Retrieve the current Default Prefetch Depth value */
-        dpfd_value = DSCR_DPFD_GET(dscr);
+  /* Retrieve the current Default Prefetch Depth value */
+  dpfd_value = DSCR_DPFD_GET(dscr);
 
-        /* Check if the system supports DSCR_UNITCNT */
-        if ((dscr_support | DSCR_UNITCNT_SET(dscr, 256)) == dscr_support)
-          {
-            dscr = DSCR_UNITCNT_SET(dscr, 256);
-            assert(paf_dsc_set(dscr) == 0);
-          }
+  /* Check if the system supports DSCR_UNITCNT */
+  if ((dscr_support | DSCR_UNITCNT_SET(dscr, 256)) == dscr_support)
+    {
+       dscr = DSCR_UNITCNT_SET(dscr, 256);
+       assert(paf_dsc_set(dscr) == 0);
+    }
 
-        return 0;
+  return 0;
 }
 .ED
 
@@ -246,6 +259,7 @@ DSCR problem-state availability is exported in Linux Kernel 3.10-rc1.
 .PP
 Email bug reports to Edjunior B. Machado <emachado@linux.vnet.ibm.com>.
 .SH AUTHORS
-This manual page was written by Edjunior B. Machado <emachado@linux.vnet.ibm.com> and Ryan S. Arnold <rsa@linux.vnet.ibm.com>.
+This manual page was written by Edjunior B. Machado <emachado@linux.vnet.ibm.com>
+and Adhemerval Zanella <azanella@linux.vnet.ibm.com>.
 
 
