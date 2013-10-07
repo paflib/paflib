@@ -30,9 +30,14 @@
 # define _PAF_HWCAP_H
 
 #include <stdint.h>
-#include <sys/auxv.h>
 #include "paf-common.h"
 
+#ifndef PPC_FEATURE_ARCH_2_05
+# define PPC_FEATURE_ARCH_2_05   0x00001000 /* ISA 2.05 */
+#endif
+#ifndef PPC_FEATURE_ARCH_2_06
+# define PPC_FEATURE_ARCH_2_06   0x00000100 /* ISA 2.06 */
+#endif
 #ifndef PPC_FEATURE2_ARCH_2_07
 # define PPC_FEATURE2_ARCH_2_07  0x80000000 /* ISA 2.07 */ 
 #endif
