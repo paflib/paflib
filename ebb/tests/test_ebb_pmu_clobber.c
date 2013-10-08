@@ -109,12 +109,79 @@ static volatile int ebb_matched_regs = 0;
 #define R30_DISP        GPR_SAVE(28)
 #endif
 
+
 /* To avoid stack allocation by the function, it minimizes its local
    variables. If any stack allocation is done, the CALLER_FRAME should
-   bre adjusted.  */
+   be adjusted.  */
+
+static unsigned long int cr;
+static unsigned long int lr;
+static unsigned long int ctr;
+static unsigned long int xer;
+
 static void
 attribute_noinline
-ebb_handler_test (void *context)
+ebb_handler_test_special_reg (void *context)
+{
+  int *trigger = (int*) (context);
+  unsigned long int reg;
+
+  asm (LD_INST " %0,%1(1)\n" : "=r"(reg) : "i"(CR_SAVE));
+  *trigger += (reg == cr);
+  asm (LD_INST " %0,%1(1)\n" : "=r"(reg) : "i"(LR_SAVE));
+  *trigger += (reg == lr);
+  asm (LD_INST " %0,%1(1)\n" : "=r"(reg) : "i"(CTR_SAVE));
+  *trigger += (reg == ctr);
+  asm (LD_INST " %0,%1(1)\n" : "=r"(reg) : "i"(XER_SAVE));
+  *trigger += (reg == xer);
+}
+
+static int
+ebb_test_pmu_special_reg_clobber ()
+{
+  ebbhandler_t handler;
+  unsigned long int reg;
+
+  printf ("%s: testing SPECIAL REG clobbering\n", __FUNCTION__);
+
+  ebb_matched_regs = 0;
+
+  handler = paf_ebb_register_handler (ebb_handler_test_special_reg,
+				      (void*)&ebb_matched_regs,
+				      PAF_EBB_CALLBACK_GPR_SAVE, 0);
+  if (handler != ebb_handler_test_special_reg)
+    {
+      printf ("Error: paf_ebb_register_handler \
+	      (ebb_handler_test_gpr) != handler\n");
+      return -1;
+    }
+
+  ebb_matched_regs = 0;
+
+  paf_ebb_enable_branches ();
+
+  /* First save current values.  */
+  asm volatile ("mfcr  %0\n" : "=r"(reg));
+  cr = reg;
+  asm volatile ("mflr  %0\n" : "=r"(reg));
+  lr = reg;
+  asm volatile ("mfctr %0\n" : "=r"(reg));
+  ctr = reg;
+  asm volatile ("mfxer %0\n" : "=r"(reg));
+  xer = reg;
+
+  while (ebb_matched_regs == 0);
+
+  paf_ebb_disable_branches ();
+
+  printf ("%s: ebb_matched_regs == %d\n", __FUNCTION__,
+    ebb_matched_regs);
+  return (ebb_matched_regs != 4);
+}
+
+static void
+attribute_noinline
+ebb_handler_test_gpr (void *context)
 {
   int *trigger = (int*) (context);
   unsigned long int reg;
@@ -149,30 +216,17 @@ static int
 ebb_test_pmu_grp_clobber ()
 {
   ebbhandler_t handler;
-  register unsigned long int r3  __asm__ ("r3");
-  register unsigned long int r4  __asm__ ("r4");
-  register unsigned long int r5  __asm__ ("r5");
-  register unsigned long int r6  __asm__ ("r6");
-  register unsigned long int r7  __asm__ ("r7");
-  register unsigned long int r8  __asm__ ("r8");
-  register unsigned long int r15 __asm__ ("r15");
-  register unsigned long int r16 __asm__ ("r16");
-  register unsigned long int r18 __asm__ ("r18");
-  register unsigned long int r21 __asm__ ("r21");
-  register unsigned long int r25 __asm__ ("r25");
-  register unsigned long int r30 __asm__ ("r30");
 
   printf ("%s: testing GRP clobbering\n", __FUNCTION__);
-
   ebb_matched_regs = 0;
 
-  handler = paf_ebb_register_handler (ebb_handler_test,
+  handler = paf_ebb_register_handler (ebb_handler_test_gpr,
 				      (void*)&ebb_matched_regs,
 				      PAF_EBB_CALLBACK_GPR_SAVE, 0);
-  if (handler != ebb_handler_test)
+  if (handler != ebb_handler_test_gpr)
     {
       printf ("Error: paf_ebb_register_handler \
-	      (ebb_handler_test) != handler\n");
+	      (ebb_handler_test_gpr) != handler\n");
       return -1;
     }
 
@@ -180,37 +234,40 @@ ebb_test_pmu_grp_clobber ()
 
   paf_ebb_enable_branches ();
 
-  asm ("li %0,%1\n"
-       "li %2,%3\n"
-       "li %4,%5\n"
-       "li %6,%7\n"
-       "li %8,%9\n"
-       "li %10,%11\n"
-       "li %12,%13\n"
-       "li %14,%15\n"
-       "li %16,%17\n"
-       "li %18,%19\n"
-       "li %20,%21\n"
-       "li %22,%23\n"
-       : : "r"(r3), "i"(EXPECTED_R3_VALUE),
-           "r"(r4), "i"(EXPECTED_R4_VALUE),
-           "r"(r5), "i"(EXPECTED_R5_VALUE),
-           "r"(r6), "i"(EXPECTED_R6_VALUE),
-           "r"(r7), "i"(EXPECTED_R7_VALUE),
-           "r"(r8), "i"(EXPECTED_R8_VALUE),
-           "r"(r15), "i"(EXPECTED_R15_VALUE),
-           "r"(r16), "i"(EXPECTED_R16_VALUE),
-           "r"(r18), "i"(EXPECTED_R18_VALUE),
-           "r"(r21), "i"(EXPECTED_R21_VALUE),
-           "r"(r25), "i"(EXPECTED_R25_VALUE),
-           "r"(r30), "i"(EXPECTED_R30_VALUE));
+  asm ("li 3,%0\n"
+       "li 4,%1\n"
+       "li 5,%2\n"
+       "li 6,%3\n"
+       "li 7,%4\n"
+       "li 8,%5\n"
+       "li 15,%6\n"
+       "li 16,%7\n"
+       "li 18,%8\n"
+       "li 21,%9\n"
+       "li 25,%10\n"
+       "li 30,%11\n"
+       : : "i"(EXPECTED_R3_VALUE),
+           "i"(EXPECTED_R4_VALUE),
+           "i"(EXPECTED_R5_VALUE),
+           "i"(EXPECTED_R6_VALUE),
+           "i"(EXPECTED_R7_VALUE),
+           "i"(EXPECTED_R8_VALUE),
+           "i"(EXPECTED_R15_VALUE),
+           "i"(EXPECTED_R16_VALUE),
+           "i"(EXPECTED_R18_VALUE),
+           "i"(EXPECTED_R21_VALUE),
+           "i"(EXPECTED_R25_VALUE),
+           "i"(EXPECTED_R30_VALUE)
+       : "r3", "r4", "r5", "r6", "r7", "r8",
+         "r15", "r16", "r18", "r21", "r25", "r30");
 
   while (ebb_matched_regs == 0);
 
   paf_ebb_disable_branches ();
 
-  printf ("%s: ebb_handler_triggered == %d\n", __FUNCTION__,
+  printf ("%s: ebb_matched_regs == %d\n", __FUNCTION__,
     ebb_matched_regs);
+
   return (ebb_matched_regs != 12);
 }
 
@@ -228,7 +285,9 @@ ebb_test_pmu_clobber (void)
       return -1;
     }
 
-  ret = ebb_test_pmu_grp_clobber ();
+  ret  = ebb_test_pmu_special_reg_clobber ();
+  paf_ebb_pmu_reset ();
+  ret += ebb_test_pmu_grp_clobber ();
 
   close (ebbfd);
 
