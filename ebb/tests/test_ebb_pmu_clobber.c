@@ -66,7 +66,7 @@ static volatile int ebb_handler_triggered = 0;
 #define REG_SIZE        8
 #else /* __powerpc__ */
 #define LD_INST         "lwz"
-#define CALLER_FRAME    16+16+64
+#define CALLER_FRAME    16+16
 #define REG_SIZE        4
 #endif
 
@@ -108,59 +108,40 @@ static volatile int ebb_handler_triggered = 0;
 #define R30_DISP        GPR_SAVE(28)
 #endif
 
+/* To avoid stack allocation by the function, it minimizes its local
+   variables. If any stack allocation is done, the CALLER_FRAME should
+   bre adjusted.  */
 static void
 attribute_noinline
 ebb_handler_test (void *context)
 {
   int *trigger = (int*) (context);
-  unsigned long int r3;
-  unsigned long int r4;
-  unsigned long int r5;
-  unsigned long int r6;
-  unsigned long int r7;
-  unsigned long int r8;
-  unsigned long int r15;
-  unsigned long int r16;
-  unsigned long int r18;
-  unsigned long int r21;
-  unsigned long int r25;
-  unsigned long int r30;
+  unsigned long int reg;
 
-  asm (LD_INST " %0,%12(1)\n"
-       LD_INST " %1,%13(1)\n"
-       LD_INST " %2,%14(1)\n"
-       LD_INST " %3,%15(1)\n"
-       LD_INST " %4,%16(1)\n"
-       LD_INST " %5,%17(1)\n"
-       LD_INST " %6,%18(1)\n"
-       LD_INST " %7,%19(1)\n"
-       LD_INST " %8,%20(1)\n"
-       LD_INST " %9,%21(1)\n"
-       LD_INST " %10,%22(1)\n"
-       LD_INST " %11,%23(1)\n"
-       : "=r"(r3), "=r"(r4), "=r"(r5), "=r"(r6), "=r"(r7), "=r"(r8),
-         "=r"(r15), "=r"(r16), "=r"(r18), "=r"(r21), "=r"(r25), "=r"(r30)
-       : "i"(R3_DISP),  "i"(R4_DISP),  "i"(R5_DISP),  "i"(R6_DISP),
-         "i"(R7_DISP),  "i"(R8_DISP),  "i"(R15_DISP), "i"(R16_DISP),
-         "i"(R18_DISP), "i"(R21_DISP), "i"(R25_DISP), "i"(R30_DISP));
-
-  *trigger = 1;
-
-  *trigger += (r3 == EXPECTED_R3_VALUE);
-  *trigger += (r4 == EXPECTED_R4_VALUE);
-  *trigger += (r5 == EXPECTED_R5_VALUE);
-  *trigger += (r6 == EXPECTED_R6_VALUE);
-  *trigger += (r7 == EXPECTED_R7_VALUE);
-  *trigger += (r8 == EXPECTED_R8_VALUE);
-  *trigger += (r15 == EXPECTED_R15_VALUE);
-  *trigger += (r16 == EXPECTED_R16_VALUE);
-  *trigger += (r18 == EXPECTED_R18_VALUE);
-  *trigger += (r21 == EXPECTED_R21_VALUE);
-  *trigger += (r25 == EXPECTED_R25_VALUE);
-  *trigger += (r30 == EXPECTED_R30_VALUE);
-
-  printf ("%ld\n%ld\n%ld\n%ld\n%ld\n%ld\n%ld\n%ld\n%ld\n%ld\n%ld\n%ld\n",
-          r3, r4, r5, r6, r7, r8, r15, r16, r18, r21, r25, r30);
+  asm (LD_INST " %0,%1(1)\n" : "=r"(reg) : "i"(R3_DISP));
+  *trigger += (reg == EXPECTED_R3_VALUE);
+  asm (LD_INST " %0,%1(1)\n" : "=r"(reg) : "i"(R4_DISP));
+  *trigger += (reg == EXPECTED_R4_VALUE);
+  asm (LD_INST " %0,%1(1)\n" : "=r"(reg) : "i"(R5_DISP));
+  *trigger += (reg == EXPECTED_R5_VALUE);
+  asm (LD_INST " %0,%1(1)\n" : "=r"(reg) : "i"(R6_DISP));
+  *trigger += (reg == EXPECTED_R6_VALUE);
+  asm (LD_INST " %0,%1(1)\n" : "=r"(reg) : "i"(R7_DISP));
+  *trigger += (reg == EXPECTED_R7_VALUE);
+  asm (LD_INST " %0,%1(1)\n" : "=r"(reg) : "i"(R8_DISP));
+  *trigger += (reg == EXPECTED_R8_VALUE);
+  asm (LD_INST " %0,%1(1)\n" : "=r"(reg) : "i"(R15_DISP));
+  *trigger += (reg == EXPECTED_R15_VALUE);
+  asm (LD_INST " %0,%1(1)\n" : "=r"(reg) : "i"(R16_DISP));
+  *trigger += (reg == EXPECTED_R16_VALUE);
+  asm (LD_INST " %0,%1(1)\n" : "=r"(reg) : "i"(R18_DISP));
+  *trigger += (reg == EXPECTED_R18_VALUE);
+  asm (LD_INST " %0,%1(1)\n" : "=r"(reg) : "i"(R21_DISP));
+  *trigger += (reg == EXPECTED_R21_VALUE);
+  asm (LD_INST " %0,%1(1)\n" : "=r"(reg) : "i"(R25_DISP));
+  *trigger += (reg == EXPECTED_R25_VALUE);
+  asm (LD_INST " %0,%1(1)\n" : "=r"(reg) : "i"(R30_DISP));
+  *trigger += (reg == EXPECTED_R30_VALUE);
 }
 
 static int
