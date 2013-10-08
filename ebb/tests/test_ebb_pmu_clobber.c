@@ -45,24 +45,25 @@
 #define PM_RUN_INST_CMPL  0x400FA
 
 /* Set it volatile to force memory read in loop below.  */
-static volatile int ebb_handler_triggered = 0;
+static volatile int ebb_matched_regs = 0;
 
-#define EXPECTED_R3_VALUE      2U
-#define EXPECTED_R4_VALUE      4U
-#define EXPECTED_R5_VALUE      8U
-#define EXPECTED_R6_VALUE     16U
-#define EXPECTED_R7_VALUE     32U
-#define EXPECTED_R8_VALUE     64U
-#define EXPECTED_R15_VALUE   128U
-#define EXPECTED_R16_VALUE   256U
-#define EXPECTED_R18_VALUE   512U
-#define EXPECTED_R21_VALUE  1024U
-#define EXPECTED_R25_VALUE  4096U
-#define EXPECTED_R30_VALUE  8192U
+#define EXPECTED_R3_VALUE      2
+#define EXPECTED_R4_VALUE      4
+#define EXPECTED_R5_VALUE      8
+#define EXPECTED_R6_VALUE     16
+#define EXPECTED_R7_VALUE     32
+#define EXPECTED_R8_VALUE     64
+#define EXPECTED_R15_VALUE   128
+#define EXPECTED_R16_VALUE   256
+#define EXPECTED_R18_VALUE   512
+#define EXPECTED_R21_VALUE  1024
+#define EXPECTED_R25_VALUE  4096
+#define EXPECTED_R30_VALUE  8192
 
 #ifdef __powerpc64__
 #define LD_INST         "ld"
-#define CALLER_FRAME    112+112
+#define CALLER_FRAME    112+112  /* EBB internal callback handler (ebb_hook)
+                                    plus the callee stack frame.  */
 #define REG_SIZE        8
 #else /* __powerpc__ */
 #define LD_INST         "lwz"
@@ -163,10 +164,10 @@ ebb_test_pmu_grp_clobber ()
 
   printf ("%s: testing GRP clobbering\n", __FUNCTION__);
 
-  ebb_handler_triggered = 0;
+  ebb_matched_regs = 0;
 
   handler = paf_ebb_register_handler (ebb_handler_test,
-				      (void*)&ebb_handler_triggered,
+				      (void*)&ebb_matched_regs,
 				      PAF_EBB_CALLBACK_GPR_SAVE, 0);
   if (handler != ebb_handler_test)
     {
@@ -175,7 +176,7 @@ ebb_test_pmu_grp_clobber ()
       return -1;
     }
 
-  ebb_handler_triggered = 0;
+  ebb_matched_regs = 0;
 
   paf_ebb_enable_branches ();
 
@@ -204,11 +205,13 @@ ebb_test_pmu_grp_clobber ()
            "r"(r25), "i"(EXPECTED_R25_VALUE),
            "r"(r30), "i"(EXPECTED_R30_VALUE));
 
-  while (ebb_handler_triggered == 0);
+  while (ebb_matched_regs == 0);
 
   paf_ebb_disable_branches ();
 
-  return (ebb_handler_triggered == 1);
+  printf ("%s: ebb_handler_triggered == %d\n", __FUNCTION__,
+    ebb_matched_regs);
+  return (ebb_matched_regs != 12);
 }
 
 static int
