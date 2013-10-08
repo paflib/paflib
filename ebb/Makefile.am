@@ -57,4 +57,9 @@ test_ebb_pmu_multi_SOURCES  = tests/test_ebb_pmu_multi.c \
                               tests/test_ebb_common.c
 test_ebb_pmu_multi_LDADD    = libpaf-ebb.la
 
+TESTS                        += test_ebb_pmu_clobber
+test_ebb_pmu_clobber_SOURCES  = tests/test_ebb_pmu_clobber.c \
+                                tests/test_ebb_common.c
+test_ebb_pmu_clobber_LDADD    = libpaf-ebb.la
+
 noinst_PROGRAMS = $(TESTS)

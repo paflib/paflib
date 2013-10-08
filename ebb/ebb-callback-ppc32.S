@@ -53,16 +53,18 @@
  *   r1 + STACK_OFFSET+12        |  XER
  *   r1 + STACK_OFFSET+8         |  CTR
  *   r1 + STACK_OFFSET+4         |  LR
- *   r1 + STACK_OFFSET           |  CCR
+ *   r1 + STACK_OFFSET           |  CR
  */
 
 #define CALLER_FRAME    16
 
-#define CCR_SAVE        (CALLER_FRAME)
-#define CCR_SIZE        (4)
-#define LR_SAVE         (CCR_SAVE + CCR_SIZE)
+#define CR_SAVE         (CALLER_FRAME)
+#define CR_SIZE         (4)
+#define LR_SAVE         (CR_SAVE + CR_SIZE)
 #define LR_SIZE         (4)
-#define XER_SAVE        (LR_SAVE + LR_SIZE)
+#define CTR_SAVE        (LR_SAVE + LR_SIZE)
+#define CTR_SIZE        (4)
+#define XER_SAVE        (CTR_SAVE + CTR_SIZE)
 #define XER_SIZE        (4)
 #define GPR_SAVE(n)     (XER_SAVE + XER_SIZE + (4 * n))
 #define GPR_SIZE        (30 * 4)
@@ -145,19 +147,23 @@
 
 /* Save status registers.  */
 #define SAVE_SPEC_REG                                              \
+  mfcr     r0;                                                     \
+  stw      r0, CR_SAVE(r1);                                        \
   mflr     r0;                                                     \
   stw      r0, LR_SAVE(r1);                                        \
-  mfcr     r0;                                                     \
-  stw      r0, CCR_SAVE(r1);                                       \
+  mfctr    r0;                                                     \
+  stw      r0, CTR_SAVE(r1);                                       \
   mfxer    r0;                                                     \
   stw      r0, XER_SAVE(r1);
 
 /* Restore state registers.  */
 #define RESTORE_SPEC_REG                                           \
+  lwz      r0, CR_SAVE(r1);                                        \
+  mtcr     r0;                                                     \
   lwz      r0, LR_SAVE(r1);                                        \
   mtlr     r0;                                                     \
-  lwz      r0, CCR_SAVE(r1);                                       \
-  mtcr     r0;                                                     \
+  lwz      r0, CTR_SAVE(r1);                                       \
+  mtctr    r0;                                                     \
   lwz      r0, XER_SAVE(r1);                                       \
   mtxer    r0;
 
@@ -520,7 +526,7 @@
   bl       __paf_ebb_ebb_hook;
 
 
-#define STACK_FRAME_GPR  (CALLER_FRAME + CCR_SIZE + LR_SIZE + XER_SIZE + GPR_SIZE)
+#define STACK_FRAME_GPR  (CALLER_FRAME + CR_SIZE + LR_SIZE + XER_SIZE + GPR_SIZE)
 
 ENTRY(__paf_ebb_callback_handler_gpr)
   stwu  r1,-STACK_FRAME_GPR(r1)

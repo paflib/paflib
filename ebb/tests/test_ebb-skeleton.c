@@ -92,7 +92,7 @@ signal_handler (int sig __attribute__ ((unused)))
 int
 main (int argc, char *argv[])
 {
-  int direct = 0;
+  int direct = 1;
   pid_t termpid;
   int status;
 
