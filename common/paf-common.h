@@ -44,15 +44,15 @@ typedef unsigned long int spr_t;
 #define __stringify(x)		__stringify_1(x)
 
 #define mfspr(rn)					\
-  ({ spr_t spr; 					\
+  ({ spr_t __spr; 					\
      asm volatile("mfspr %0," __stringify(rn)		\
-                  : "=r" (spr));			\
-     spr;						\
+                  : "=r" (__spr));			\
+     __spr;						\
   })
 #define mtspr(rn, v)					\
-  ({ spr_t spr = (spr_t)v;				\
+  ({ spr_t __spr = (spr_t)v;				\
      asm volatile("mtspr " __stringify(rn) ",%0"	\
-	       : : "r" (spr));				\
+	       : : "r" (__spr));			\
   })
 
 
