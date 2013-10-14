@@ -30,7 +30,10 @@
 #define _PAF_EBB_COMMON_H
 
 /* Constants used to get/set the EBB register through m[t|f]spr.  */
-#define MMCR0	    779  /* Monitor Mode Control Register 0.  */
+#define MMCR0       779  /* Monitor Mode Control Register 0.  */
+#define MMCRA       770
+#define MMCR1       782
+#define MMCR2       769
 #define MMCR0_FC    0x80000000
 #define MMCR0_PMAO  0x00000080
 #define MMCR0_PMAE  0x04000000
