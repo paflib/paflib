@@ -32,6 +32,7 @@
 #include <errno.h>
 #include <time.h>
 #include <string.h>
+#include <getopt.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
@@ -89,17 +90,35 @@ signal_handler (int sig __attribute__ ((unused)))
 }
 
 
+static struct option options[] =
+{
+#define OPT_DIRECT 1000
+  { "direct", no_argument, NULL, OPT_DIRECT },
+  { NULL, 0, NULL, 0 } 
+};
+
 int
 main (int argc, char *argv[])
 {
-  int direct = 1;
+  int direct = 0;
   pid_t termpid;
+  int opt;
   int status;
 
   program = argv[0];
 
   /* Make sure we see all message, even those on stdout.  */
   setvbuf (stdout, NULL, _IONBF, 0);
+
+  while ((opt = getopt_long (argc, argv, "+", options, NULL)) != -1)
+    switch (opt)
+      {
+      case '?':
+        exit (1);
+      case OPT_DIRECT:
+        direct = 1;
+        break;
+      }
 
   if (direct)
     return EBB_TEST ();
