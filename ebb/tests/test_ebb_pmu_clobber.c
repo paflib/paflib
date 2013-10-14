@@ -160,6 +160,8 @@ ebb_test_pmu_special_reg_clobber ()
 
   paf_ebb_enable_branches ();
 
+  paf_ebb_pmu_reset ();
+
   /* First save current values.  */
   asm volatile ("mfcr  %0\n" : "=r"(reg));
   cr = reg;
@@ -233,6 +235,8 @@ ebb_test_pmu_grp_clobber ()
   ebb_matched_regs = 0;
 
   paf_ebb_enable_branches ();
+
+  paf_ebb_pmu_reset ();
 
   asm ("li 3,%0\n"
        "li 4,%1\n"

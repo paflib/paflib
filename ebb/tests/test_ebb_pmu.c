@@ -82,6 +82,7 @@ ebb_test_pmu_reset_flag (paf_ebb_callback_type_t type)
 
   paf_ebb_enable_branches ();
 
+  paf_ebb_pmu_reset ();
   while (ebb_handler_triggered != TEST_LOOP_COUNT)
     {
       if (ebb_check_mmcr0())
