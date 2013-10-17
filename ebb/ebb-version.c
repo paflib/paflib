@@ -52,5 +52,5 @@ __paflib_ebb_main (void)
           PACKAGE_BUGREPORT".\n",
           (__paf_ebb_hwcap & PAF_EBB_FEATURE_HAS_EBB) ? "yes" : "no",
           (__paf_ebb_use_tcb) ? "TCB" : "TLS");
-  _exit (0);
+  exit (0);
 }

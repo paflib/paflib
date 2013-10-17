@@ -72,6 +72,22 @@ attribute_hidden
 attribute_constructor
 __paf_ebb_init_usage (void)
 {
+  const char *save_area = getenv ("LIBPAF_EBB_SAVE_AREA");
+  if (save_area)
+    {
+      if (strncasecmp (save_area, "tcb", sizeof ("tcb") - 1) == 0)
+	{
+	  __paf_ebb_use_tcb = 1;
+	  return;
+	}
+      else if (strncasecmp (save_area, "tls", sizeof ("tls") - 1) == 0)
+	{
+	  __paf_ebb_use_tcb = 0;
+	  return;
+	}
+      DEBUG ("failed to parse LIBPAF_EBB_SAVE_AREA environment variable");
+    }
+
 #if defined(USE_EBB_TCB)
   __paf_ebb_use_tcb = 1;
 #elif defined(USE_EBB_TLS)
@@ -86,7 +102,7 @@ __paf_ebb_init_usage (void)
   glibc_release = __paf_ebb_init_readnumber (glibc_release, &major);
   if (glibc_release == NULL)
     {
-      //WARN ("failed to parse GLIBC version");
+      DEBUG ("failed to parse GLIBC version");
       return;
     }
 
