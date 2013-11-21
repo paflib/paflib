@@ -1,4 +1,7 @@
 #!/bin/sh
 
-mkdir m4
+# Generate configuration files not available in git repository
+
+set -e
+mkdir -p m4
 autoreconf -f -i
