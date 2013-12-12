@@ -54,7 +54,11 @@
  */
 
 #define ABI_GAP         288
-#define CALLER_FRAME    112
+#if _CALL_ELF != 2
+# define CALLER_FRAME   112
+#else
+# define CALLER_FRAME    32
+#endif
 
 #define CR_SAVE         (CALLER_FRAME)
 #define CR_SIZE         (8)

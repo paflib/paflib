@@ -144,28 +144,82 @@
 
 #define ALIGNARG(num)	num
 
-#ifdef __powerpc64__
-#define BODY_LABEL(X)	.##X
-#define OPD_ENT(name)	.quad BODY_LABEL (name), .TOC.@tocbase
 
-#define ENTRY(name)					\
-	.type name,@function;				\
-        .section        ".text";			\
+#ifdef __powerpc64__
+
+# if _CALL_ELF != 2
+/* PPC64 BE ELFv1 ABI  */
+#  define BODY_LABEL(X)	.##X
+#  define DOT_LABEL(X)	.##X
+#  define OPD_ENT(name)	.quad BODY_LABEL (name), .TOC.@tocbase
+
+#  define ENTRY_1(name)   				\
         .type BODY_LABEL(name),@function;		\
         .globl name;					\
-	.hidden name;					\
         .section ".opd","aw";				\
         .align 3;					\
 name##: OPD_ENT (name);					\
-        .previous;					\
-        .align ALIGNARG(2);				\
-BODY_LABEL(name):					\
+        .previous;
 
-#define END(name)					\
-        .size name,.-BODY_LABEL(name);          	\
+#  define ENTRY_ABI(name)				\
+        .globl BODY_LABEL(name);			\
+        ENTRY_1(name)                           	\
+        .size name, 24;
+#  define LOCALENTRY(name)
+
+#  define END_ABI(name)					\
         .size BODY_LABEL(name),.-BODY_LABEL(name);
+# else
+/* PPC64 LE ELFv2 ABI  */
+#define DOT_LABEL(X)	X
+#define BODY_LABEL(X)	X
+#define ENTRY_ABI(name)					\
+	.globl name;					\
+	.type name,@function;
+
+#define END_ABI(name)					\
+	.size name,.-name;
+
+#define LOCALENTRY(name)				\
+1:      addis   r2,r12,.TOC.-1b@ha;			\
+        addi    r2,r2,.TOC.-1b@l;			\
+        .localentry name,.-name;
+# endif
+
+/* Both PPC64 LE and BE defines  */
+# define ENTRY(name)					\
+        .section ".text";				\
+	ENTRY_ABI(name)					\
+	.align	ALIGNARG(2);				\
+BODY_LABEL(name):					\
+	.cfi_startproc;					\
+	LOCALENTRY(name)
+
+/* Traceback defines  */
+#define TB_ASM                  0x000c000000000000
+#define TB_HAS_TBOFF            0x0000200000000000
+#define TB_NAME_PRESENT         0x0000004000000000
+#define TB_DEFAULT		TB_ASM | TB_HAS_TBOFF | TB_NAME_PRESENT
+
+#define TRACEBACK(name)					\
+LT_LABEL(name): ;					\
+	.long   0;					\
+        .quad   TB_DEFAULT;				\
+        .long   LT_LABEL(name)-BODY_LABEL(name) ; 	\
+        .short  LT_LABELSUFFIX(name,_name_end)-		\
+		LT_LABELSUFFIX(name,_name_start) ;	\
+LT_LABELSUFFIX(name,_name_start):;			\
+        .ascii  stringify(name); 			\
+LT_LABELSUFFIX(name,_name_end):;			\
+        .align  2;
+
+# define END(name)					\
+	.cfi_endproc;					\
+	END_ABI(name)
 
 #else
+
+/* PPC32 BE ELF ABI  */
 # define C_LABEL(name)  name##:
 
 # define ENTRY(name)					\
