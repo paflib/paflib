@@ -89,7 +89,7 @@ AC_CHECK_PROG(AWK, gawk)
 # callback implementation
 AC_CACHE_CHECK([if GCC sets __powerpc64__], paflib_cv_powerpc64, [dnl
 cat > conftest.c <<EOF
-int foo () {}
+void foo () {}
 EOF
 if ${CC-cc} $CFLAGS $CPPFLAGS -E -dD conftest.c -o - 2>&1 | \
 grep __powerpc64__ > /dev/null; then
@@ -107,7 +107,7 @@ fi
 # Check which is the loader
 paflib_cv_loader=`
 cat > conftest.c <<EOF
-int main () {}
+void main () {}
 EOF
 ${CC-cc} $CFLAGS $CPPFLAGS -o conftest conftest.c && ldd conftest | $AWK '
 BEGIN {
