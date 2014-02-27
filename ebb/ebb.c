@@ -187,9 +187,8 @@ paf_ebb_enable_branches (void)
       return -1;
     }
 
-  /* Enable both global (GE - bit 0) and the PMU Event-Based exception
-     (PME - bit 31).  */
-  mtspr (BESCRS, 1 | (1 << 31));
+  /* Enable PMU Event-Based exception (PME - bit 31).  */
+  mtspr (BESCRS, (1 << 31));
   return 0;
 }
 
@@ -202,8 +201,7 @@ paf_ebb_disable_branches (void)
       return -1;
     }
 
-  /* Disable both global (GE - bit 0) and the PMU Event-Based exception
-     (PME - bit 31).  */
-  mtspr (BESCRR, 1 | (1 << 31));
+  /* Disable PMU Event-Based exception (PME - bit 31).  */
+  mtspr (BESCRR, (1 << 31));
   return 0;
 }
