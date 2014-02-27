@@ -52,11 +52,20 @@ out:
   flags = __paf_ebb_get_thread_flags ();
   if (flags & PAF_EBB_FLAGS_RESET_PMU)
     {
+      /* 1) If requested, reset PMC to possible trigger another EBB  */
       uint32_t sample_period = __paf_ebb_get_thread_sample_period ();
-      reset_mmcr0 ();
       reset_pmcs (sample_period);
     }
 
+  /* 2) clear MMCR0[PMAO] - docs say BESCR[PMEO] should do this */
+  /* 3) set MMCR0[PMAE]   - docs say BESCR[PME] should do this */
+  reset_mmcr0 ();
+
+  /* 4) clear BESCR[PMEO] */
   mtspr (BESCRR,  BESCR_PMEO);
+
+  /* 5) set BESCR[PME] */
   mtspr (BESCRSU, BESCR_PMEU);
+
+  /* 6) rfebb 1 - done in ebb-callback*.S  */
 }
