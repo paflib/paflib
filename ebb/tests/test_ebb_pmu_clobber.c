@@ -126,6 +126,8 @@ ebb_handler_test_special_reg (void *context)
   int *trigger = (int*) (context);
   unsigned long int reg;
 
+  *trigger = 0;
+
   asm (LD_INST " %0,%1(1)\n" : "=r"(reg) : "i"(CR_SAVE));
   *trigger += (reg == cr);
   asm (LD_INST " %0,%1(1)\n" : "=r"(reg) : "i"(LR_SAVE));
@@ -140,11 +142,8 @@ static int
 ebb_test_pmu_special_reg_clobber ()
 {
   ebbhandler_t handler;
-  unsigned long int reg;
 
   printf ("%s: testing SPECIAL REG clobbering\n", __FUNCTION__);
-
-  ebb_matched_regs = 0;
 
   handler = paf_ebb_register_handler (ebb_handler_test_special_reg,
 				      (void*)&ebb_matched_regs,
@@ -163,14 +162,10 @@ ebb_test_pmu_special_reg_clobber ()
   paf_ebb_pmu_reset ();
 
   /* First save current values.  */
-  asm volatile ("mfcr  %0\n" : "=r"(reg));
-  cr = reg;
-  asm volatile ("mflr  %0\n" : "=r"(reg));
-  lr = reg;
-  asm volatile ("mfctr %0\n" : "=r"(reg));
-  ctr = reg;
-  asm volatile ("mfxer %0\n" : "=r"(reg));
-  xer = reg;
+  asm volatile ("mfcr  %0\n" : "=r"(cr));
+  asm volatile ("mflr  %0\n" : "=r"(lr));
+  asm volatile ("mfctr %0\n" : "=r"(ctr));
+  asm volatile ("mfxer %0\n" : "=r"(xer));
 
   while (ebb_matched_regs == 0);
 
@@ -187,6 +182,8 @@ ebb_handler_test_gpr (void *context)
 {
   int *trigger = (int*) (context);
   unsigned long int reg;
+
+  *trigger = 0;
 
   asm (LD_INST " %0,%1(1)\n" : "=r"(reg) : "i"(R3_DISP));
   *trigger += (reg == EXPECTED_R3_VALUE);
@@ -220,7 +217,6 @@ ebb_test_pmu_grp_clobber ()
   ebbhandler_t handler;
 
   printf ("%s: testing GRP clobbering\n", __FUNCTION__);
-  ebb_matched_regs = 0;
 
   handler = paf_ebb_register_handler (ebb_handler_test_gpr,
 				      (void*)&ebb_matched_regs,
