@@ -172,6 +172,8 @@ static inline
 attribute_alwaysinline
 void reset_mmcr0 (void)
 {
+  /* clear MMCR0[PMAO] - docs say BESCR[PMEO] should do this
+     set MMCR0[PMAE]   - docs say BESCR[PME] should do this */
   spr_t val = mfspr (MMCR0);
   mtspr (MMCR0, (val & ~(MMCR0_PMAO | MMCR0_FC)) | MMCR0_PMAE);
 }
