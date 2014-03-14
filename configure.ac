@@ -10,7 +10,7 @@ m4_define([PATCH], 0)
 
 AC_PREREQ([2.61])
 AC_INIT([libpaf], [MAJOR.MINOR.PATCH], [azanella@br.ibm.com emachado@br.ibm.com])
-AM_INIT_AUTOMAKE([1.10 no-define foreign -Wall -Werror])
+AM_INIT_AUTOMAKE([1.10 no-define foreign -Wall -Werror subdir-objects])
 AC_CANONICAL_HOST
 
 AC_CONFIG_MACRO_DIR([m4])

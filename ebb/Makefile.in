@@ -139,11 +139,12 @@ libpaf_ebb_la_LIBADD =
 am__libpaf_ebb_la_SOURCES_DIST = ebb.c ebb-init.c ebb-hwcap.c \
 	ebb-hook.c ebb-version.c ebb-callback.h ebb-common.h \
 	ebb-hwcap.h ebb-init.h ebb-priv.h ebb-sysdep.h \
-	$(top_srcdir)/common/paf-hwcap.c \
-	$(top_srcdir)/common/paf-interp.c ebb-callback-ppc64.S \
-	ebb-callback-ppc32.S
+	../common/paf-hwcap.c ../common/paf-interp.c \
+	ebb-callback-ppc64.S ebb-callback-ppc32.S
 am__objects_1 =
-am__objects_2 = libpaf_ebb_la-paf-hwcap.lo libpaf_ebb_la-paf-interp.lo
+am__dirstamp = $(am__leading_dot)dirstamp
+am__objects_2 = ../common/libpaf_ebb_la-paf-hwcap.lo \
+	../common/libpaf_ebb_la-paf-interp.lo
 @POWERPC64_TRUE@am__objects_3 = ebb-callback-ppc64.lo
 @POWERPC64_FALSE@am__objects_4 = ebb-callback-ppc32.lo
 am_libpaf_ebb_la_OBJECTS = libpaf_ebb_la-ebb.lo \
@@ -160,27 +161,28 @@ libpaf_ebb_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libpaf_ebb_la_CFLAGS) \
 	$(CFLAGS) $(libpaf_ebb_la_LDFLAGS) $(LDFLAGS) -o $@
 PROGRAMS = $(noinst_PROGRAMS)
-am_test_ebb_OBJECTS = test_ebb.$(OBJEXT)
+am_test_ebb_OBJECTS = tests/test_ebb.$(OBJEXT)
 test_ebb_OBJECTS = $(am_test_ebb_OBJECTS)
 test_ebb_DEPENDENCIES = libpaf-ebb.la
-am_test_ebb_backtrace_OBJECTS = test_ebb_backtrace.$(OBJEXT) \
-	test_ebb_common.$(OBJEXT)
+am_test_ebb_backtrace_OBJECTS = tests/test_ebb_backtrace.$(OBJEXT) \
+	tests/test_ebb_common.$(OBJEXT)
 test_ebb_backtrace_OBJECTS = $(am_test_ebb_backtrace_OBJECTS)
 test_ebb_backtrace_DEPENDENCIES = libpaf-ebb.la
-am_test_ebb_pmu_OBJECTS = test_ebb_pmu.$(OBJEXT) \
-	test_ebb_common.$(OBJEXT)
+am_test_ebb_pmu_OBJECTS = tests/test_ebb_pmu.$(OBJEXT) \
+	tests/test_ebb_common.$(OBJEXT)
 test_ebb_pmu_OBJECTS = $(am_test_ebb_pmu_OBJECTS)
 test_ebb_pmu_DEPENDENCIES = libpaf-ebb.la
-am_test_ebb_pmu_clobber_OBJECTS = test_ebb_pmu_clobber.$(OBJEXT) \
-	test_ebb_common.$(OBJEXT)
+am_test_ebb_pmu_clobber_OBJECTS =  \
+	tests/test_ebb_pmu_clobber.$(OBJEXT) \
+	tests/test_ebb_common.$(OBJEXT)
 test_ebb_pmu_clobber_OBJECTS = $(am_test_ebb_pmu_clobber_OBJECTS)
 test_ebb_pmu_clobber_DEPENDENCIES = libpaf-ebb.la
-am_test_ebb_pmu_multi_OBJECTS = test_ebb_pmu_multi.$(OBJEXT) \
-	test_ebb_common.$(OBJEXT)
+am_test_ebb_pmu_multi_OBJECTS = tests/test_ebb_pmu_multi.$(OBJEXT) \
+	tests/test_ebb_common.$(OBJEXT)
 test_ebb_pmu_multi_OBJECTS = $(am_test_ebb_pmu_multi_OBJECTS)
 test_ebb_pmu_multi_DEPENDENCIES = libpaf-ebb.la
-am_test_ebb_pmu_reset_OBJECTS = test_ebb_pmu_reset.$(OBJEXT) \
-	test_ebb_common.$(OBJEXT)
+am_test_ebb_pmu_reset_OBJECTS = tests/test_ebb_pmu_reset.$(OBJEXT) \
+	tests/test_ebb_common.$(OBJEXT)
 test_ebb_pmu_reset_OBJECTS = $(am_test_ebb_pmu_reset_OBJECTS)
 test_ebb_pmu_reset_DEPENDENCIES = libpaf-ebb.la
 SCRIPTS = $(noinst_SCRIPTS)
@@ -572,8 +574,8 @@ LIBPPCEBB_PRIVATE_INCLUDE = ebb-callback.h \
                             ebb-sysdep.h
 
 lib_LTLIBRARIES = libpaf-ebb.la
-LIBPPCEBB_COMMON_SOURCES = $(top_srcdir)/common/paf-hwcap.c \
-                           $(top_srcdir)/common/paf-interp.c
+LIBPPCEBB_COMMON_SOURCES = ../common/paf-hwcap.c \
+                           ../common/paf-interp.c
 
 libpaf_ebb_la_SOURCES = ebb.c ebb-init.c ebb-hwcap.c ebb-hook.c \
 	ebb-version.c $(include_HEADERS) $(LIBPPCEBB_PRIVATE_INCLUDE) \
@@ -675,6 +677,16 @@ clean-libLTLIBRARIES:
 	  echo rm -f $${locs}; \
 	  rm -f $${locs}; \
 	}
+../common/$(am__dirstamp):
+	@$(MKDIR_P) ../common
+	@: > ../common/$(am__dirstamp)
+../common/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) ../common/$(DEPDIR)
+	@: > ../common/$(DEPDIR)/$(am__dirstamp)
+../common/libpaf_ebb_la-paf-hwcap.lo: ../common/$(am__dirstamp) \
+	../common/$(DEPDIR)/$(am__dirstamp)
+../common/libpaf_ebb_la-paf-interp.lo: ../common/$(am__dirstamp) \
+	../common/$(DEPDIR)/$(am__dirstamp)
 
 libpaf-ebb.la: $(libpaf_ebb_la_OBJECTS) $(libpaf_ebb_la_DEPENDENCIES) $(EXTRA_libpaf_ebb_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(libpaf_ebb_la_LINK) -rpath $(libdir) $(libpaf_ebb_la_OBJECTS) $(libpaf_ebb_la_LIBADD) $(LIBS)
@@ -687,26 +699,46 @@ clean-noinstPROGRAMS:
 	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
 	echo " rm -f" $$list; \
 	rm -f $$list
+tests/$(am__dirstamp):
+	@$(MKDIR_P) tests
+	@: > tests/$(am__dirstamp)
+tests/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) tests/$(DEPDIR)
+	@: > tests/$(DEPDIR)/$(am__dirstamp)
+tests/test_ebb.$(OBJEXT): tests/$(am__dirstamp) \
+	tests/$(DEPDIR)/$(am__dirstamp)
 
 test_ebb$(EXEEXT): $(test_ebb_OBJECTS) $(test_ebb_DEPENDENCIES) $(EXTRA_test_ebb_DEPENDENCIES) 
 	@rm -f test_ebb$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(test_ebb_OBJECTS) $(test_ebb_LDADD) $(LIBS)
+tests/test_ebb_backtrace.$(OBJEXT): tests/$(am__dirstamp) \
+	tests/$(DEPDIR)/$(am__dirstamp)
+tests/test_ebb_common.$(OBJEXT): tests/$(am__dirstamp) \
+	tests/$(DEPDIR)/$(am__dirstamp)
 
 test_ebb_backtrace$(EXEEXT): $(test_ebb_backtrace_OBJECTS) $(test_ebb_backtrace_DEPENDENCIES) $(EXTRA_test_ebb_backtrace_DEPENDENCIES) 
 	@rm -f test_ebb_backtrace$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(test_ebb_backtrace_OBJECTS) $(test_ebb_backtrace_LDADD) $(LIBS)
+tests/test_ebb_pmu.$(OBJEXT): tests/$(am__dirstamp) \
+	tests/$(DEPDIR)/$(am__dirstamp)
 
 test_ebb_pmu$(EXEEXT): $(test_ebb_pmu_OBJECTS) $(test_ebb_pmu_DEPENDENCIES) $(EXTRA_test_ebb_pmu_DEPENDENCIES) 
 	@rm -f test_ebb_pmu$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(test_ebb_pmu_OBJECTS) $(test_ebb_pmu_LDADD) $(LIBS)
+tests/test_ebb_pmu_clobber.$(OBJEXT): tests/$(am__dirstamp) \
+	tests/$(DEPDIR)/$(am__dirstamp)
 
 test_ebb_pmu_clobber$(EXEEXT): $(test_ebb_pmu_clobber_OBJECTS) $(test_ebb_pmu_clobber_DEPENDENCIES) $(EXTRA_test_ebb_pmu_clobber_DEPENDENCIES) 
 	@rm -f test_ebb_pmu_clobber$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(test_ebb_pmu_clobber_OBJECTS) $(test_ebb_pmu_clobber_LDADD) $(LIBS)
+tests/test_ebb_pmu_multi.$(OBJEXT): tests/$(am__dirstamp) \
+	tests/$(DEPDIR)/$(am__dirstamp)
 
 test_ebb_pmu_multi$(EXEEXT): $(test_ebb_pmu_multi_OBJECTS) $(test_ebb_pmu_multi_DEPENDENCIES) $(EXTRA_test_ebb_pmu_multi_DEPENDENCIES) 
 	@rm -f test_ebb_pmu_multi$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(test_ebb_pmu_multi_OBJECTS) $(test_ebb_pmu_multi_LDADD) $(LIBS)
+tests/test_ebb_pmu_reset.$(OBJEXT): tests/$(am__dirstamp) \
+	tests/$(DEPDIR)/$(am__dirstamp)
 
 test_ebb_pmu_reset$(EXEEXT): $(test_ebb_pmu_reset_OBJECTS) $(test_ebb_pmu_reset_DEPENDENCIES) $(EXTRA_test_ebb_pmu_reset_DEPENDENCIES) 
 	@rm -f test_ebb_pmu_reset$(EXEEXT)
@@ -714,10 +746,15 @@ test_ebb_pmu_reset$(EXEEXT): $(test_ebb_pmu_reset_OBJECTS) $(test_ebb_pmu_reset_
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
+	-rm -f ../common/*.$(OBJEXT)
+	-rm -f ../common/*.lo
+	-rm -f tests/*.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@../common/$(DEPDIR)/libpaf_ebb_la-paf-hwcap.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@../common/$(DEPDIR)/libpaf_ebb_la-paf-interp.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ebb-callback-ppc32.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ebb-callback-ppc64.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpaf_ebb_la-ebb-hook.Plo@am__quote@
@@ -725,54 +762,58 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpaf_ebb_la-ebb-init.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpaf_ebb_la-ebb-version.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpaf_ebb_la-ebb.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpaf_ebb_la-paf-hwcap.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpaf_ebb_la-paf-interp.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_ebb.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_ebb_backtrace.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_ebb_common.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_ebb_pmu.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_ebb_pmu_clobber.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_ebb_pmu_multi.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_ebb_pmu_reset.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_ebb.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_ebb_backtrace.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_ebb_common.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_ebb_pmu.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_ebb_pmu_clobber.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_ebb_pmu_multi.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_ebb_pmu_reset.Po@am__quote@
 
 .S.o:
-@am__fastdepCCAS_TRUE@	$(AM_V_CPPAS)$(CPPASCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCCAS_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCCAS_TRUE@	$(AM_V_CPPAS)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
+@am__fastdepCCAS_TRUE@	$(CPPASCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCCAS_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCCAS_FALSE@	$(AM_V_CPPAS)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCCAS_FALSE@	DEPDIR=$(DEPDIR) $(CCASDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCCAS_FALSE@	$(AM_V_CPPAS@am__nodep@)$(CPPASCOMPILE) -c -o $@ $<
 
 .S.obj:
-@am__fastdepCCAS_TRUE@	$(AM_V_CPPAS)$(CPPASCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-@am__fastdepCCAS_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCCAS_TRUE@	$(AM_V_CPPAS)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
+@am__fastdepCCAS_TRUE@	$(CPPASCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
+@am__fastdepCCAS_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCCAS_FALSE@	$(AM_V_CPPAS)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCCAS_FALSE@	DEPDIR=$(DEPDIR) $(CCASDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCCAS_FALSE@	$(AM_V_CPPAS@am__nodep@)$(CPPASCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
 .S.lo:
-@am__fastdepCCAS_TRUE@	$(AM_V_CPPAS)$(LTCPPASCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCCAS_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
+@am__fastdepCCAS_TRUE@	$(AM_V_CPPAS)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`;\
+@am__fastdepCCAS_TRUE@	$(LTCPPASCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCCAS_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Plo
 @AMDEP_TRUE@@am__fastdepCCAS_FALSE@	$(AM_V_CPPAS)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCCAS_FALSE@	DEPDIR=$(DEPDIR) $(CCASDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCCAS_FALSE@	$(AM_V_CPPAS@am__nodep@)$(LTCPPASCOMPILE) -c -o $@ $<
 
 .c.o:
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c $<
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ $<
 
 .c.obj:
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c `$(CYGPATH_W) '$<'`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
 .c.lo:
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LTCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
+@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`;\
+@am__fastdepCC_TRUE@	$(LTCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Plo
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
@@ -812,123 +853,26 @@ libpaf_ebb_la-ebb-version.lo: ebb-version.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpaf_ebb_la_CFLAGS) $(CFLAGS) -c -o libpaf_ebb_la-ebb-version.lo `test -f 'ebb-version.c' || echo '$(srcdir)/'`ebb-version.c
 
-libpaf_ebb_la-paf-hwcap.lo: $(top_srcdir)/common/paf-hwcap.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpaf_ebb_la_CFLAGS) $(CFLAGS) -MT libpaf_ebb_la-paf-hwcap.lo -MD -MP -MF $(DEPDIR)/libpaf_ebb_la-paf-hwcap.Tpo -c -o libpaf_ebb_la-paf-hwcap.lo `test -f '$(top_srcdir)/common/paf-hwcap.c' || echo '$(srcdir)/'`$(top_srcdir)/common/paf-hwcap.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libpaf_ebb_la-paf-hwcap.Tpo $(DEPDIR)/libpaf_ebb_la-paf-hwcap.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$(top_srcdir)/common/paf-hwcap.c' object='libpaf_ebb_la-paf-hwcap.lo' libtool=yes @AMDEPBACKSLASH@
+../common/libpaf_ebb_la-paf-hwcap.lo: ../common/paf-hwcap.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpaf_ebb_la_CFLAGS) $(CFLAGS) -MT ../common/libpaf_ebb_la-paf-hwcap.lo -MD -MP -MF ../common/$(DEPDIR)/libpaf_ebb_la-paf-hwcap.Tpo -c -o ../common/libpaf_ebb_la-paf-hwcap.lo `test -f '../common/paf-hwcap.c' || echo '$(srcdir)/'`../common/paf-hwcap.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ../common/$(DEPDIR)/libpaf_ebb_la-paf-hwcap.Tpo ../common/$(DEPDIR)/libpaf_ebb_la-paf-hwcap.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='../common/paf-hwcap.c' object='../common/libpaf_ebb_la-paf-hwcap.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpaf_ebb_la_CFLAGS) $(CFLAGS) -c -o libpaf_ebb_la-paf-hwcap.lo `test -f '$(top_srcdir)/common/paf-hwcap.c' || echo '$(srcdir)/'`$(top_srcdir)/common/paf-hwcap.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpaf_ebb_la_CFLAGS) $(CFLAGS) -c -o ../common/libpaf_ebb_la-paf-hwcap.lo `test -f '../common/paf-hwcap.c' || echo '$(srcdir)/'`../common/paf-hwcap.c
 
-libpaf_ebb_la-paf-interp.lo: $(top_srcdir)/common/paf-interp.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpaf_ebb_la_CFLAGS) $(CFLAGS) -MT libpaf_ebb_la-paf-interp.lo -MD -MP -MF $(DEPDIR)/libpaf_ebb_la-paf-interp.Tpo -c -o libpaf_ebb_la-paf-interp.lo `test -f '$(top_srcdir)/common/paf-interp.c' || echo '$(srcdir)/'`$(top_srcdir)/common/paf-interp.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libpaf_ebb_la-paf-interp.Tpo $(DEPDIR)/libpaf_ebb_la-paf-interp.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$(top_srcdir)/common/paf-interp.c' object='libpaf_ebb_la-paf-interp.lo' libtool=yes @AMDEPBACKSLASH@
+../common/libpaf_ebb_la-paf-interp.lo: ../common/paf-interp.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpaf_ebb_la_CFLAGS) $(CFLAGS) -MT ../common/libpaf_ebb_la-paf-interp.lo -MD -MP -MF ../common/$(DEPDIR)/libpaf_ebb_la-paf-interp.Tpo -c -o ../common/libpaf_ebb_la-paf-interp.lo `test -f '../common/paf-interp.c' || echo '$(srcdir)/'`../common/paf-interp.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ../common/$(DEPDIR)/libpaf_ebb_la-paf-interp.Tpo ../common/$(DEPDIR)/libpaf_ebb_la-paf-interp.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='../common/paf-interp.c' object='../common/libpaf_ebb_la-paf-interp.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpaf_ebb_la_CFLAGS) $(CFLAGS) -c -o libpaf_ebb_la-paf-interp.lo `test -f '$(top_srcdir)/common/paf-interp.c' || echo '$(srcdir)/'`$(top_srcdir)/common/paf-interp.c
-
-test_ebb.o: tests/test_ebb.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT test_ebb.o -MD -MP -MF $(DEPDIR)/test_ebb.Tpo -c -o test_ebb.o `test -f 'tests/test_ebb.c' || echo '$(srcdir)/'`tests/test_ebb.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_ebb.Tpo $(DEPDIR)/test_ebb.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/test_ebb.c' object='test_ebb.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o test_ebb.o `test -f 'tests/test_ebb.c' || echo '$(srcdir)/'`tests/test_ebb.c
-
-test_ebb.obj: tests/test_ebb.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT test_ebb.obj -MD -MP -MF $(DEPDIR)/test_ebb.Tpo -c -o test_ebb.obj `if test -f 'tests/test_ebb.c'; then $(CYGPATH_W) 'tests/test_ebb.c'; else $(CYGPATH_W) '$(srcdir)/tests/test_ebb.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_ebb.Tpo $(DEPDIR)/test_ebb.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/test_ebb.c' object='test_ebb.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o test_ebb.obj `if test -f 'tests/test_ebb.c'; then $(CYGPATH_W) 'tests/test_ebb.c'; else $(CYGPATH_W) '$(srcdir)/tests/test_ebb.c'; fi`
-
-test_ebb_backtrace.o: tests/test_ebb_backtrace.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT test_ebb_backtrace.o -MD -MP -MF $(DEPDIR)/test_ebb_backtrace.Tpo -c -o test_ebb_backtrace.o `test -f 'tests/test_ebb_backtrace.c' || echo '$(srcdir)/'`tests/test_ebb_backtrace.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_ebb_backtrace.Tpo $(DEPDIR)/test_ebb_backtrace.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/test_ebb_backtrace.c' object='test_ebb_backtrace.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o test_ebb_backtrace.o `test -f 'tests/test_ebb_backtrace.c' || echo '$(srcdir)/'`tests/test_ebb_backtrace.c
-
-test_ebb_backtrace.obj: tests/test_ebb_backtrace.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT test_ebb_backtrace.obj -MD -MP -MF $(DEPDIR)/test_ebb_backtrace.Tpo -c -o test_ebb_backtrace.obj `if test -f 'tests/test_ebb_backtrace.c'; then $(CYGPATH_W) 'tests/test_ebb_backtrace.c'; else $(CYGPATH_W) '$(srcdir)/tests/test_ebb_backtrace.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_ebb_backtrace.Tpo $(DEPDIR)/test_ebb_backtrace.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/test_ebb_backtrace.c' object='test_ebb_backtrace.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o test_ebb_backtrace.obj `if test -f 'tests/test_ebb_backtrace.c'; then $(CYGPATH_W) 'tests/test_ebb_backtrace.c'; else $(CYGPATH_W) '$(srcdir)/tests/test_ebb_backtrace.c'; fi`
-
-test_ebb_common.o: tests/test_ebb_common.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT test_ebb_common.o -MD -MP -MF $(DEPDIR)/test_ebb_common.Tpo -c -o test_ebb_common.o `test -f 'tests/test_ebb_common.c' || echo '$(srcdir)/'`tests/test_ebb_common.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_ebb_common.Tpo $(DEPDIR)/test_ebb_common.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/test_ebb_common.c' object='test_ebb_common.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o test_ebb_common.o `test -f 'tests/test_ebb_common.c' || echo '$(srcdir)/'`tests/test_ebb_common.c
-
-test_ebb_common.obj: tests/test_ebb_common.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT test_ebb_common.obj -MD -MP -MF $(DEPDIR)/test_ebb_common.Tpo -c -o test_ebb_common.obj `if test -f 'tests/test_ebb_common.c'; then $(CYGPATH_W) 'tests/test_ebb_common.c'; else $(CYGPATH_W) '$(srcdir)/tests/test_ebb_common.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_ebb_common.Tpo $(DEPDIR)/test_ebb_common.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/test_ebb_common.c' object='test_ebb_common.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o test_ebb_common.obj `if test -f 'tests/test_ebb_common.c'; then $(CYGPATH_W) 'tests/test_ebb_common.c'; else $(CYGPATH_W) '$(srcdir)/tests/test_ebb_common.c'; fi`
-
-test_ebb_pmu.o: tests/test_ebb_pmu.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT test_ebb_pmu.o -MD -MP -MF $(DEPDIR)/test_ebb_pmu.Tpo -c -o test_ebb_pmu.o `test -f 'tests/test_ebb_pmu.c' || echo '$(srcdir)/'`tests/test_ebb_pmu.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_ebb_pmu.Tpo $(DEPDIR)/test_ebb_pmu.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/test_ebb_pmu.c' object='test_ebb_pmu.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o test_ebb_pmu.o `test -f 'tests/test_ebb_pmu.c' || echo '$(srcdir)/'`tests/test_ebb_pmu.c
-
-test_ebb_pmu.obj: tests/test_ebb_pmu.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT test_ebb_pmu.obj -MD -MP -MF $(DEPDIR)/test_ebb_pmu.Tpo -c -o test_ebb_pmu.obj `if test -f 'tests/test_ebb_pmu.c'; then $(CYGPATH_W) 'tests/test_ebb_pmu.c'; else $(CYGPATH_W) '$(srcdir)/tests/test_ebb_pmu.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_ebb_pmu.Tpo $(DEPDIR)/test_ebb_pmu.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/test_ebb_pmu.c' object='test_ebb_pmu.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o test_ebb_pmu.obj `if test -f 'tests/test_ebb_pmu.c'; then $(CYGPATH_W) 'tests/test_ebb_pmu.c'; else $(CYGPATH_W) '$(srcdir)/tests/test_ebb_pmu.c'; fi`
-
-test_ebb_pmu_clobber.o: tests/test_ebb_pmu_clobber.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT test_ebb_pmu_clobber.o -MD -MP -MF $(DEPDIR)/test_ebb_pmu_clobber.Tpo -c -o test_ebb_pmu_clobber.o `test -f 'tests/test_ebb_pmu_clobber.c' || echo '$(srcdir)/'`tests/test_ebb_pmu_clobber.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_ebb_pmu_clobber.Tpo $(DEPDIR)/test_ebb_pmu_clobber.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/test_ebb_pmu_clobber.c' object='test_ebb_pmu_clobber.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o test_ebb_pmu_clobber.o `test -f 'tests/test_ebb_pmu_clobber.c' || echo '$(srcdir)/'`tests/test_ebb_pmu_clobber.c
-
-test_ebb_pmu_clobber.obj: tests/test_ebb_pmu_clobber.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT test_ebb_pmu_clobber.obj -MD -MP -MF $(DEPDIR)/test_ebb_pmu_clobber.Tpo -c -o test_ebb_pmu_clobber.obj `if test -f 'tests/test_ebb_pmu_clobber.c'; then $(CYGPATH_W) 'tests/test_ebb_pmu_clobber.c'; else $(CYGPATH_W) '$(srcdir)/tests/test_ebb_pmu_clobber.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_ebb_pmu_clobber.Tpo $(DEPDIR)/test_ebb_pmu_clobber.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/test_ebb_pmu_clobber.c' object='test_ebb_pmu_clobber.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o test_ebb_pmu_clobber.obj `if test -f 'tests/test_ebb_pmu_clobber.c'; then $(CYGPATH_W) 'tests/test_ebb_pmu_clobber.c'; else $(CYGPATH_W) '$(srcdir)/tests/test_ebb_pmu_clobber.c'; fi`
-
-test_ebb_pmu_multi.o: tests/test_ebb_pmu_multi.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT test_ebb_pmu_multi.o -MD -MP -MF $(DEPDIR)/test_ebb_pmu_multi.Tpo -c -o test_ebb_pmu_multi.o `test -f 'tests/test_ebb_pmu_multi.c' || echo '$(srcdir)/'`tests/test_ebb_pmu_multi.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_ebb_pmu_multi.Tpo $(DEPDIR)/test_ebb_pmu_multi.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/test_ebb_pmu_multi.c' object='test_ebb_pmu_multi.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o test_ebb_pmu_multi.o `test -f 'tests/test_ebb_pmu_multi.c' || echo '$(srcdir)/'`tests/test_ebb_pmu_multi.c
-
-test_ebb_pmu_multi.obj: tests/test_ebb_pmu_multi.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT test_ebb_pmu_multi.obj -MD -MP -MF $(DEPDIR)/test_ebb_pmu_multi.Tpo -c -o test_ebb_pmu_multi.obj `if test -f 'tests/test_ebb_pmu_multi.c'; then $(CYGPATH_W) 'tests/test_ebb_pmu_multi.c'; else $(CYGPATH_W) '$(srcdir)/tests/test_ebb_pmu_multi.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_ebb_pmu_multi.Tpo $(DEPDIR)/test_ebb_pmu_multi.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/test_ebb_pmu_multi.c' object='test_ebb_pmu_multi.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o test_ebb_pmu_multi.obj `if test -f 'tests/test_ebb_pmu_multi.c'; then $(CYGPATH_W) 'tests/test_ebb_pmu_multi.c'; else $(CYGPATH_W) '$(srcdir)/tests/test_ebb_pmu_multi.c'; fi`
-
-test_ebb_pmu_reset.o: tests/test_ebb_pmu_reset.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT test_ebb_pmu_reset.o -MD -MP -MF $(DEPDIR)/test_ebb_pmu_reset.Tpo -c -o test_ebb_pmu_reset.o `test -f 'tests/test_ebb_pmu_reset.c' || echo '$(srcdir)/'`tests/test_ebb_pmu_reset.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_ebb_pmu_reset.Tpo $(DEPDIR)/test_ebb_pmu_reset.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/test_ebb_pmu_reset.c' object='test_ebb_pmu_reset.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o test_ebb_pmu_reset.o `test -f 'tests/test_ebb_pmu_reset.c' || echo '$(srcdir)/'`tests/test_ebb_pmu_reset.c
-
-test_ebb_pmu_reset.obj: tests/test_ebb_pmu_reset.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT test_ebb_pmu_reset.obj -MD -MP -MF $(DEPDIR)/test_ebb_pmu_reset.Tpo -c -o test_ebb_pmu_reset.obj `if test -f 'tests/test_ebb_pmu_reset.c'; then $(CYGPATH_W) 'tests/test_ebb_pmu_reset.c'; else $(CYGPATH_W) '$(srcdir)/tests/test_ebb_pmu_reset.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_ebb_pmu_reset.Tpo $(DEPDIR)/test_ebb_pmu_reset.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/test_ebb_pmu_reset.c' object='test_ebb_pmu_reset.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o test_ebb_pmu_reset.obj `if test -f 'tests/test_ebb_pmu_reset.c'; then $(CYGPATH_W) 'tests/test_ebb_pmu_reset.c'; else $(CYGPATH_W) '$(srcdir)/tests/test_ebb_pmu_reset.c'; fi`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpaf_ebb_la_CFLAGS) $(CFLAGS) -c -o ../common/libpaf_ebb_la-paf-interp.lo `test -f '../common/paf-interp.c' || echo '$(srcdir)/'`../common/paf-interp.c
 
 mostlyclean-libtool:
 	-rm -f *.lo
 
 clean-libtool:
 	-rm -rf .libs _libs
+	-rm -rf ../common/.libs ../common/_libs
 install-man3: $(man3_MANS)
 	@$(NORMAL_INSTALL)
 	@list1='$(man3_MANS)'; \
@@ -1320,6 +1264,10 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
+	-rm -f ../common/$(DEPDIR)/$(am__dirstamp)
+	-rm -f ../common/$(am__dirstamp)
+	-rm -f tests/$(DEPDIR)/$(am__dirstamp)
+	-rm -f tests/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -1330,7 +1278,7 @@ clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
 	clean-noinstPROGRAMS mostlyclean-am
 
 distclean: distclean-am
-	-rm -rf ./$(DEPDIR)
+	-rm -rf ../common/$(DEPDIR) ./$(DEPDIR) tests/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -1376,7 +1324,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-	-rm -rf ./$(DEPDIR)
+	-rm -rf ../common/$(DEPDIR) ./$(DEPDIR) tests/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
