@@ -53,11 +53,15 @@
  *   r1 + STACK_OFFSET           |  CR
  */
 
-#define ABI_GAP         288
+/* The ABI_GAP define is the same of the stack redzone.  Since EBB acts like
+   signal handler from user perspective, it mimics the signal redzone space
+   returned by the kernel.  */
 #if _CALL_ELF != 2
 # define CALLER_FRAME   112
+# define ABI_GAP        288
 #else
 # define CALLER_FRAME    32
+# define ABI_GAP        512
 #endif
 
 #define CR_SAVE         (CALLER_FRAME)
