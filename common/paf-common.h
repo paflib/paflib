@@ -1,7 +1,7 @@
 /*
  * PAFlib common definitions.
  *
- * Copyright IBM Corp. 2013
+ * Copyright IBM Corp. 2013, 2014
  *
  * The MIT License (MIT)
  *
@@ -54,6 +54,9 @@ typedef unsigned long int spr_t;
      asm volatile("mtspr " __stringify(rn) ",%0"	\
 	       : : "r" (__spr));			\
   })
+
+#define mb()                                            \
+  asm volatile("sync" : : : "memory");
 
 
 #ifdef ENABLE_DEBUG

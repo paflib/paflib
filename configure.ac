@@ -107,7 +107,7 @@ fi
 # Check which is the loader
 paflib_cv_loader=`
 cat > conftest.c <<EOF
-void main () {}
+int main () {}
 EOF
 ${CC-cc} $CFLAGS $CPPFLAGS -o conftest conftest.c && ldd conftest | $AWK '
 BEGIN {

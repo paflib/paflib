@@ -1,4 +1,4 @@
-.\" Copyright IBM Corp. 2013
+.\" Copyright IBM Corp. 2013, 2014
 .\" 
 .\" The MIT License (MIT)
 .\" 
@@ -32,6 +32,9 @@ libpaf-ebb \- The Power Architecture Facilities Event-Based Branch Library
 .sp
 .BI "int paf_ebb_pmu_init(uint64_t " raw_event ", int " group ");
 .sp
+.BI "int paf_ebb_pmu_init_ex(uint64_t " raw_event ", int " group ", pid_t " pid ",
+unsigned int " flags");
+.sp
 .BI "void paf_ebb_pmu_set_period(uint32_t " sample_period ");
 .sp
 .BI "void paf_ebb_pmu_reset(void);
@@ -43,7 +46,9 @@ void * "context ", paf_ebb_callback_type_t " type ", int " flags ");
 .sp
 .BI "int paf_ebb_enable_branches(void);
 .sp
-.Bi "int paf_ebb_disable_branches(void);
+.BI "int paf_ebb_disable_branches(void);
+.sp
+.BI "int paf_ebb_event_close (int " fd ");
 .sp
 Compile and link with \fI\-lpaf\-ebb\fP.
 
@@ -89,6 +94,59 @@ To reset it to potentially
 trigger another event call
 .BR paf_ebb_pmu_reset().
 
+.BR paf_ebb_pmu_init_ex()
+initializes the PMU event generation configuring the hardware
+counter
+.I raw_event
+with the specified
+.I group
+,
+.I pid
+,
+.I cpu
+and
+.I flags.
+The first call should use -1 to start a new group. Subsequent calls may create
+new groups or use the returned file descriptor from
+.BR paf_ebb_pmu_init
+to associate events in a group.
+The
+.I pid
+and
+.I cpu
+arguments allow specifying which process and CPU to monitor:
+.TP
+.BR "pid == 0" " and " "cpu == \-1"
+This measures the calling process/thread on any CPU.
+.TP
+.BR "pid == 0" " and " "cpu >= 0"
+This measures the calling process/thread only
+when running on the specified CPU.
+.TP
+.BR "pid > 0" " and " "cpu == \-1"
+This measures the specified process/thread on any CPU.
+.TP
+.BR "pid > 0" " and " "cpu >= 0"
+This measures the specified process/thread only
+when running on the specified CPU.
+.TP
+.BR "pid == \-1" " and " "cpu >= 0"
+This measures all processes/threads on the specified CPU.
+This requires
+.B CAP_SYS_ADMIN
+capability or a
+.I /proc/sys/kernel/perf_event_paranoid
+value of less than 1.
+.TP
+.BR "pid == \-1" " and " "cpu == \-1"
+This setting is invalid and will return an error.
+.P
+The
+.I flags
+argument is passed directly to
+.I perf_event_open
+syscall.
+
 .BR paf_ebb_register_handler()
 registers the user
 .I handler
@@ -99,17 +157,17 @@ Common state registers (LR, CR, CTR, XER) are always saved and
 .I type
 specifies which further set of registers will be saved and restored:
 
-.IP \[bu] 2
+.TP
 .BR PPCEBB_CALLBACK_GPR_SAVE:
 save/restore all General Purpose Registers.
-.IP \[bu] 
+.TP
 .BR PPCEBB_CALLBACK_FPR_SAVE:
 save/restore all General Purpose Registers and all Floating-Point Register.
-.IP \[bu]
+.TP
 .BR PPCEBB_CALLBACK_VR_SAVE:
 save/restore all General Purpose Registers, all Floating-Point Register, and all
 Vector Registers (VMX).
-.IP \[bu]
+.TP
 .BR PPCEBB_CALLBACK_VSR_SAVE:
 save/restore all General Purpose Registers, all Floating-Point Register, all
 Vector Registers (VMX), and all Vector Scalar Registers (VSX).
@@ -124,9 +182,15 @@ enables EBB triggering.
 .BR paf_ebb_disable_branches()
 disables EBB triggering.
 
+.BR paf_ebb_event_close()
+closes PMU event.
+
 .SH "RETURN VALUE"
 
 .BR paf_ebb_pmu_init()
+returns a file descriptor to be used in group association or -1 case of error.
+
+.BR paf_ebb_pmu_init_with_pid()
 returns a file descriptor to be used in group association or -1 case of error.
 
 .BR paf_ebb_register_handler()
@@ -138,6 +202,9 @@ returns the previous registered handler or EBB_REG_ERR if no handler has been re
 .BR paf_ebb_enable_branches()
 and
 .BR paf_ebb_disable_branches()
+return 0 in case of success or -1 otherwise.
+
+.BR paf_ebb_event_close()
 return 0 in case of success or -1 otherwise.
 
 .SH ERRORS

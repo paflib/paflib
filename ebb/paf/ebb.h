@@ -1,6 +1,6 @@
 /* Event-Based Branch Facility API.
  *
- * Copyright IBM Corp. 2013
+ * Copyright IBM Corp. 2013, 2014
  *
  * The MIT License (MIT)
  *
@@ -30,6 +30,8 @@
 #define _PAF_EBB_H
 
 #include <stdint.h>
+#include <stdlib.h>
+#include <sys/types.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -53,8 +55,11 @@ typedef enum
 #define PAF_EBB_FLAGS_RESET_PMU	0x1
 
 int paf_ebb_pmu_init (uint64_t raw_event, int group);
+int paf_ebb_pmu_init_ex (uint64_t raw_event, int group, pid_t pid, int cpu,
+                         unsigned long flags);
 void paf_ebb_pmu_set_period (uint32_t sample_period);
 void paf_ebb_pmu_reset (void);
+int paf_ebb_event_close (int fd);
 
 ebbhandler_t paf_ebb_handler (void);
 ebbhandler_t paf_ebb_register_handler (ebbhandler_t handler, void *context,

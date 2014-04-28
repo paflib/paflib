@@ -1,6 +1,6 @@
 /* Event-Based Branch Facility API.  API implementation.
  *
- * Copyright IBM Corp. 2013
+ * Copyright IBM Corp. 2013, 2014
  *
  * The MIT License (MIT)
  *
@@ -51,18 +51,18 @@ attribute_hidden
 struct ebb_thread_info_t __paf_ebb_thread_info = { 0, NULL };
 
 /* Helper function to start the Linux perf/EBB.  */
-int
-paf_ebb_pmu_init (uint64_t raw_event, int group)
+
+static int
+paf_ebb_pmu_event_init (uint64_t raw_event, int group, pid_t pid, int cpu,
+                        unsigned long flags)
 {
   struct perf_event_attr pe;
-  pid_t pid;
-  int cpu;
   int fd;
   uint64_t count;
 
-  memset(&pe, 0, sizeof(struct perf_event_attr));
+  memset (&pe, 0, sizeof (struct perf_event_attr));
   pe.type = PERF_TYPE_RAW;
-  pe.size = sizeof(struct perf_event_attr);
+  pe.size = sizeof (struct perf_event_attr);
   /* Bit 63 from perf_event_attr::config indicate if it is an EBB setup. */
   pe.config = raw_event | UINT64_C (0x8000000000000000);
   /* EBB setup has strict flags configuration: only the group leader
@@ -74,12 +74,13 @@ paf_ebb_pmu_init (uint64_t raw_event, int group)
   pe.exclude_idle = 1;
 
   /* It also need to be attached to a task:  */
-  pid = 0;
-  cpu = -1;
 
-  fd = syscall(__NR_perf_event_open, &pe, pid, cpu, group, 0);
+  fd = syscall (__NR_perf_event_open, &pe, pid, cpu, group, 0);
   if (fd == -1)
     return -1;
+
+  /* Ensure any SPR writes are ordered vs us */
+  mb ();
 
   if (ioctl (fd, PERF_EVENT_IOC_ENABLE, 0) != 0)
     {
@@ -93,7 +94,29 @@ paf_ebb_pmu_init (uint64_t raw_event, int group)
       return -1;
     }
 
+  mb ();
+
   return fd;
+}
+int
+paf_ebb_pmu_init (uint64_t raw_event, int group)
+{
+  return paf_ebb_pmu_event_init(raw_event, group, 0, -1, 0);
+}
+
+int
+paf_ebb_pmu_init_ex (uint64_t raw_event, int group, pid_t pid, int cpu,
+                     unsigned long flags)
+{
+  return paf_ebb_pmu_event_init(raw_event, group, pid, cpu, flags);
+}
+
+int
+paf_ebb_event_close (int fd)
+{
+  if (ioctl (fd, PERF_EVENT_IOC_DISABLE) != 0)
+    return -1;
+  return close (fd);
 }
 
 void
@@ -116,24 +139,29 @@ paf_ebb_pmu_set_period (uint32_t sample_period)
 static inline uintptr_t
 __ebb_callback_handler_addr (paf_ebb_callback_type_t type)
 {
-  void (*callback)(void);
+  void (*callback) (void);
   if (type == PAF_EBB_CALLBACK_GPR_SAVE)
     callback = __paf_ebb_callback_handler_gpr;
   else if (type == PAF_EBB_CALLBACK_FPR_SAVE)
     callback = __paf_ebb_callback_handler_fpr;
   else if (type == PAF_EBB_CALLBACK_VR_SAVE)
     callback = __paf_ebb_callback_handler_vr;
-  else // (type == PAF_EBB_CALLBACK_VSR_SAVE)
+  else				// (type == PAF_EBB_CALLBACK_VSR_SAVE)
     callback = __paf_ebb_callback_handler_vsr;
 
 #ifdef __powerpc64__
-  struct odp_entry_t {
+# if defined(_CALL_ELF) && _CALL_ELF==2
+  return (uintptr_t) callback;
+# else
+  struct odp_entry_t
+  {
     uintptr_t addr;
     uintptr_t toc;
-  } *odp_entry = (struct odp_entry_t*)(callback);
+  } *odp_entry = (struct odp_entry_t *) (callback);
   return odp_entry->addr;
+# endif
 #else
-  return (uintptr_t)callback;
+  return (uintptr_t) callback;
 #endif
 }
 
@@ -155,7 +183,7 @@ paf_ebb_handler (void)
 
 ebbhandler_t
 paf_ebb_register_handler (ebbhandler_t handler, void *context,
-			 paf_ebb_callback_type_t type, int flags)
+			  paf_ebb_callback_type_t type, int flags)
 {
   uintptr_t handlerfp;
 
@@ -171,10 +199,14 @@ paf_ebb_register_handler (ebbhandler_t handler, void *context,
   __paf_ebb_set_thread_handler (handler);
   __paf_ebb_set_thread_context (context);
   __paf_ebb_set_thread_flags (flags);
-   
+
   handlerfp = __ebb_callback_handler_addr (type);
+  /* Ensure the user handler is set before it set the internal one */
+  mb ();
   mtspr (EBBHR, handlerfp);
 
+  /* Make sure the handler is set before we return */
+  mb ();
   return handler;
 }
 
@@ -189,6 +221,7 @@ paf_ebb_enable_branches (void)
 
   /* Enable PMU Event-Based exception (PME - bit 31).  */
   mtspr (BESCRS, (1 << 31));
+  mb ();
   return 0;
 }
 
@@ -203,5 +236,6 @@ paf_ebb_disable_branches (void)
 
   /* Disable PMU Event-Based exception (PME - bit 31).  */
   mtspr (BESCRR, (1 << 31));
+  mb ();
   return 0;
 }
