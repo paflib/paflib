@@ -79,3 +79,26 @@ test_ebb_pmu_clobber_SOURCES  = tests/test_ebb_pmu_clobber.c \
 test_ebb_pmu_clobber_LDADD    = libpaf-ebb.la
 noinst_PROGRAMS              += test_ebb_pmu_clobber
 
+TESTS                  += test_ebb_child
+test_ebb_child_SOURCES  = tests/test_ebb_child.c \
+                          tests/test_ebb_common.c
+test_ebb_child_LDADD    = libpaf-ebb.la
+noinst_PROGRAMS        += test_ebb_child
+
+TESTS                           += test_ebb_clear_on_close
+test_ebb_clear_on_close_SOURCES  = tests/test_ebb_clear_on_close.c \
+                                   tests/test_ebb_common.c
+test_ebb_clear_on_close_LDADD    = libpaf-ebb.la
+noinst_PROGRAMS                 += test_ebb_clear_on_close
+
+TESTS                      += test_ebb_nohandler
+test_ebb_nohandler_SOURCES  = tests/test_ebb_nohandler.c \
+                              tests/test_ebb_common.c
+test_ebb_nohandler_LDADD    = libpaf-ebb.la
+noinst_PROGRAMS            += test_ebb_nohandler
+
+TESTS                += test_ebb_cpu
+test_ebb_cpu_SOURCES  = tests/test_ebb_cpu.c \
+                        tests/test_ebb_common.c
+test_ebb_cpu_LDADD    = libpaf-ebb.la
+noinst_PROGRAMS      += test_ebb_cpu
