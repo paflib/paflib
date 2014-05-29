@@ -48,6 +48,10 @@ void * "context ", paf_ebb_callback_type_t " type ", int " flags ");
 .sp
 .BI "int paf_ebb_disable_branches(void);
 .sp
+.BI "void paf_ebb_enable_branches_fast(void);
+.sp
+.BI "void paf_ebb_disable_branches_fast(void);
+.sp
 .BI "int paf_ebb_event_close (int " fd ");
 .sp
 Compile and link with \fI\-lpaf\-ebb\fP.
@@ -176,11 +180,18 @@ Vector Registers (VMX), and all Vector Scalar Registers (VSX).
 .BR paf_ebb_handler()
 returns the registered handler previously issued by paf_ebb_register_handler().
 
+The
 .BR paf_ebb_enable_branches()
-enables EBB triggering.
-
+and
 .BR paf_ebb_disable_branches()
-disables EBB triggering.
+enable/disable EBB triggering and add required memory synchonizations.  They also check if EBB is available.
+
+The fast versions
+.BR paf_ebb_enable_branches_fast()
+and
+.BR paf_ebb_disable_branches_fast()
+aso enable/disable the EBB branches, however they do not check if EBB is available on the system, neither add memory synchonization after the mtspr call.
+
 
 .BR paf_ebb_event_close()
 closes PMU event.
@@ -206,6 +217,7 @@ return 0 in case of success or -1 otherwise.
 
 .BR paf_ebb_event_close()
 return 0 in case of success or -1 otherwise.
+
 
 .SH ERRORS
 

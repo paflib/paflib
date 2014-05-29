@@ -67,6 +67,22 @@ ebbhandler_t paf_ebb_register_handler (ebbhandler_t handler, void *context,
 int paf_ebb_enable_branches (void);
 int paf_ebb_disable_branches (void);
 
+static inline void paf_enable_branches_fast (void)
+{
+  unsigned long int v = 1UL << 31;
+  /* BESCRS (Branch Event Status and Control Set) is 800.  */
+  asm volatile ("mtspr 800\n\t"
+		: : "r" (v));
+}
+
+static inline void paf_disable_branches_fast (void)
+{
+  unsigned long int v = 1UL << 31;
+  /* BESCRR (Branch Event Status and Control Reset) is 802.  */
+  asm volatile ("mtspr 802\n\t"
+		: : "r" (v));
+}
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
