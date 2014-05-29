@@ -60,6 +60,12 @@ AC_ARG_ENABLE(ebb,
 	      [enable_ebb=$enableval],
 	      [enable_ebb=yes]
 )
+AC_ARG_ENABLE(tb,
+              AS_HELP_STRING([--disable-tb],
+                             [disable TIMEBASE build @<:@not default@:>@]),
+              [enable_tb=$enableval],
+              [enable_tb=yes]
+)
 
 if test $enable_ebb != yes; then
   if test $enable_dsc != yes; then
@@ -69,6 +75,7 @@ fi
 
 AM_CONDITIONAL([DSC], [test "$enable_dsc" = yes])
 AM_CONDITIONAL([EBB], [test "$enable_ebb" = yes])
+AM_CONDITIONAL([TB], [test "$enable_tb" = yes])
 
 # Checkings for libpaf-ebb
 AC_ARG_ENABLE([save-area],
@@ -89,7 +96,7 @@ AC_CHECK_PROG(AWK, gawk)
 # callback implementation
 AC_CACHE_CHECK([if GCC sets __powerpc64__], paflib_cv_powerpc64, [dnl
 cat > conftest.c <<EOF
-void foo () {}
+int foo () {}
 EOF
 if ${CC-cc} $CFLAGS $CPPFLAGS -E -dD conftest.c -o - 2>&1 | \
 grep __powerpc64__ > /dev/null; then
@@ -152,5 +159,5 @@ linux/perf_event.h])
 # Checks for typedefs, structures, and compiler characteristics
 AC_C_VOLATILE
 
-AC_CONFIG_FILES([Makefile ebb/Makefile dsc/Makefile])
+AC_CONFIG_FILES([Makefile ebb/Makefile dsc/Makefile tb/Makefile])
 AC_OUTPUT

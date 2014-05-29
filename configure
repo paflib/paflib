@@ -682,6 +682,8 @@ CFLAGS
 CC
 POWERPC64_FALSE
 POWERPC64_TRUE
+TB_FALSE
+TB_TRUE
 EBB_FALSE
 EBB_TRUE
 DSC_FALSE
@@ -767,6 +769,7 @@ enable_silent_rules
 enable_debug
 enable_dsc
 enable_ebb
+enable_tb
 enable_save_area
 enable_dependency_tracking
 enable_shared
@@ -1411,6 +1414,7 @@ Optional Features:
   --enable-debug          enable debug [not default]
   --disable-dsc           disable DSC library build [not default]
   --disable-ebb           disable EBB library build [not default]
+  --disable-tb            disable TIMEBASE build [not default]
   --enable-save-area=AREA define the default EBB internal save area[runtime
                           default]
   --enable-dependency-tracking
@@ -2911,6 +2915,14 @@ else
 
 fi
 
+# Check whether --enable-tb was given.
+if test "${enable_tb+set}" = set; then :
+  enableval=$enable_tb; enable_tb=$enableval
+else
+  enable_tb=yes
+
+fi
+
 
 if test $enable_ebb != yes; then
   if test $enable_dsc != yes; then
@@ -2932,6 +2944,14 @@ fi
 else
   EBB_TRUE='#'
   EBB_FALSE=
+fi
+
+ if test "$enable_tb" = yes; then
+  TB_TRUE=
+  TB_FALSE='#'
+else
+  TB_TRUE='#'
+  TB_FALSE=
 fi
 
 
@@ -2999,7 +3019,7 @@ if ${paflib_cv_powerpc64+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   cat > conftest.c <<EOF
-int foo () {}
+void foo () {}
 EOF
 if ${CC-cc} $CFLAGS $CPPFLAGS -E -dD conftest.c -o - 2>&1 | \
 grep __powerpc64__ > /dev/null; then
@@ -12770,7 +12790,7 @@ $as_echo "#define volatile /**/" >>confdefs.h
 fi
 
 
-ac_config_files="$ac_config_files Makefile ebb/Makefile dsc/Makefile"
+ac_config_files="$ac_config_files Makefile ebb/Makefile dsc/Makefile tb/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -12903,6 +12923,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${EBB_TRUE}" && test -z "${EBB_FALSE}"; then
   as_fn_error $? "conditional \"EBB\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${TB_TRUE}" && test -z "${TB_FALSE}"; then
+  as_fn_error $? "conditional \"TB\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${POWERPC64_TRUE}" && test -z "${POWERPC64_FALSE}"; then
@@ -13804,6 +13828,7 @@ do
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "ebb/Makefile") CONFIG_FILES="$CONFIG_FILES ebb/Makefile" ;;
     "dsc/Makefile") CONFIG_FILES="$CONFIG_FILES dsc/Makefile" ;;
+    "tb/Makefile") CONFIG_FILES="$CONFIG_FILES tb/Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac

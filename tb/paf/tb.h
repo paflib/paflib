@@ -1,6 +1,6 @@
-/* PAFlib hardware capability handling.
+/* Time Base Facility API.  API implementation.
  *
- * Copyright IBM Corp. 2013
+ * Copyright IBM Corp. 2014
  *
  * The MIT License (MIT)
  *
@@ -24,41 +24,52 @@
  *
  * Contributors:
  *     IBM Corporation, Adhemerval Zanella - Initial implementation.
+ *     IBM Corporation, Rajalakshmi S - Initial implementation.
  */
-
-#ifndef _PAF_HWCAP_H
-# define _PAF_HWCAP_H
+#ifndef _PAF_TB_H
+#define _PAF_TB_H
 
 #include <stdint.h>
-#include "paf-common.h"
 
-#ifndef PPC_FEATURE_ARCH_2_05
-# define PPC_FEATURE_ARCH_2_05   0x00001000 /* ISA 2.05 */
-#endif
-#ifndef PPC_FEATURE_ARCH_2_06
-# define PPC_FEATURE_ARCH_2_06   0x00000100 /* ISA 2.06 */
-#endif
-#ifndef PPC_FEATURE2_ARCH_2_07
-# define PPC_FEATURE2_ARCH_2_07  0x80000000 /* ISA 2.07 */ 
-#endif
-#ifndef PPC_FEATURE2_HAS_EBB
-# define PPC_FEATURE2_HAS_EBB    0x10000000 /* Event Base Branching */
-#endif
-#ifndef PPC_FEATURE2_HAS_DSCR
-# define PPC_FEATURE2_HAS_DSCR   0x20000000 /* Data Stream Control Register */ 
-#endif
-#ifndef PPC_FEATURE_NO_TB
-#define PPC_FEATURE_NO_TB        0x00100000 /* 601/403gx have no timebase */
+/* We use 64bit values for the times.  */
+#ifdef __powerpc64__
+typedef uint64_t timing;
+#else
+typedef uint32_t timing;
 #endif
 
-struct hwcap_t
+static inline timing
+paf_timing_now ()
 {
-  uint32_t hwcap1;
-  uint32_t hwcap2;
-#define PAFPLATLEN 64
-  char     platform[PAFPLATLEN];
-};
+  /* Read the Time Base Register.   */
+#ifdef __powerpc64__
+  timing val;
+  __asm__ __volatile__ ("mfspr %0, 268":"=r" (val));
+  return val;
+#else
+    timing hi, lo, tmp;
+    __asm__ __volatile__ ("1:   mfspr   %0,269;"
+                          "     mfspr   %1,268;"
+                          "     mfspr   %2,269;"
+                          "     cmpw    %0,%2;"
+                          "     bne     1b;"
+                          : "=&r" (hi), "=&r" (lo), "=&r" (tmp));
+    return (((uint64_t) hi << 32) | lo);
+#endif
+}
 
-int __paf_get_hwcap (struct hwcap_t *hwcap) attribute_hidden;
+static inline void 
+paf_timing_accum (timing * sum, timing diff)
+{
+  *sum += diff;
+}
+
+static inline timing 
+paf_timing_diff (timing start, timing end)
+{
+  timing diff;
+  diff = end - start;
+  return diff;
+}
 
 #endif
