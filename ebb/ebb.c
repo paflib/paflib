@@ -81,6 +81,9 @@ paf_ebb_pmu_init (uint64_t raw_event, int group)
   if (fd == -1)
     return -1;
 
+  /* Ensure any SPR writes are ordered vs us */
+  mb ();
+
   if (ioctl (fd, PERF_EVENT_IOC_ENABLE, 0) != 0)
     {
       close (fd);
@@ -92,6 +95,8 @@ paf_ebb_pmu_init (uint64_t raw_event, int group)
       close (fd);
       return -1;
     }
+
+  mb ();
 
   return fd;
 }
@@ -127,11 +132,16 @@ __ebb_callback_handler_addr (paf_ebb_callback_type_t type)
     callback = __paf_ebb_callback_handler_vsr;
 
 #ifdef __powerpc64__
-  struct odp_entry_t {
+# if defined(_CALL_ELF) && _CALL_ELF==2
+  return (uintptr_t) callback;
+# else
+  struct odp_entry_t
+  {
     uintptr_t addr;
     uintptr_t toc;
   } *odp_entry = (struct odp_entry_t*)(callback);
   return odp_entry->addr;
+# endif
 #else
   return (uintptr_t)callback;
 #endif
@@ -173,8 +183,12 @@ paf_ebb_register_handler (ebbhandler_t handler, void *context,
   __paf_ebb_set_thread_flags (flags);
    
   handlerfp = __ebb_callback_handler_addr (type);
+  /* Ensure the user handler is set before it set the internal one */
+  mb ();
   mtspr (EBBHR, handlerfp);
 
+  /* Make sure the handler is set before we return */
+  mb ();
   return handler;
 }
 
@@ -189,6 +203,8 @@ paf_ebb_enable_branches (void)
 
   /* Enable PMU Event-Based exception (PME - bit 31).  */
   mtspr (BESCRS, (1 << 31));
+  /* Make sure the handler is set before we return */
+  mb ();
   return 0;
 }
 
@@ -203,5 +219,7 @@ paf_ebb_disable_branches (void)
 
   /* Disable PMU Event-Based exception (PME - bit 31).  */
   mtspr (BESCRR, (1 << 31));
+  /* Make sure the handler is set before we return */
+  mb ();
   return 0;
 }
