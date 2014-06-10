@@ -180,6 +180,13 @@ static inline
 attribute_alwaysinline
 void reset_pmcs (uint32_t sample_period)
 {
+  /* Performance monitor interrupts are generated when the value in an enabled
+     PMC transitions to where the most significant bit becomes '1'.  If a useri
+     wants to get an event based interrupt, say, every 1,000,000 cycles, then
+     the PMC should be configured to count the cycles event and its initial
+     value should be set to 0x80000000 - 1000000.  */
+  sample_period = 0x80000000UL - sample_period;
+
   mtspr (PMC1, sample_period);
   mtspr (PMC2, sample_period);
   mtspr (PMC3, sample_period);
