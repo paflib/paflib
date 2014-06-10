@@ -523,8 +523,7 @@
   lxvd2x   v30,0,r9;                                               \
   lxvd2x   v31,0,r10;
 
-/* The new PPC64 LE ABI the TOC is already synthesized in global calls
-   (the case for the callback calls).  */
+/* Restore our TOC pointer using our entry point */
 #if _CALL_ELF != 2
 # define SETUP_TOC(__func)                                         \
   lis      r2,(__func)@highest;                                    \
@@ -533,8 +532,15 @@
   oris     r2,r2,(__func)@h;                                       \
   ori      r2,r2,(__func)@l;                                       \
   ld       r2,8(r2);
-# else
-# define SETUP_TOC(__func)
+#else
+# define SETUP_TOC(__func)                                         \
+   lis     r12,(__func)@highest;                                   \
+   ori     r12,r12,(__func)@higher;                                \
+   rldicr  r12,r12,32,31;                                          \
+   oris    r12,r12,(__func)@high;                                  \
+   ori     r12,r12,(__func)@l;                                     \
+0: addis   r2,r12,(.TOC.-0b)@ha;                                   \
+   addi	   r2,r2,(.TOC.-0b)@l;
 #endif
 
 .hidden __paf_ebb_ebb_hook

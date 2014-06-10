@@ -180,10 +180,9 @@ name##: OPD_ENT (name);					\
 #define END_ABI(name)					\
 	.size name,.-name;
 
-#define LOCALENTRY(name)				\
-1:      addis   r2,r12,.TOC.-1b@ha;			\
-        addi    r2,r2,.TOC.-1b@l;			\
-        .localentry name,.-name;
+/* Although ELFv2 defines the localentry entrypoint, for EBB handlers we
+   need to save current status before materialize handler's TOC.  */
+#define LOCALENTRY(name)
 # endif
 
 /* Both PPC64 LE and BE defines  */

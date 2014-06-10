@@ -55,6 +55,9 @@ typedef unsigned long int spr_t;
 	       : : "r" (__spr));			\
   })
 
+#define mb()                                            \
+  asm volatile("sync" : : : "memory");
+
 
 #ifdef ENABLE_DEBUG
 # define DEBUG(fmt, args...) fprintf(stderr, "%s:%d: debug: " fmt "\n", \
