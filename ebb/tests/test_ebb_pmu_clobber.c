@@ -1,6 +1,6 @@
 /* Event-Based Branch Facility Tests.
  *
- * Copyright IBM Corp. 2013
+ * Copyright IBM Corp. 2014
  *
  * The MIT License (MIT)
  *
@@ -44,186 +44,257 @@
 
 #define PM_RUN_INST_CMPL  0x400FA
 
-/* Set it volatile to force memory read in loop below.  */
-static volatile int ebb_matched_regs = 0;
-
-#define EXPECTED_R3_VALUE      2
-#define EXPECTED_R4_VALUE      4
-#define EXPECTED_R5_VALUE      8
-#define EXPECTED_R6_VALUE     16
-#define EXPECTED_R7_VALUE     32
-#define EXPECTED_R8_VALUE     64
-#define EXPECTED_R15_VALUE   128
-#define EXPECTED_R16_VALUE   256
-#define EXPECTED_R18_VALUE   512
-#define EXPECTED_R21_VALUE  1024
-#define EXPECTED_R25_VALUE  4096
-#define EXPECTED_R30_VALUE  8192
-
-#ifdef __powerpc64__
-#define LD_INST         "ld"
-#define CALLER_FRAME    112+112  /* EBB internal callback handler (ebb_hook)
-                                    plus the callee stack frame.  */
-#define REG_SIZE        8
-#else /* __powerpc__ */
-#define LD_INST         "lwz"
-#define CALLER_FRAME    16+16
-#define REG_SIZE        4
-#endif
-
-#define CR_SAVE         (CALLER_FRAME)
-#define CR_SIZE         (REG_SIZE)
-#define LR_SAVE         (CR_SAVE + CR_SIZE)
-#define LR_SIZE         (REG_SIZE)
-#define CTR_SAVE        (LR_SAVE + LR_SIZE)
-#define CTR_SIZE        (REG_SIZE)
-#define XER_SAVE        (CTR_SAVE + CTR_SIZE)
-#define XER_SIZE        (REG_SIZE)
-#define GPR_SAVE(n)     (XER_SAVE + XER_SIZE + (REG_SIZE * n)) 
-
-#ifdef __powerpc64__
-#define R3_DISP         GPR_SAVE(2)
-#define R4_DISP         GPR_SAVE(3)
-#define R5_DISP         GPR_SAVE(4)
-#define R6_DISP         GPR_SAVE(5)
-#define R7_DISP         GPR_SAVE(6)
-#define R8_DISP         GPR_SAVE(7)
-#define R15_DISP        GPR_SAVE(13)
-#define R16_DISP        GPR_SAVE(14)
-#define R18_DISP        GPR_SAVE(16)
-#define R21_DISP        GPR_SAVE(19)
-#define R25_DISP        GPR_SAVE(23)
-#define R30_DISP        GPR_SAVE(28)
-#else
-#define R3_DISP         GPR_SAVE(1)
-#define R4_DISP         GPR_SAVE(2)
-#define R5_DISP         GPR_SAVE(3)
-#define R6_DISP         GPR_SAVE(4)
-#define R7_DISP         GPR_SAVE(5)
-#define R8_DISP         GPR_SAVE(6)
-#define R15_DISP        GPR_SAVE(13)
-#define R16_DISP        GPR_SAVE(14)
-#define R18_DISP        GPR_SAVE(16)
-#define R21_DISP        GPR_SAVE(19)
-#define R25_DISP        GPR_SAVE(23)
-#define R30_DISP        GPR_SAVE(28)
-#endif
-
-
-/* To avoid stack allocation by the function, it minimizes its local
-   variables. If any stack allocation is done, the CALLER_FRAME should
-   be adjusted.  */
-
-static unsigned long int cr;
-static unsigned long int lr;
-static unsigned long int ctr;
-static unsigned long int xer;
-
-static void
-attribute_noinline
-ebb_handler_test_special_reg (void *context)
-{
-  int *trigger = (int*) (context);
-  unsigned long int reg;
-
-  asm (LD_INST " %0,%1(1)\n" : "=r"(reg) : "i"(CR_SAVE));
-  *trigger += (reg == cr);
-  asm (LD_INST " %0,%1(1)\n" : "=r"(reg) : "i"(LR_SAVE));
-  *trigger += (reg == lr);
-  asm (LD_INST " %0,%1(1)\n" : "=r"(reg) : "i"(CTR_SAVE));
-  *trigger += (reg == ctr);
-  asm (LD_INST " %0,%1(1)\n" : "=r"(reg) : "i"(XER_SAVE));
-  *trigger += (reg == xer);
-}
-
+/* Set, save and restores GPR values to see if EBB handler clobbers any.
+   Returns 0 is none has been altered, 1 otherwise.  */
 static int
-ebb_test_pmu_special_reg_clobber ()
+core_busy_loop (void)
 {
-  ebbhandler_t handler;
-  unsigned long int reg;
+  int rc = 1;
 
-  printf ("%s: testing SPECIAL REG clobbering\n", __FUNCTION__);
+  asm volatile ("li  3,  0x3030\n"
+		"std 3,  -96(1)\n"
+		"li  4,  0x4040\n"
+		"std 4,  -104(1)\n"
+		"li  5,  0x5050\n"
+		"std 5,  -112(1)\n"
+		"li  6,  0x6060\n"
+		"std 6,  -120(1)\n"
+		"li  7,  0x7070\n"
+		"std 7,  -128(1)\n"
+		"li  8,  0x0808\n"
+		"std 8,  -136(1)\n"
+		"li  9,  0x0909\n"
+		"std 9,  -144(1)\n"
+		"li  10, 0x1010\n"
+		"std 10, -152(1)\n"
+		"li  11, 0x1111\n"
+		"std 11, -160(1)\n"
+		"li  14, 0x1414\n"
+		"std 14, -168(1)\n"
+		"li  15, 0x1515\n"
+		"std 15, -176(1)\n"
+		"li  16, 0x1616\n"
+		"std 16, -184(1)\n"
+		"li  17, 0x1717\n"
+		"std 17, -192(1)\n"
+		"li  18, 0x1818\n"
+		"std 18, -200(1)\n"
+		"li  19, 0x1919\n"
+		"std 19, -208(1)\n"
+		"li  20, 0x2020\n"
+		"std 20, -216(1)\n"
+		"li  21, 0x2121\n"
+		"std 21, -224(1)\n"
+		"li  22, 0x2222\n"
+		"std 22, -232(1)\n"
+		"li  23, 0x2323\n"
+		"std 23, -240(1)\n"
+		"li  24, 0x2424\n"
+		"std 24, -248(1)\n"
+		"li  25, 0x2525\n"
+		"std 25, -256(1)\n"
+		"li  26, 0x2626\n"
+		"std 26, -264(1)\n"
+		"li  27, 0x2727\n"
+		"std 27, -272(1)\n"
+		"li  28, 0x2828\n"
+		"std 28, -280(1)\n"
+		"li  29, 0x2929\n"
+		"std 29, -288(1)\n"
+		"li  30, 0x3030\n"
+		"li  31, 0x3131\n"
+		"li    3,  0\n"
+		"0: "
+		"addi  3, 3, 1\n"
+		"cmpwi 3, 100\n"
+		"blt   0b\n"
+		/* Check none of our registers have been corrupted */
+		"cmpwi  4,  0x4040\n"
+		"bne	1f\n"
+		"cmpwi  5,  0x5050\n"
+		"bne	1f\n"
+		"cmpwi  6,  0x6060\n"
+		"bne	1f\n"
+		"cmpwi  7,  0x7070\n"
+		"bne	1f\n"
+		"cmpwi  8,  0x0808\n"
+		"bne	1f\n"
+		"cmpwi  9,  0x0909\n"
+		"bne	1f\n"
+		"cmpwi  10, 0x1010\n"
+		"bne	1f\n"
+		"cmpwi  11, 0x1111\n"
+		"bne	1f\n"
+		"cmpwi  14, 0x1414\n"
+		"bne	1f\n"
+		"cmpwi  15, 0x1515\n"
+		"bne	1f\n"
+		"cmpwi  16, 0x1616\n"
+		"bne	1f\n"
+		"cmpwi  17, 0x1717\n"
+		"bne	1f\n"
+		"cmpwi  18, 0x1818\n"
+		"bne	1f\n"
+		"cmpwi  19, 0x1919\n"
+		"bne	1f\n"
+		"cmpwi  20, 0x2020\n"
+		"bne	1f\n"
+		"cmpwi  21, 0x2121\n"
+		"bne	1f\n"
+		"cmpwi  22, 0x2222\n"
+		"bne	1f\n"
+		"cmpwi  23, 0x2323\n"
+		"bne	1f\n"
+		"cmpwi  24, 0x2424\n"
+		"bne	1f\n"
+		"cmpwi  25, 0x2525\n"
+		"bne	1f\n"
+		"cmpwi  26, 0x2626\n"
+		"bne	1f\n"
+		"cmpwi  27, 0x2727\n"
+		"bne	1f\n"
+		"cmpwi  28, 0x2828\n"
+		"bne	1f\n"
+		"cmpwi  29, 0x2929\n"
+		"bne	1f\n"
+		"cmpwi  30, 0x3030\n"
+		"bne	1f\n"
+		"cmpwi  31, 0x3131\n"
+		"bne	1f\n"
+		/* Load junk into all our registers before we reload
+		   them from the stack. */
+		"li  3,  0xde\n"
+		"li  4,  0xad\n"
+		"li  5,  0xbe\n"
+		"li  6,  0xef\n"
+		"li  7,  0xde\n"
+		"li  8,  0xad\n"
+		"li  9,  0xbe\n"
+		"li  10, 0xef\n"
+		"li  11, 0xde\n"
+		"li  14, 0xad\n"
+		"li  15, 0xbe\n"
+		"li  16, 0xef\n"
+		"li  17, 0xde\n"
+		"li  18, 0xad\n"
+		"li  19, 0xbe\n"
+		"li  20, 0xef\n"
+		"li  21, 0xde\n"
+		"li  22, 0xad\n"
+		"li  23, 0xbe\n"
+		"li  24, 0xef\n"
+		"li  25, 0xde\n"
+		"li  26, 0xad\n"
+		"li  27, 0xbe\n"
+		"li  28, 0xef\n"
+		"li  29, 0xdd\n"
+		"ld     3,  -96(1)\n"
+		"cmpwi  3,  0x3030\n"
+		"bne	1f\n"
+		"ld     4,  -104(1)\n"
+		"cmpwi  4,  0x4040\n"
+		"bne	1f\n"
+		"ld     5,  -112(1)\n"
+		"cmpwi  5,  0x5050\n"
+		"bne	1f\n"
+		"ld     6,  -120(1)\n"
+		"cmpwi  6,  0x6060\n"
+		"bne	1f\n"
+		"ld     7,  -128(1)\n"
+		"cmpwi  7,  0x7070\n"
+		"bne	1f\n"
+		"ld     8,  -136(1)\n"
+		"cmpwi  8,  0x0808\n"
+		"bne	1f\n"
+		"ld     9,  -144(1)\n"
+		"cmpwi  9,  0x0909\n"
+		"bne	1f\n"
+		"ld     10, -152(1)\n"
+		"cmpwi  10, 0x1010\n"
+		"bne	1f\n"
+		"ld     11, -160(1)\n"
+		"cmpwi  11, 0x1111\n"
+		"bne	1f\n"
+		"ld     14, -168(1)\n"
+		"cmpwi  14, 0x1414\n"
+		"bne	1f\n"
+		"ld     15, -176(1)\n"
+		"cmpwi  15, 0x1515\n"
+		"bne	1f\n"
+		"ld     16, -184(1)\n"
+		"cmpwi  16, 0x1616\n"
+		"bne	1f\n"
+		"ld     17, -192(1)\n"
+		"cmpwi  17, 0x1717\n"
+		"bne	1f\n"
+		"ld     18, -200(1)\n"
+		"cmpwi  18, 0x1818\n"
+		"bne	1f\n"
+		"ld     19, -208(1)\n"
+		"cmpwi  19, 0x1919\n"
+		"bne	1f\n"
+		"ld     20, -216(1)\n"
+		"cmpwi  20, 0x2020\n"
+		"bne	1f\n"
+		"ld     21, -224(1)\n"
+		"cmpwi  21, 0x2121\n"
+		"bne	1f\n"
+		"ld     22, -232(1)\n"
+		"cmpwi  22, 0x2222\n"
+		"bne	1f\n"
+		"ld     23, -240(1)\n"
+		"cmpwi  23, 0x2323\n"
+		"bne	1f\n"
+		"ld     24, -248(1)\n"
+		"cmpwi  24, 0x2424\n"
+		"bne	1f\n"
+		"ld     25, -256(1)\n"
+		"cmpwi  25, 0x2525\n"
+		"bne	1f\n"
+		"ld     26, -264(1)\n"
+		"cmpwi  26, 0x2626\n"
+		"bne	1f\n"
+		"ld     27, -272(1)\n"
+		"cmpwi  27, 0x2727\n"
+		"bne	1f\n"
+		"ld     28, -280(1)\n"
+		"cmpwi  28, 0x2828\n"
+		"bne	1f\n"
+		"ld     29, -288(1)\n"
+		"cmpwi  29, 0x2929\n"
+		"bne	1f\n"
+		/* Load 0 (success) to return */
+		"li	0, 0\n"
+		"1: 	mr %0, 0\n"
+		: "=r" (rc):	/* no inputs */
+		:  "3",  "4",  "5",  "6",  "7",  "8",  "9", "10", "11", "14",
+		  "15", "16", "17", "18", "19", "20", "21", "22", "23",
+		  "24", "25", "26", "27", "28", "29", "30", "31", "memory");
 
-  ebb_matched_regs = 0;
-
-  handler = paf_ebb_register_handler (ebb_handler_test_special_reg,
-				      (void*)&ebb_matched_regs,
-				      PAF_EBB_CALLBACK_GPR_SAVE, 0);
-  if (handler != ebb_handler_test_special_reg)
-    {
-      printf ("Error: paf_ebb_register_handler \
-	      (ebb_handler_test_gpr) != handler\n");
-      return -1;
-    }
-
-  ebb_matched_regs = 0;
-
-  paf_ebb_enable_branches ();
-
-  paf_ebb_pmu_reset ();
-
-  /* First save current values.  */
-  asm volatile ("mfcr  %0\n" : "=r"(reg));
-  cr = reg;
-  asm volatile ("mflr  %0\n" : "=r"(reg));
-  lr = reg;
-  asm volatile ("mfctr %0\n" : "=r"(reg));
-  ctr = reg;
-  asm volatile ("mfxer %0\n" : "=r"(reg));
-  xer = reg;
-
-  while (ebb_matched_regs == 0);
-
-  paf_ebb_disable_branches ();
-
-  printf ("%s: ebb_matched_regs == %d\n", __FUNCTION__,
-    ebb_matched_regs);
-  return (ebb_matched_regs != 4);
+  return rc;
 }
 
-static void
-attribute_noinline
+
+static long int ebb_triggered = 0;
+
+static void attribute_noinline
 ebb_handler_test_gpr (void *context)
 {
-  int *trigger = (int*) (context);
-  unsigned long int reg;
-
-  asm (LD_INST " %0,%1(1)\n" : "=r"(reg) : "i"(R3_DISP));
-  *trigger += (reg == EXPECTED_R3_VALUE);
-  asm (LD_INST " %0,%1(1)\n" : "=r"(reg) : "i"(R4_DISP));
-  *trigger += (reg == EXPECTED_R4_VALUE);
-  asm (LD_INST " %0,%1(1)\n" : "=r"(reg) : "i"(R5_DISP));
-  *trigger += (reg == EXPECTED_R5_VALUE);
-  asm (LD_INST " %0,%1(1)\n" : "=r"(reg) : "i"(R6_DISP));
-  *trigger += (reg == EXPECTED_R6_VALUE);
-  asm (LD_INST " %0,%1(1)\n" : "=r"(reg) : "i"(R7_DISP));
-  *trigger += (reg == EXPECTED_R7_VALUE);
-  asm (LD_INST " %0,%1(1)\n" : "=r"(reg) : "i"(R8_DISP));
-  *trigger += (reg == EXPECTED_R8_VALUE);
-  asm (LD_INST " %0,%1(1)\n" : "=r"(reg) : "i"(R15_DISP));
-  *trigger += (reg == EXPECTED_R15_VALUE);
-  asm (LD_INST " %0,%1(1)\n" : "=r"(reg) : "i"(R16_DISP));
-  *trigger += (reg == EXPECTED_R16_VALUE);
-  asm (LD_INST " %0,%1(1)\n" : "=r"(reg) : "i"(R18_DISP));
-  *trigger += (reg == EXPECTED_R18_VALUE);
-  asm (LD_INST " %0,%1(1)\n" : "=r"(reg) : "i"(R21_DISP));
-  *trigger += (reg == EXPECTED_R21_VALUE);
-  asm (LD_INST " %0,%1(1)\n" : "=r"(reg) : "i"(R25_DISP));
-  *trigger += (reg == EXPECTED_R25_VALUE);
-  asm (LD_INST " %0,%1(1)\n" : "=r"(reg) : "i"(R30_DISP));
-  *trigger += (reg == EXPECTED_R30_VALUE);
+  long int *trigger = (long int *) (context);
+  printf ("%s: ebb_triggered = %li (%p)\n", __FUNCTION__, *trigger, trigger);
+  *trigger += 1;
 }
 
 static int
 ebb_test_pmu_grp_clobber ()
 {
   ebbhandler_t handler;
+  int ret = 0;
 
   printf ("%s: testing GRP clobbering\n", __FUNCTION__);
-  ebb_matched_regs = 0;
 
   handler = paf_ebb_register_handler (ebb_handler_test_gpr,
-				      (void*)&ebb_matched_regs,
+				      (void *) &ebb_triggered,
 				      PAF_EBB_CALLBACK_GPR_SAVE, 0);
   if (handler != ebb_handler_test_gpr)
     {
@@ -232,66 +303,40 @@ ebb_test_pmu_grp_clobber ()
       return -1;
     }
 
-  ebb_matched_regs = 0;
-
   paf_ebb_enable_branches ();
 
   paf_ebb_pmu_reset ();
 
-  asm ("li 3,%0\n"
-       "li 4,%1\n"
-       "li 5,%2\n"
-       "li 6,%3\n"
-       "li 7,%4\n"
-       "li 8,%5\n"
-       "li 15,%6\n"
-       "li 16,%7\n"
-       "li 18,%8\n"
-       "li 21,%9\n"
-       "li 25,%10\n"
-       "li 30,%11\n"
-       : : "i"(EXPECTED_R3_VALUE),
-           "i"(EXPECTED_R4_VALUE),
-           "i"(EXPECTED_R5_VALUE),
-           "i"(EXPECTED_R6_VALUE),
-           "i"(EXPECTED_R7_VALUE),
-           "i"(EXPECTED_R8_VALUE),
-           "i"(EXPECTED_R15_VALUE),
-           "i"(EXPECTED_R16_VALUE),
-           "i"(EXPECTED_R18_VALUE),
-           "i"(EXPECTED_R21_VALUE),
-           "i"(EXPECTED_R25_VALUE),
-           "i"(EXPECTED_R30_VALUE)
-       : "r3", "r4", "r5", "r6", "r7", "r8",
-         "r15", "r16", "r18", "r21", "r25", "r30");
-
-  while (ebb_matched_regs == 0);
+  while (ebb_triggered <= 10)
+    {
+      if (ebb_check_mmcr0 ())
+	return 1;
+      int rc = core_busy_loop ();
+      if (rc != 0)
+	printf ("%s: core_busy_loop returned %i\n", __FUNCTION__, rc);
+      ret += rc;
+    }
 
   paf_ebb_disable_branches ();
 
-  printf ("%s: ebb_matched_regs == %d\n", __FUNCTION__,
-    ebb_matched_regs);
-
-  return (ebb_matched_regs != 12);
+  return ret;
 }
 
 static int
 ebb_test_pmu_clobber (void)
 {
   int ebbfd;
-  int ret;
+  int ret = 0;
 
   ebbfd = paf_ebb_pmu_init (PM_RUN_INST_CMPL, -1);
   if (ebbfd == -1)
     {
-      printf("Error: paf_ebb_init_pmu (PM_RUN_CYC, -1) failed "
-	     "(errno = %i)\n", errno);
+      printf ("Error: paf_ebb_init_pmu (PM_RUN_CYC, -1) failed "
+	      "(errno = %i)\n", errno);
       return -1;
     }
 
-  ret  = ebb_test_pmu_special_reg_clobber ();
-  paf_ebb_pmu_reset ();
-  ret += ebb_test_pmu_grp_clobber ();
+  ret = ebb_test_pmu_grp_clobber ();
 
   close (ebbfd);
 
