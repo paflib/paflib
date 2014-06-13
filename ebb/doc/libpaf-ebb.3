@@ -68,7 +68,7 @@ any kernel handling besides initialization.  Only Performance Monitor Unit
 
 The Event-Based Branch Library framework registers a proxy-handler with the hardware, on behalf of a user program, so that the program doesn't need to directly control the Power Architecture EBB facility (which would require assembly language instructions and an understanding of the EBB ELF ABI).
 
-The EBB Library proxy-handler will properly stack an ELF ABI EBB exception frame on the user-stack, preserve the current register context in that stack frame, and then pass control to a user registered (thread specific) handler. When the user-space handler has completed its task and returned control to the EBB Library proxy-handler, the proxy-handler will perform the tasks necessary to restore the register context, pop the EBB exception frame, and return control to the process that was interrupted by the event-based exception.
+The EBB Library proxy-handler will properly stack an ELF ABI EBB exception frame on the user-stack, preserve the current register context in that stack frame, and then pass control to a user registered (thread specific) handler. When the user-space handler has completed its task and returned control to the EBB Library proxy-handler, the proxy-handler will perform the tasks necessary to restore the register context, pop the EBB exception frame, and return control to the code that was interrupted by the event-based exception.
 
 .BR paf_ebb_pmu_init()
 initializes the PMU event generation configuring the hardware
@@ -79,7 +79,7 @@ with the specified
 The first call should use -1 to start a new group. Subsequent calls may create
 new groups or use the returned file descriptor from
 .BR paf_ebb_pmu_init
-to associate events in a group.
+to associate events in a group. The file descriptor returned should be closed when done to prevent resource leak.
 
 The
 .I event-based exception
@@ -115,6 +115,17 @@ save/restore all General Purpose Registers, all Floating-Point Register, all
 Vector Registers (VMX), and all Vector Scalar Registers (VSX).
 .PP
 
+The current support
+.I
+flags
+is either 0 or a multibyte mask of bits with one or more of the following options:
+
+.IP \[bu] 2
+.BR PAF_EBB_FLAGS_RESET_PMU
+after the callback activation the EBB machanism will be reset, similiar to a call to
+.BR paf_ebb_pmu_reset
+.PP
+
 .BR paf_ebb_handler()
 returns the registered handler previously issued by paf_ebb_register_handler().
 
@@ -130,15 +141,21 @@ disables EBB triggering.
 returns a file descriptor to be used in group association or -1 case of error.
 
 .BR paf_ebb_register_handler()
-returns the registered handler or EBB_REG_ERR on error.
+returns the registered handler or EBB_REG_ERR on error. On error
+.I errno
+is set appropriately.
 
 .BR paf_ebb_handler()
-returns the previous registered handler or EBB_REG_ERR if no handler has been registered.
+returns the previous registered handler or EBB_REG_ERR if no handler has been registered. On error
+.I errno
+is set appropriately.
 
 .BR paf_ebb_enable_branches()
 and
 .BR paf_ebb_disable_branches()
-return 0 in case of success or -1 otherwise.
+return 0 in case of success or -1 otherwise. On error
+.I errno
+is set appropriately.
 
 .SH ERRORS
 
@@ -153,6 +170,75 @@ Linux support for the EBB facility first appeared in Linux kernel version 3.10.
 
 Support for the ELF EBB ABI first appeared in glibc version 2.18 though the ABI is not runtime incompatible with backporting to earlier glibc versions.
 
+.SH EXAMPLE
+
+The following example show how to setup a simple EBB handler to update a global counter.
+
+.nf
+.sp
+#include <stdio.h>
+#include <paf/ebb.h>
+#include <unistd.h>
+
+#define PM_RUN_INST_CMPL  0x400FA
+
+/* Set it volatile to force memory read in loop below.  */
+static volatile int ebb_handler_triggered = 0;
+
+static void ebb_handler(void *context)
+{
+  int *trigger = (int*) (context);
+  *trigger += 1;
+}
+
+void do_work (void)
+{
+  while (1)
+    {
+      if (ebb_handler_triggered == 1000)
+        break;
+    }
+}
+
+int _do_ebb(void)
+{
+  ebbhandler_t handler;
+  ebb_handler_triggered = 0;
+  int ebb_fd;
+
+  ebb_fd = paf_ebb_pmu_init (PM_RUN_INST_CMPL, -1);
+
+  paf_ebb_pmu_set_period (500000);
+
+  handler = paf_ebb_register_handler (ebb_handler,
+                                      (void*)&ebb_handler_triggered,
+                                      PAF_EBB_CALLBACK_GPR_SAVE,
+                                      PAF_EBB_FLAGS_RESET_PMU);
+
+  paf_ebb_pmu_reset ();
+
+  paf_ebb_enable_branches ();
+
+  do_work ();
+
+  paf_ebb_disable_branches ();
+
+  printf ("Done; %d EBB interrupts handled\n", ebb_handler_triggered);
+
+  close (ebb_fd);
+
+  return 0;
+}
+
+int main (int argc, char *argv[])
+{
+  return do_ebb ();
+}
+.fi
+
+.SH "SEE ALSO"
+.BR libpaf-dsc (3)
+
 .SH REFERENCES
 .TP
 .B Power ISA\(tm Version 2.07
@@ -160,6 +246,4 @@ Support for the ELF EBB ABI first appeared in glibc version 2.18 though the ABI 
 .PP
 Email bug reports to Adhemerval Zanella <azanella@linux.vnet.ibm.com>.
 .SH AUTHORS
-This manual page was written by Adhemerval Zanella <azanella@linux.vnet.ibm.com> and Ryan S. Arnold <rsa@linux.vnet.ibm.com>.
-
-
+This manual page was written by Adhemerval Zanella <azanella@linux.vnet.ibm.com> and Ryan S. Arnold.
