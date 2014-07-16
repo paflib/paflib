@@ -152,5 +152,10 @@ linux/perf_event.h])
 # Checks for typedefs, structures, and compiler characteristics
 AC_C_VOLATILE
 
+AC_CHECK_DECL([__NR_perf_event_open], [],
+    AC_MSG_ERROR([__NR_perf_event_open not found.  Are you using Linux >= \
+2.6.32?]),
+    [[#include <sys/syscall.h>]])
+
 AC_CONFIG_FILES([Makefile ebb/Makefile dsc/Makefile])
 AC_OUTPUT
