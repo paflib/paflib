@@ -580,7 +580,7 @@ LIBPPCEBB_COMMON_SOURCES = ../common/paf-hwcap.c \
 libpaf_ebb_la_SOURCES = ebb.c ebb-init.c ebb-hwcap.c ebb-hook.c \
 	ebb-version.c $(include_HEADERS) $(LIBPPCEBB_PRIVATE_INCLUDE) \
 	$(LIBPPCEBB_COMMON_SOURCES) $(am__append_1) $(am__append_2)
-libpaf_ebb_la_CFLAGS = -Wl,-entry=__paflib_ebb_main
+libpaf_ebb_la_CFLAGS = -Wl,-entry=__paflib_ebb_main -fpic
 libpaf_ebb_la_LDFLAGS = -version-info $(LIBPAF_SO_VERSION) \
 -e __paflib_ebb_main
 

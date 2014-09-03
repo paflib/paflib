@@ -529,13 +529,11 @@
 
 /* Restore our TOC pointer using our entry point */
 #if _CALL_ELF != 2
-# define SETUP_TOC(__func)                                         \
-  lis      r2,(__func)@highest;                                    \
-  ori      r2,r2,(__func)@higher;                                  \
-  rldicr   r2,r2,32,31;                                            \
-  oris     r2,r2,(__func)@h;                                       \
-  ori      r2,r2,(__func)@l;                                       \
-  ld       r2,8(r2);
+# define SETUP_TOC(__func)					   \
+   bcl	   20,31,1f;						   \
+1: mflr    r2;							   \
+   addis   r2,r2,(.TOC.-1b)@ha;					   \
+   addi    r2,r2,(.TOC.-1b)@l;
 #else
 # define SETUP_TOC(__func)                                         \
    lis     r12,(__func)@highest;                                   \
@@ -553,8 +551,9 @@
   nop
 
 
+/* STACK_FRAME_GPR = 672 (aligned to 16 bytes).  */
 #define STACK_FRAME_GPR  (ABI_GAP + CALLER_FRAME + \
-                          CR_SIZE + LR_SIZE + XER_SIZE + GPR_SIZE)
+                          CTR_SAVE + CR_SIZE + LR_SIZE + XER_SIZE + GPR_SIZE)
 
 ENTRY(__paf_ebb_callback_handler_gpr)
   stdu  r1,-STACK_FRAME_GPR(r1)
@@ -576,7 +575,8 @@ ENTRY(__paf_ebb_callback_handler_gpr)
 END(__paf_ebb_callback_handler_gpr)
 
 
-#define STACK_FRAME_FPR  (STACK_FRAME_GPR + FPR_SIZE + FPSR_SIZE)
+/* STACK_FRAME_FPR + 8 = 944 (aligned to 16 bytes).  */
+#define STACK_FRAME_FPR  (STACK_FRAME_GPR + FPR_SIZE + FPSR_SIZE) + 8
 
 ENTRY(__paf_ebb_callback_handler_fpr)
   /* Reserve stack-frame size.  */
@@ -602,8 +602,9 @@ ENTRY(__paf_ebb_callback_handler_fpr)
   RFEBB1
 END(__paf_ebb_callback_handler_fpr)
 
-/* Add extra 16 in case the stack + VR_SAVE is not 16-bytes aligned.  */
-#define STACK_FRAME_VR  (STACK_FRAME_FPR + VR_SIZE + 16 + VSCR_SIZE)
+
+/* STACK_FRAME_VR + 12 = 1472 (aligned to 16 bytes).  */
+#define STACK_FRAME_VR  (STACK_FRAME_FPR + VR_SIZE + VSCR_SIZE) + 12
 
   .machine "altivec"
 ENTRY(__paf_ebb_callback_handler_vr)
@@ -635,8 +636,8 @@ ENTRY(__paf_ebb_callback_handler_vr)
 END(__paf_ebb_callback_handler_vr)
 
 
-/* Add extra 16 in case the stack + VSR_SAVE is not 16-bytes aligned.  */
-#define STACK_FRAME_VSR  (STACK_FRAME_VR + VSR_SIZE + 16)
+/* STACK_FRAME_VSR = 1984 (aligned to 16 bytes).  */
+#define STACK_FRAME_VSR  (STACK_FRAME_VR + VSR_SIZE)
 
   .machine "power7"
 ENTRY(__paf_ebb_callback_handler_vsr)
