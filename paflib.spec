@@ -42,13 +42,11 @@ make install DESTDIR=$RPM_BUILD_ROOT
 %files
 %defattr(-,root,root,-)
 %{_usr}/lib/libpaf-dsc.la
-%{_usr}/lib/libpaf-dsc.so.0
 %{_usr}/lib/libpaf-ebb.so.0.0.1
 %{_usr}/lib/libpaf-dsc.so.0.0.1
-%{_usr}/lib/libpaf-dsc.so
-%{_usr}/lib/libpaf-ebb.so
-%{_usr}/lib/libpaf-ebb.la
+%{_usr}/lib/libpaf-dsc.so.0
 %{_usr}/lib/libpaf-ebb.so.0
+%{_usr}/lib/libpaf-ebb.la
 %{_mandir}/man3/libpaf-dsc.3.gz
 %{_mandir}/man3/libpaf-ebb.3.gz
 
@@ -56,6 +54,8 @@ make install DESTDIR=$RPM_BUILD_ROOT
 
 %files devel
 %defattr(-,root,root,-)
+%{_usr}/lib/libpaf-dsc.so
+%{_usr}/lib/libpaf-ebb.so
 %{_usr}/lib/libpaf-dsc.a
 %{_usr}/lib/libpaf-ebb.a
 %{_includedir}/paf/dsc.h
