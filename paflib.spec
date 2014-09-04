@@ -27,7 +27,7 @@ exposed problem-state DSCR usage for ISA 2.06 (POWER7 – emulated) and ISA
 
 %build
 cd %{_builddir}
-%{name}-%{version}/configure --prefix=%{_usr}
+%{name}-%{version}/configure --prefix=%{_usr} --libdir=%{_libdir}
 make %{?_smp_mflags}
 
 %install
@@ -41,12 +41,12 @@ make install DESTDIR=$RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root,-)
-%{_usr}/lib/libpaf-dsc.la
-%{_usr}/lib/libpaf-ebb.so.0.0.1
-%{_usr}/lib/libpaf-dsc.so.0.0.1
-%{_usr}/lib/libpaf-dsc.so.0
-%{_usr}/lib/libpaf-ebb.so.0
-%{_usr}/lib/libpaf-ebb.la
+%{_libdir}/libpaf-dsc.la
+%{_libdir}/libpaf-ebb.so.0.0.1
+%{_libdir}/libpaf-dsc.so.0.0.1
+%{_libdir}/libpaf-dsc.so.0
+%{_libdir}/libpaf-ebb.so.0
+%{_libdir}/libpaf-ebb.la
 %{_mandir}/man3/libpaf-dsc.3.gz
 %{_mandir}/man3/libpaf-ebb.3.gz
 
@@ -54,10 +54,10 @@ make install DESTDIR=$RPM_BUILD_ROOT
 
 %files devel
 %defattr(-,root,root,-)
-%{_usr}/lib/libpaf-dsc.so
-%{_usr}/lib/libpaf-ebb.so
-%{_usr}/lib/libpaf-dsc.a
-%{_usr}/lib/libpaf-ebb.a
+%{_libdir}/libpaf-dsc.so
+%{_libdir}/libpaf-ebb.so
+%{_libdir}/libpaf-dsc.a
+%{_libdir}/libpaf-ebb.a
 %{_includedir}/paf/dsc.h
 %{_includedir}/paf/ebb.h
 
