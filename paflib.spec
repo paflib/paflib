@@ -4,13 +4,13 @@ Release: 1%{?dist}
 Summary: IBM library to expose Power Arch Facilities to user space via an API
 Group: Development/Libraries
 License: MIT
-URL: https://github.com/paflib/paflib 
-Source0: %{name}-%{version}.tar 
+URL: https://github.com/paflib/paflib
+Source0: %{name}-%{version}.tar
 ExclusiveArch: ppc ppc64 ppc64le
 BuildRequires: libtool
 
 %package devel
-Summary: Header files for paflib 
+Summary: Header files for paflib
 Group: Development/Libraries
 %description devel
 Contains header files for building with paflib.
@@ -18,8 +18,8 @@ Contains header files for building with paflib.
 %description
 PAFLib is a IBM written library which exposes Power Architecture Facilities to
 user space via an API. This includes the Data Stream Control Register Facility
-(DSCR) and the Event-Based Branching facility (EBB). Linux kernel 3.9 has 
-exposed problem-state DSCR usage for ISA 2.06 (POWER7 – emulated) and ISA 
+(DSCR) and the Event-Based Branching facility (EBB). Linux kernel 3.9 has
+exposed problem-state DSCR usage for ISA 2.06 (POWER7 – emulated) and ISA
 2.07 (POWER8– in hardware). Linux 3.10 has exposed the EBB facility.
 
 %prep
@@ -64,5 +64,5 @@ make install DESTDIR=$RPM_BUILD_ROOT
 
 
 %changelog
-* Mon Sep 01 2014 Rajalakshmi S<raji@linux.vnet.ibm.com> 0.1-1
+* Mon Sep 01 2014 Rajalakshmi S <raji@linux.vnet.ibm.com> 0.1-1
 - Initial RPM release
