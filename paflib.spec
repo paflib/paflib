@@ -12,6 +12,7 @@ BuildRequires: libtool
 %package devel
 Summary: Header files for paflib
 Group: Development/Libraries
+Requires: %{name} = %{version}-%{release}
 %description devel
 Contains header files for building with paflib.
 
@@ -41,12 +42,12 @@ make install DESTDIR=$RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root,-)
-%{_libdir}/libpaf-dsc.la
+%exclude %{_libdir}/libpaf-dsc.la
 %{_libdir}/libpaf-ebb.so.0.0.1
 %{_libdir}/libpaf-dsc.so.0.0.1
 %{_libdir}/libpaf-dsc.so.0
 %{_libdir}/libpaf-ebb.so.0
-%{_libdir}/libpaf-ebb.la
+%exclude %{_libdir}/libpaf-ebb.la
 %{_mandir}/man3/libpaf-dsc.3.gz
 %{_mandir}/man3/libpaf-ebb.3.gz
 
