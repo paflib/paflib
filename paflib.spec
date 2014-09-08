@@ -5,7 +5,7 @@ Summary: IBM library to expose Power Arch Facilities to user space via an API
 Group: Development/Libraries
 License: MIT
 URL: https://github.com/paflib/paflib
-Source0: %{name}-%{version}.tar.gz
+Source0: https://github.com/paflib/paflib/archive/%{name}-%{version}.tar.gz
 ExclusiveArch: ppc ppc64 ppc64le
 BuildRequires: libtool
 
