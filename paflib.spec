@@ -28,7 +28,7 @@ exposed problem-state DSCR usage for ISA 2.06 (POWER7 – emulated) and ISA
 
 %build
 cd %{_builddir}
-%{name}-%{version}/configure --prefix=%{_usr} --libdir=%{_libdir}
+%{name}-%{version}/configure --disable-static --prefix=%{_prefix} --libdir=%{_libdir}
 make %{?_smp_mflags}
 
 %install
@@ -41,7 +41,6 @@ make install DESTDIR=$RPM_BUILD_ROOT
 %postun -p /sbin/ldconfig
 
 %files
-%defattr(-,root,root,-)
 %exclude %{_libdir}/libpaf-dsc.la
 %{_libdir}/libpaf-ebb.so.0.0.1
 %{_libdir}/libpaf-dsc.so.0.0.1
@@ -54,11 +53,8 @@ make install DESTDIR=$RPM_BUILD_ROOT
 %doc COPYING README.md
 
 %files devel
-%defattr(-,root,root,-)
 %{_libdir}/libpaf-dsc.so
 %{_libdir}/libpaf-ebb.so
-%{_libdir}/libpaf-dsc.a
-%{_libdir}/libpaf-ebb.a
 %{_includedir}/paf/dsc.h
 %{_includedir}/paf/ebb.h
 
