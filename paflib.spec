@@ -5,7 +5,7 @@ Summary: IBM library to expose Power Arch Facilities to user space via an API
 Group: Development/Libraries
 License: MIT
 URL: https://github.com/paflib/paflib
-Source0: https://github.com/paflib/paflib/archive/%{name}-%{version}.tar.gz
+Source0: https://github.com/paflib/paflib/archive/%{name}-%{version}.3.tar.gz
 ExclusiveArch: ppc ppc64 ppc64le
 BuildRequires: libtool
 
@@ -27,13 +27,11 @@ exposed problem-state DSCR usage for ISA 2.06 (POWER7 – emulated) and ISA
 %setup -q
 
 %build
-cd %{_builddir}
-%{name}-%{version}/configure --disable-static --prefix=%{_prefix} --libdir=%{_libdir}
+%configure --disable-static --prefix=%{_prefix} --libdir=%{_libdir}
 make %{?_smp_mflags}
 
 %install
 rm -rf $RPM_BUILD_ROOT
-cd %{_builddir}
 make install DESTDIR=$RPM_BUILD_ROOT
 
 %post -p /sbin/ldconfig
@@ -61,5 +59,8 @@ make install DESTDIR=$RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Sep 09 2014 Rajalakshmi S <raji@linux.vnet.ibm.com> 0.1-1
+- Fix builddir in spec-file
+
 * Mon Sep 01 2014 Rajalakshmi S <raji@linux.vnet.ibm.com> 0.1-1
 - Initial RPM release
