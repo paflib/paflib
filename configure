@@ -2912,11 +2912,6 @@ LIBPAF_SO_VERSION=0:1:0
 
 
 
-# We want to prevent building/configuration in the source directory
-if test "`cd $srcdir; /bin/pwd`" = "`/bin/pwd`"; then
-	as_fn_error $? "you must configure in a separate build directory" "$LINENO" 5
-fi
-
 # Check for supported platforms (currently only Linux on POWER)
 case "$host_cpu-$host_os" in
   powerpc64*-linux* | ppc64*-linux* | powerpc32*-linux | ppc32*-linux* )
