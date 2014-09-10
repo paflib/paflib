@@ -1,11 +1,11 @@
 Name: paflib
-Version: 0.1
+Version: 0.1.3
 Release: 3%{?dist}
 Summary: Library for accessing Power Architecture Facilities
 Group: Development/Libraries
 License: MIT
 URL: https://github.com/paflib/paflib
-Source0: https://github.com/paflib/paflib/archive/%{name}-%{version}.3.tar.gz
+Source0: https://github.com/paflib/paflib/archive/%{version}.tar.gz
 ExclusiveArch: ppc %{power64}
 BuildRequires: libtool
 
@@ -24,7 +24,7 @@ exposed problem-state DSCR usage for ISA 2.06 (POWER7 – emulated) and ISA
 2.07 (POWER8– in hardware). Linux 3.10 has exposed the EBB facility.
 
 %prep
-%setup -q -n %{name}-0.1
+%setup -q -n %{name}-%{version}
 
 %build
 %configure --disable-static
