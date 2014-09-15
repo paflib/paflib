@@ -1,8 +1,7 @@
 Name: paflib
 Version: 0.1.3
-Release: 3%{?dist}
+Release: 4%{?dist}
 Summary: Library for accessing Power Architecture Facilities
-Group: Development/Libraries
 License: MIT
 URL: https://github.com/paflib/paflib
 Source0: https://github.com/paflib/paflib/archive/%{version}.tar.gz
@@ -44,8 +43,6 @@ make install DESTDIR=$RPM_BUILD_ROOT
 %{_libdir}/libpaf-dsc.so.0
 %{_libdir}/libpaf-ebb.so.0
 %exclude %{_libdir}/libpaf-ebb.la
-%{_mandir}/man3/libpaf-dsc.3*
-%{_mandir}/man3/libpaf-ebb.3*
 
 %doc COPYING README.md
 
@@ -55,8 +52,13 @@ make install DESTDIR=$RPM_BUILD_ROOT
 %dir %{_includedir}/paf
 %{_includedir}/paf/dsc.h
 %{_includedir}/paf/ebb.h
+%{_mandir}/man3/libpaf-dsc.3*
+%{_mandir}/man3/libpaf-ebb.3*
 
 %changelog
+* Mon Sep 15 2014 Rajalakshmi S <raji@linux.vnet.ibm.com> 0.1.3-4
+- Move manual pages to devel package and remove Group tag
+
 * Wed Sep 10 2014 Rajalakshmi S <raji@linux.vnet.ibm.com> 0.1-3
 - Various spec file fixes
 
