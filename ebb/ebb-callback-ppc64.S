@@ -528,22 +528,11 @@
   lxvd2x   v31,0,r10;
 
 /* Restore our TOC pointer using our entry point */
-#if _CALL_ELF != 2
-# define SETUP_TOC(__func)					   \
+# define SETUP_TOC						   \
    bcl	   20,31,1f;						   \
 1: mflr    r2;							   \
    addis   r2,r2,(.TOC.-1b)@ha;					   \
    addi    r2,r2,(.TOC.-1b)@l;
-#else
-# define SETUP_TOC(__func)                                         \
-   lis     r12,(__func)@highest;                                   \
-   ori     r12,r12,(__func)@higher;                                \
-   rldicr  r12,r12,32,31;                                          \
-   oris    r12,r12,(__func)@high;                                  \
-   ori     r12,r12,(__func)@l;                                     \
-0: addis   r2,r12,(.TOC.-0b)@ha;                                   \
-   addi	   r2,r2,(.TOC.-0b)@l;
-#endif
 
 .hidden __paf_ebb_ebb_hook
 #define CALL_EBB_HOOK                                              \
@@ -562,7 +551,7 @@ ENTRY(__paf_ebb_callback_handler_gpr)
 
   SAVE_SPEC_REG
 
-  SETUP_TOC (__paf_ebb_callback_handler_gpr)
+  SETUP_TOC
   CALL_EBB_HOOK
 
   RESTORE_SPEC_REG
@@ -588,7 +577,7 @@ ENTRY(__paf_ebb_callback_handler_fpr)
 
   SAVE_FPR
 
-  SETUP_TOC (__paf_ebb_callback_handler_fpr)
+  SETUP_TOC
   CALL_EBB_HOOK
 
   RESTORE_FPR
@@ -619,7 +608,7 @@ ENTRY(__paf_ebb_callback_handler_vr)
 
   SAVE_VR
 
-  SETUP_TOC (__paf_ebb_callback_handler_vr)
+  SETUP_TOC
   CALL_EBB_HOOK
 
   RESTORE_VR
@@ -654,7 +643,7 @@ ENTRY(__paf_ebb_callback_handler_vsr)
 
   SAVE_VSR
 
-  SETUP_TOC (__paf_ebb_callback_handler_vsr)
+  SETUP_TOC
   CALL_EBB_HOOK
 
   RESTORE_VSR
