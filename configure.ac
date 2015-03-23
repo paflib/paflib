@@ -23,11 +23,6 @@ AC_SUBST(LIBPAF_SO_VERSION)
 
 AC_CONFIG_SRCDIR([ebb/ebb.c])
 
-# We want to prevent building/configuration in the source directory
-if test "`cd $srcdir; /bin/pwd`" = "`/bin/pwd`"; then
-	AC_MSG_ERROR([you must configure in a separate build directory])
-fi
-
 # Check for supported platforms (currently only Linux on POWER)
 case "$host_cpu-$host_os" in
   powerpc64*-linux* | ppc64*-linux* | powerpc32*-linux | ppc32*-linux* )
