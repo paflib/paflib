@@ -25,7 +25,7 @@ AC_CONFIG_SRCDIR([ebb/ebb.c])
 
 # Check for supported platforms (currently only Linux on POWER)
 case "$host_cpu-$host_os" in
-  powerpc64*-linux* | ppc64*-linux* | powerpc32*-linux | ppc32*-linux* )
+  powerpc64*-linux* | ppc64*-linux* | powerpc-linux* | ppc-linux* )
     # Supported platforms
   ;;
   *)
