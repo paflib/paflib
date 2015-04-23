@@ -102,7 +102,9 @@ core_busy_loop (void)
 		"li  29, 0x2929\n"
 		"std 29, -288(1)\n"
 		"li  30, 0x3030\n"
+#ifndef _CALL_ELF
 		"li  31, 0x3131\n"
+#endif
 		"li    3,  0\n"
 		"0: "
 		"addi  3, 3, 1\n"
@@ -159,7 +161,9 @@ core_busy_loop (void)
 		"bne	1f\n"
 		"cmpwi  30, 0x3030\n"
 		"bne	1f\n"
+#ifndef _CALL_ELF
 		"cmpwi  31, 0x3131\n"
+#endif
 		"bne	1f\n"
 		/* Load junk into all our registers before we reload
 		   them from the stack. */
@@ -269,7 +273,11 @@ core_busy_loop (void)
 		: "=r" (rc):	/* no inputs */
 		:  "3",  "4",  "5",  "6",  "7",  "8",  "9", "10", "11", "14",
 		  "15", "16", "17", "18", "19", "20", "21", "22", "23",
-		  "24", "25", "26", "27", "28", "29", "30", "31", "memory");
+		  "24", "25", "26", "27", "28", "29", "30",
+#ifndef _CALL_ELF
+		   "31",
+#endif
+		   "memory");
 
   return rc;
 }
