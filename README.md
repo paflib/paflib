@@ -14,6 +14,20 @@ Event Based Branching
 To use the EBB library, just link to -lpaf-ebb.  The system must be POWER ISA
 2.07 compliant (POWER >= 8) to get EBB functionality.
 
+The EBB library is automatically built when the compiler is able to generate
+instructions for POWER >= 8.  In other words, when the compiler is using
+--with-cpu=power8.
+However, there are some cases in which the compiler doesn't generate POWER8
+instructions by default, but the user wants to build the EBB library.  In
+those cases, there are 2 options:
+
+ * Configure paflib with '--enable-ebb', which will force the build of EBB
+   library.
+ * Configure paflib with CFLAGS='-mcpu=power8'.
+
+It's important to notice that, in both cases the library won't execute on
+processors that don't implement the POWER ISA 2.07.
+
 
 Data Stream Control Register
 ============================

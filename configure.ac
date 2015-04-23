@@ -54,7 +54,16 @@ AC_ARG_ENABLE(ebb,
 	      AS_HELP_STRING([--disable-ebb],
 			     [disable EBB library build @<:@not default@:>@]),
 	      [enable_ebb=$enableval],
-	      [enable_ebb=yes]
+	      [AC_COMPILE_IFELSE(
+		[AC_LANG_SOURCE([[
+		  #ifdef _ARCH_PWR8
+		  # define SUCCESS 1
+		  #else
+		  # error "Support for EBB facility isn't available"
+		  #endif
+		]])],
+		[enable_ebb=yes],
+		[enable_ebb=no])]
 )
 
 if test $enable_ebb != yes; then

@@ -663,6 +663,12 @@ CCAS
 EGREP
 GREP
 CPP
+POWERPC64_FALSE
+POWERPC64_TRUE
+EBB_FALSE
+EBB_TRUE
+DSC_FALSE
+DSC_TRUE
 am__fastdepCC_FALSE
 am__fastdepCC_TRUE
 CCDEPMODE
@@ -680,12 +686,6 @@ CPPFLAGS
 LDFLAGS
 CFLAGS
 CC
-POWERPC64_FALSE
-POWERPC64_TRUE
-EBB_FALSE
-EBB_TRUE
-DSC_FALSE
-DSC_TRUE
 LIBPAF_SO_VERSION
 MAINT
 MAINTAINER_MODE_FALSE
@@ -771,8 +771,8 @@ enable_maintainer_mode
 enable_debug
 enable_dsc
 enable_ebb
-enable_save_area
 enable_dependency_tracking
+enable_save_area
 enable_shared
 enable_static
 with_pic
@@ -1418,12 +1418,12 @@ Optional Features:
   --enable-debug          enable debug [not default]
   --disable-dsc           disable DSC library build [not default]
   --disable-ebb           disable EBB library build [not default]
-  --enable-save-area=AREA define the default EBB internal save area[runtime
-                          default]
   --enable-dependency-tracking
                           do not reject slow dependency extractors
   --disable-dependency-tracking
                           speeds up one-time build
+  --enable-save-area=AREA define the default EBB internal save area[runtime
+                          default]
   --enable-shared[=PKGS]  build shared libraries [default=yes]
   --enable-static[=PKGS]  build static libraries [default=yes]
   --enable-fast-install[=PKGS]
@@ -3015,165 +3015,6 @@ else
 fi
 
 
-# Check whether --enable-ebb was given.
-if test "${enable_ebb+set}" = set; then :
-  enableval=$enable_ebb; enable_ebb=$enableval
-else
-  enable_ebb=yes
-
-fi
-
-
-if test $enable_ebb != yes; then
-  if test $enable_dsc != yes; then
-    as_fn_error $? "All the libraries are disabled. At least one library have to be enabled." "$LINENO" 5
-  fi
-fi
-
- if test "$enable_dsc" = yes; then
-  DSC_TRUE=
-  DSC_FALSE='#'
-else
-  DSC_TRUE='#'
-  DSC_FALSE=
-fi
-
- if test "$enable_ebb" = yes; then
-  EBB_TRUE=
-  EBB_FALSE='#'
-else
-  EBB_TRUE='#'
-  EBB_FALSE=
-fi
-
-
-# Checkings for libpaf-ebb
-# Check whether --enable-save-area was given.
-if test "${enable_save_area+set}" = set; then :
-  enableval=$enable_save_area; save_area=$enableval
-else
-  save_area=runtime
-fi
-
-if test $save_area = tcb; then
-
-$as_echo "#define USE_EBB_TCB 1" >>confdefs.h
-
-elif test $save_area = tls; then
-
-$as_echo "#define USE_EBB_TLS 1" >>confdefs.h
-
-fi
-
-# Extract the first word of "gawk", so it can be a program name with args.
-set dummy gawk; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_prog_AWK+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  if test -n "$AWK"; then
-  ac_cv_prog_AWK="$AWK" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_AWK=""
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-fi
-fi
-AWK=$ac_cv_prog_AWK
-if test -n "$AWK"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $AWK" >&5
-$as_echo "$AWK" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-
-
-# Check if build is for 32 or 64 bits, Used in Makefile.am to select the
-# callback implementation
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if GCC sets __powerpc64__" >&5
-$as_echo_n "checking if GCC sets __powerpc64__... " >&6; }
-if ${paflib_cv_powerpc64+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  cat > conftest.c <<EOF
-void foo () {}
-EOF
-if ${CC-cc} $CFLAGS $CPPFLAGS -E -dD conftest.c -o - 2>&1 | \
-grep __powerpc64__ > /dev/null; then
-  paflib_cv_powerpc64=yes
-else
-  paflib_cv_powerpc64=no
-fi
-rm -f conftest*
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $paflib_cv_powerpc64" >&5
-$as_echo "$paflib_cv_powerpc64" >&6; }
-if test $paflib_cv_powerpc64 = yes; then
-   if true; then
-  POWERPC64_TRUE=
-  POWERPC64_FALSE='#'
-else
-  POWERPC64_TRUE='#'
-  POWERPC64_FALSE=
-fi
-
-else
-   if false; then
-  POWERPC64_TRUE=
-  POWERPC64_FALSE='#'
-else
-  POWERPC64_TRUE='#'
-  POWERPC64_FALSE=
-fi
-
-fi
-
-# Check which is the loader
-paflib_cv_loader=`
-cat > conftest.c <<EOF
-void main () {}
-EOF
-${CC-cc} $CFLAGS $CPPFLAGS -o conftest conftest.c && ldd conftest | $AWK '
-BEGIN {
-  loader=$0 ~ "ld.*so"
-}
-{
-  gsub (/[[:space:]]*/, "", $loader)
-  split ($loader, fields, "[=(]")
-}
-END {
-  print fields[1]
-}'
-rm -f conftest*`
-
-cat >>confdefs.h <<_ACEOF
-#define PAFLIB_RUNTIME_LOADER "$paflib_cv_loader"
-_ACEOF
-
-
-# Checkings for libpaf-dsc
-ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-
 DEPDIR="${am__leading_dot}deps"
 
 ac_config_commands="$ac_config_commands depfiles"
@@ -4212,6 +4053,180 @@ else
   am__fastdepCC_FALSE=
 fi
 
+
+
+# Check whether --enable-ebb was given.
+if test "${enable_ebb+set}" = set; then :
+  enableval=$enable_ebb; enable_ebb=$enableval
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+		  #ifdef _ARCH_PWR8
+		  # define SUCCESS 1
+		  #else
+		  # error "Support for EBB facility isn't available"
+		  #endif
+
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  enable_ebb=yes
+else
+  enable_ebb=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
+fi
+
+
+if test $enable_ebb != yes; then
+  if test $enable_dsc != yes; then
+    as_fn_error $? "All the libraries are disabled. At least one library have to be enabled." "$LINENO" 5
+  fi
+fi
+
+ if test "$enable_dsc" = yes; then
+  DSC_TRUE=
+  DSC_FALSE='#'
+else
+  DSC_TRUE='#'
+  DSC_FALSE=
+fi
+
+ if test "$enable_ebb" = yes; then
+  EBB_TRUE=
+  EBB_FALSE='#'
+else
+  EBB_TRUE='#'
+  EBB_FALSE=
+fi
+
+
+# Checkings for libpaf-ebb
+# Check whether --enable-save-area was given.
+if test "${enable_save_area+set}" = set; then :
+  enableval=$enable_save_area; save_area=$enableval
+else
+  save_area=runtime
+fi
+
+if test $save_area = tcb; then
+
+$as_echo "#define USE_EBB_TCB 1" >>confdefs.h
+
+elif test $save_area = tls; then
+
+$as_echo "#define USE_EBB_TLS 1" >>confdefs.h
+
+fi
+
+# Extract the first word of "gawk", so it can be a program name with args.
+set dummy gawk; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_prog_AWK+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -n "$AWK"; then
+  ac_cv_prog_AWK="$AWK" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_AWK=""
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+fi
+fi
+AWK=$ac_cv_prog_AWK
+if test -n "$AWK"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $AWK" >&5
+$as_echo "$AWK" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+
+# Check if build is for 32 or 64 bits, Used in Makefile.am to select the
+# callback implementation
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if GCC sets __powerpc64__" >&5
+$as_echo_n "checking if GCC sets __powerpc64__... " >&6; }
+if ${paflib_cv_powerpc64+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat > conftest.c <<EOF
+void foo () {}
+EOF
+if ${CC-cc} $CFLAGS $CPPFLAGS -E -dD conftest.c -o - 2>&1 | \
+grep __powerpc64__ > /dev/null; then
+  paflib_cv_powerpc64=yes
+else
+  paflib_cv_powerpc64=no
+fi
+rm -f conftest*
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $paflib_cv_powerpc64" >&5
+$as_echo "$paflib_cv_powerpc64" >&6; }
+if test $paflib_cv_powerpc64 = yes; then
+   if true; then
+  POWERPC64_TRUE=
+  POWERPC64_FALSE='#'
+else
+  POWERPC64_TRUE='#'
+  POWERPC64_FALSE=
+fi
+
+else
+   if false; then
+  POWERPC64_TRUE=
+  POWERPC64_FALSE='#'
+else
+  POWERPC64_TRUE='#'
+  POWERPC64_FALSE=
+fi
+
+fi
+
+# Check which is the loader
+paflib_cv_loader=`
+cat > conftest.c <<EOF
+void main () {}
+EOF
+${CC-cc} $CFLAGS $CPPFLAGS -o conftest conftest.c && ldd conftest | $AWK '
+BEGIN {
+  loader=$0 ~ "ld.*so"
+}
+{
+  gsub (/[[:space:]]*/, "", $loader)
+  split ($loader, fields, "[=(]")
+}
+END {
+  print fields[1]
+}'
+rm -f conftest*`
+
+cat >>confdefs.h <<_ACEOF
+#define PAFLIB_RUNTIME_LOADER "$paflib_cv_loader"
+_ACEOF
+
+
+# Checkings for libpaf-dsc
+ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 ac_ext=c
@@ -13022,6 +13037,14 @@ if test -z "${MAINTAINER_MODE_TRUE}" && test -z "${MAINTAINER_MODE_FALSE}"; then
   as_fn_error $? "conditional \"MAINTAINER_MODE\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
+if test -z "${AMDEP_TRUE}" && test -z "${AMDEP_FALSE}"; then
+  as_fn_error $? "conditional \"AMDEP\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${am__fastdepCC_TRUE}" && test -z "${am__fastdepCC_FALSE}"; then
+  as_fn_error $? "conditional \"am__fastdepCC\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
 if test -z "${DSC_TRUE}" && test -z "${DSC_FALSE}"; then
   as_fn_error $? "conditional \"DSC\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
@@ -13036,14 +13059,6 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${POWERPC64_TRUE}" && test -z "${POWERPC64_FALSE}"; then
   as_fn_error $? "conditional \"POWERPC64\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
-if test -z "${AMDEP_TRUE}" && test -z "${AMDEP_FALSE}"; then
-  as_fn_error $? "conditional \"AMDEP\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
-if test -z "${am__fastdepCC_TRUE}" && test -z "${am__fastdepCC_FALSE}"; then
-  as_fn_error $? "conditional \"am__fastdepCC\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${am__fastdepCCAS_TRUE}" && test -z "${am__fastdepCCAS_FALSE}"; then
