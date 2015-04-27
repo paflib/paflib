@@ -1,18 +1,18 @@
 PAFLib
 ======
 
-PAFLib is a IBM written library which exposes Power Architecture Facilities to
-userspace via an API. This includes the Data Stream Control Register Facility
-(DSCR) and the Event-Based Branching facility (EBB). Linux kernel 3.9 has exposed
-problem-state DSCR usage for ISA 2.06 (POWER7 – emulated) and ISA 2.07 (POWER8
-– in hardware). Linux 3.10 has exposed the EBB facility.
+PAFLib is an IBM written library which exposes Power Architecture Facilities to
+userspace via an API.  This includes the Data Stream Control Register Facility
+(DSCR) and the Event-Based Branching facility (EBB).  Linux kernel 3.9 has
+exposed problem-state DSCR usage for ISA 2.06 (POWER7 – emulated) and ISA 2.07
+(POWER8 – in hardware).  Linux 3.10 has exposed the EBB facility.
 
 
 Event Based Branching
 =====================
 
-To use the EBB library Just link to -lpaf-ebb. The system must be POWER ISA
-2.07 compliant (POWER8+) to get EBB functionality.
+To use the EBB library, just link to -lpaf-ebb.  The system must be POWER ISA
+2.07 compliant (POWER >= 8) to get EBB functionality.
 
 
 Data Stream Control Register
@@ -30,7 +30,7 @@ supportted ISA the DSCR will operate in a different manner:
    Transient Enable), HWTE (Hardware Transient Enable), STE (Store Transient
    Enable), LTE (Load Transient Enable), SWUE (Software Unit Count Enable),
    HWUE (Hardware Unit Count Enable), and UNITCNT (Unit Count).
-   
+
 Also depending of the ISA the access to DSCR is privileged or not:
 
  * Power ISA 2.05/2.06/2.06+: Privileged
