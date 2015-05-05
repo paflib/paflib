@@ -26,4 +26,4 @@ TESTS = test_dsc
 test_dsc_SOURCES = tests/test_dsc.c
 test_dsc_LDADD = libpaf-dsc.la
 
-noinst_PROGRAMS = $(TESTS)
+check_PROGRAMS = $(TESTS)
