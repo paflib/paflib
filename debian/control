@@ -1,0 +1,48 @@
+Source: paflib
+Section: libs
+Maintainer: Breno Leitao <brenohl@br.ibm.com>
+Priority: extra
+Build-Depends: debhelper (>= 9), dh-autoreconf
+Standards-Version: 3.9.6
+Homepage: https://github.com/paflib/paflib
+
+Package: libpaf-dsc0
+Architecture: ppc64 ppc64el powerpc
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: library which exposes DSC Power Facilities to userspace via an API
+ PAFLib is a IBM written library which exposes Power Architecture Facilities to
+ userspace via an API. This includes the Data Stream Control Register Facility
+ (DSCR) and the Event-Based Branching facility (EBB). Linux kernel 3.9 has
+ exposed problem-state DSCR usage for ISA 2.06 (POWER7 – emulated) and ISA 2.07
+ (POWER8 – in hardware). Linux 3.10 has exposed the EBB facility.
+ .
+ The Data Stream Control Register (DSCR for short) of POWER processors is used
+ to control the degree of aggressiveness of memory prefetching for load and
+ store.
+
+
+Package: libpaf-ebb0
+Architecture: ppc64 ppc64el powerpc
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: library which exposes EBB Power Facilities to userspace via an API
+ PAFLib is a IBM written library which exposes Power Architecture Facilities to
+ userspace via an API. This includes the Data Stream Control Register Facility
+ (DSCR) and the Event-Based Branching facility (EBB). Linux kernel 3.9 has
+ exposed problem-state DSCR usage for ISA 2.06 (POWER7 – emulated) and ISA 2.07
+ (POWER8 – in hardware). Linux 3.10 has exposed the EBB facility.
+ .
+ Event Based Branches (EBBs) are a feature which allows the hardware to branch
+ directly to a specified user space address when certain events occur.
+
+Package: libpaf-dev
+Architecture: ppc64 ppc64el powerpc
+Section: libdevel
+Depends: libpaf-ebb0 (= ${binary:Version}), libpaf-dsc0 (= ${binary:Version}),  ${misc:Depends}
+Description: paf library development files
+ PAFLib is a IBM written library which exposes Power Architecture Facilities to
+ userspace via an API. This includes the Data Stream Control Register Facility
+ (DSCR) and the Event-Based Branching facility (EBB). Linux kernel 3.9 has
+ exposed problem-state DSCR usage for ISA 2.06 (POWER7 – emulated) and ISA 2.07
+ (POWER8 – in hardware). Linux 3.10 has exposed the EBB facility.
+ This package contains the static library and header files used in
+ development.
