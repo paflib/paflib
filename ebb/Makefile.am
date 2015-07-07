@@ -14,7 +14,9 @@ LIBPPCEBB_PRIVATE_INCLUDE = ebb-callback.h \
                             ebb-sysdep.h
 lib_LTLIBRARIES = libpaf-ebb.la
 LIBPPCEBB_COMMON_SOURCES = ../common/paf-hwcap.c \
-                           ../common/paf-interp.c
+                           ../common/paf-interp.c \
+                           ../common/paf-common.h \
+                           ../common/paf-hwcap.h
 libpaf_ebb_la_SOURCES = ebb.c \
                         ebb-init.c \
                         ebb-hwcap.c \

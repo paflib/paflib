@@ -138,6 +138,7 @@ am__libpaf_ebb_la_SOURCES_DIST = ebb.c ebb-init.c ebb-hwcap.c \
 	ebb-hook.c ebb-version.c ebb-callback.h ebb-common.h \
 	ebb-hwcap.h ebb-init.h ebb-priv.h ebb-sysdep.h \
 	../common/paf-hwcap.c ../common/paf-interp.c \
+	../common/paf-common.h ../common/paf-hwcap.h \
 	ebb-callback-ppc64.S ebb-callback-ppc32.S
 am__objects_1 =
 am__dirstamp = $(am__leading_dot)dirstamp
@@ -572,7 +573,9 @@ LIBPPCEBB_PRIVATE_INCLUDE = ebb-callback.h \
 
 lib_LTLIBRARIES = libpaf-ebb.la
 LIBPPCEBB_COMMON_SOURCES = ../common/paf-hwcap.c \
-                           ../common/paf-interp.c
+                           ../common/paf-interp.c \
+                           ../common/paf-common.h \
+                           ../common/paf-hwcap.h
 
 libpaf_ebb_la_SOURCES = ebb.c ebb-init.c ebb-hwcap.c ebb-hook.c \
 	ebb-version.c $(include_HEADERS) $(LIBPPCEBB_PRIVATE_INCLUDE) \
