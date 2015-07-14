@@ -32,11 +32,7 @@
 #include <stdint.h>
 
 /* We use 64bit values for the times.  */
-#ifdef __powerpc64__
 typedef uint64_t timing;
-#else
-typedef uint32_t timing;
-#endif
 
 static inline timing
 paf_timing_now ()
