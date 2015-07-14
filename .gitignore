@@ -5,3 +5,7 @@
 cscope.out
 
 *~
+*.log
+config.h
+config.status
+Makefile
