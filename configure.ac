@@ -146,9 +146,15 @@ AC_CHECK_LIB([pthread], [pthread_create], [],
 
 # Checks for programs
 AM_PROG_AS
+AC_PROG_CXX
+AC_PROG_AWK
 AC_PROG_CC
 AM_PROG_CC_C_O
+AC_PROG_CPP
+AC_PROG_INSTALL
 AC_PROG_LN_S
+AC_PROG_MAKE_SET
+AC_PROG_RANLIB
 
 # Fixes the warning for automake >= 1.12
 m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
@@ -158,11 +164,25 @@ LT_INIT
 
 # Checks for header files
 AC_CONFIG_HEADERS([config.h])
-AC_CHECK_HEADERS([signal.h errno.h dlfnc.h unistd.h link.h gnu/libc-version.h \
-linux/perf_event.h])
+AC_CHECK_HEADERS([fcntl.h signal.h errno.h dlfnc.h unistd.h link.h \
+gnu/libc-version.h \
+linux/perf_event.h \
+sys/ioctl.h])
 
 # Checks for typedefs, structures, and compiler characteristics
+AC_C_INLINE
 AC_C_VOLATILE
+AC_TYPE_PID_T
+AC_TYPE_SIZE_T
+AC_TYPE_SSIZE_T
+AC_TYPE_UINT32_T
+AC_TYPE_UINT64_T
+
+# Checks for library functions.
+AC_FUNC_FORK
+AC_FUNC_MALLOC
+AC_CHECK_FUNCS([alarm getpagesize memset strchr strerror strncasecmp strstr \
+strtol])
 
 AC_CHECK_DECL([__NR_perf_event_open], [],
     AC_MSG_ERROR([__NR_perf_event_open not found.  Are you using Linux >= \
