@@ -97,7 +97,8 @@ TESTS = test_ebb$(EXEEXT) test_ebb_save_area_env.sh$(EXEEXT) \
 subdir = ebb
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/depcomp $(dist_man3_MANS) \
-	$(nobase_include_HEADERS) $(top_srcdir)/test-driver
+	$(nobase_include_HEADERS) $(noinst_HEADERS) \
+	$(top_srcdir)/test-driver
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
 	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
@@ -272,7 +273,7 @@ am__can_run_installinfo = \
 man3dir = $(mandir)/man3
 NROFF = nroff
 MANS = $(dist_man3_MANS)
-HEADERS = $(nobase_include_HEADERS)
+HEADERS = $(nobase_include_HEADERS) $(noinst_HEADERS)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
 # and print each of them once, without duplicates.  Input order is
@@ -598,6 +599,7 @@ AM_CFLAGS = -Wall -rdynamic
 AM_CPPFLAGS = -I$(top_srcdir)/common -I$(top_srcdir)/ebb
 check_SCRIPTS = $(test_ebb_save_area_env_sh_SOURCES)
 nobase_include_HEADERS = paf/ebb.h
+noinst_HEADERS = tests/test_ebb_common.h
 LIBPPCEBB_PRIVATE_INCLUDE = ebb-callback.h \
                             ebb-common.h \
                             ebb-hwcap.h \
