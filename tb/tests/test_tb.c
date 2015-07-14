@@ -28,6 +28,7 @@
  */
 
 #include <stdio.h>
+#include <inttypes.h>
 #include <paf/tb.h>
 
 int
@@ -43,8 +44,8 @@ main ()
       stop = paf_timing_now ();
       load_time = paf_timing_diff (start, stop);
       paf_timing_accum (&sum, load_time);
-      printf ("Time taken by the for loop is %d ticks\n", load_time);
+      printf ("Time taken by the for loop is %" PRIu64 " ticks\n", load_time);
     }
-  printf ("Total time taken is %d ticks\n",sum);
+  printf ("Total time taken is %" PRIu64 " ticks\n",sum);
   return 0;
 }
