@@ -96,8 +96,8 @@ TESTS = test_ebb$(EXEEXT) test_ebb_save_area_env.sh$(EXEEXT) \
 	test_ebb_cpu$(EXEEXT)
 subdir = ebb
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(top_srcdir)/depcomp $(nobase_include_HEADERS) \
-	$(top_srcdir)/test-driver
+	$(top_srcdir)/depcomp $(dist_man3_MANS) \
+	$(nobase_include_HEADERS) $(top_srcdir)/test-driver
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
 	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
@@ -271,7 +271,7 @@ am__can_run_installinfo = \
   esac
 man3dir = $(mandir)/man3
 NROFF = nroff
-MANS = $(man3_MANS)
+MANS = $(dist_man3_MANS)
 HEADERS = $(nobase_include_HEADERS)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
@@ -618,7 +618,7 @@ libpaf_ebb_la_CFLAGS = -Wl,-entry=__paflib_ebb_main -fpic
 libpaf_ebb_la_LDFLAGS = -version-info $(LIBPAF_SO_VERSION) \
 -e __paflib_ebb_main
 
-man3_MANS = doc/libpaf-ebb.3
+dist_man3_MANS = doc/libpaf-ebb.3
 test_ebb_SOURCES = tests/test_ebb.c
 test_ebb_LDADD = libpaf-ebb.la
 test_ebb_save_area_env_sh_SOURCES = tests/test_ebb_save_area_env.sh
@@ -960,9 +960,9 @@ mostlyclean-libtool:
 clean-libtool:
 	-rm -rf .libs _libs
 	-rm -rf ../common/.libs ../common/_libs
-install-man3: $(man3_MANS)
+install-man3: $(dist_man3_MANS)
 	@$(NORMAL_INSTALL)
-	@list1='$(man3_MANS)'; \
+	@list1='$(dist_man3_MANS)'; \
 	list2=''; \
 	test -n "$(man3dir)" \
 	  && test -n "`echo $$list1$$list2`" \
@@ -996,7 +996,7 @@ install-man3: $(man3_MANS)
 
 uninstall-man3:
 	@$(NORMAL_UNINSTALL)
-	@list='$(man3_MANS)'; test -n "$(man3dir)" || exit 0; \
+	@list='$(dist_man3_MANS)'; test -n "$(man3dir)" || exit 0; \
 	files=`{ for i in $$list; do echo "$$i"; done; \
 	} | sed -e 's,.*/,,;h;s,.*\.,,;s,^[^3][0-9a-z]*$$,3,;x' \
 	      -e 's,\.[0-9a-z]*$$,,;$(transform);G;s,\n,.,'`; \

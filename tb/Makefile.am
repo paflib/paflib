@@ -6,7 +6,7 @@ nobase_include_HEADERS = paf/tb.h
 INTERNAL_INCLUDES = hwcap.h \
                     common.h
 
-man3_MANS = doc/libpaf-tb.3
+dist_man3_MANS = doc/libpaf-tb.3
 
 TESTS = test_tb
 test_tb_SOURCES = tests/test_tb.c

@@ -35,7 +35,7 @@ libpaf_ebb_la_CFLAGS = -Wl,-entry=__paflib_ebb_main -fpic
 libpaf_ebb_la_LDFLAGS = -version-info $(LIBPAF_SO_VERSION) \
 -e __paflib_ebb_main
 
-man3_MANS = doc/libpaf-ebb.3
+dist_man3_MANS = doc/libpaf-ebb.3
 
 # Test programs invoked with 'make check'
 TESTS =
