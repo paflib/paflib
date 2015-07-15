@@ -181,7 +181,7 @@ am__define_uniq_tagged_files = \
 ETAGS = etags
 CTAGS = ctags
 CSCOPE = cscope
-DIST_SUBDIRS = dsc ebb tb
+DIST_SUBDIRS = common dsc ebb tb
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -352,7 +352,7 @@ ACLOCAL_AMFLAGS = -I m4
 @DSC_TRUE@DIR_DSC = dsc
 @EBB_TRUE@DIR_EBB = ebb
 @TB_TRUE@DIR_TB = tb
-SUBDIRS = $(DIR_DSC) $(DIR_EBB) $(DIR_TB)
+SUBDIRS = common $(DIR_DSC) $(DIR_EBB) $(DIR_TB)
 dist_doc_DATA = ChangeLog.md
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive

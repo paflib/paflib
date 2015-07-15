@@ -144,20 +144,14 @@ libpaf_ebb_la_LIBADD =
 am__libpaf_ebb_la_SOURCES_DIST = ebb.c ebb-init.c ebb-hwcap.c \
 	ebb-hook.c ebb-version.c ebb-callback.h ebb-common.h \
 	ebb-hwcap.h ebb-init.h ebb-priv.h ebb-sysdep.h \
-	../common/paf-hwcap.c ../common/paf-interp.c \
-	../common/paf-common.h ../common/paf-hwcap.h \
 	ebb-callback-ppc64.S ebb-callback-ppc32.S
 am__objects_1 =
-am__dirstamp = $(am__leading_dot)dirstamp
-am__objects_2 = ../common/libpaf_ebb_la-paf-hwcap.lo \
-	../common/libpaf_ebb_la-paf-interp.lo
-@POWERPC64_TRUE@am__objects_3 = ebb-callback-ppc64.lo
-@POWERPC64_FALSE@am__objects_4 = ebb-callback-ppc32.lo
+@POWERPC64_TRUE@am__objects_2 = ebb-callback-ppc64.lo
+@POWERPC64_FALSE@am__objects_3 = ebb-callback-ppc32.lo
 am_libpaf_ebb_la_OBJECTS = libpaf_ebb_la-ebb.lo \
 	libpaf_ebb_la-ebb-init.lo libpaf_ebb_la-ebb-hwcap.lo \
 	libpaf_ebb_la-ebb-hook.lo libpaf_ebb_la-ebb-version.lo \
-	$(am__objects_1) $(am__objects_2) $(am__objects_3) \
-	$(am__objects_4)
+	$(am__objects_1) $(am__objects_2) $(am__objects_3)
 libpaf_ebb_la_OBJECTS = $(am_libpaf_ebb_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -167,6 +161,7 @@ libpaf_ebb_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libpaf_ebb_la_CFLAGS) \
 	$(CFLAGS) $(libpaf_ebb_la_LDFLAGS) $(LDFLAGS) -o $@
 PROGRAMS = $(noinst_PROGRAMS)
+am__dirstamp = $(am__leading_dot)dirstamp
 am_test_ebb_OBJECTS = tests/test_ebb.$(OBJEXT)
 test_ebb_OBJECTS = $(am_test_ebb_OBJECTS)
 test_ebb_DEPENDENCIES = libpaf-ebb.la
@@ -608,17 +603,13 @@ LIBPPCEBB_PRIVATE_INCLUDE = ebb-callback.h \
                             ebb-sysdep.h
 
 lib_LTLIBRARIES = libpaf-ebb.la
-LIBPPCEBB_COMMON_SOURCES = ../common/paf-hwcap.c \
-                           ../common/paf-interp.c \
-                           ../common/paf-common.h \
-                           ../common/paf-hwcap.h
-
 libpaf_ebb_la_SOURCES = ebb.c ebb-init.c ebb-hwcap.c ebb-hook.c \
 	ebb-version.c $(include_HEADERS) $(LIBPPCEBB_PRIVATE_INCLUDE) \
-	$(LIBPPCEBB_COMMON_SOURCES) $(am__append_1) $(am__append_2)
+	$(am__append_1) $(am__append_2)
 libpaf_ebb_la_CFLAGS = -Wl,-entry=__paflib_ebb_main -fpic
 libpaf_ebb_la_LDFLAGS = -version-info $(LIBPAF_SO_VERSION) \
--e __paflib_ebb_main
+  -e __paflib_ebb_main \
+  -Wl,--whole-archive,../common/libpaf-common.a,--no-whole-archive
 
 dist_man3_MANS = doc/libpaf-ebb.3
 test_ebb_SOURCES = tests/test_ebb.c
@@ -729,16 +720,6 @@ clean-libLTLIBRARIES:
 	  echo rm -f $${locs}; \
 	  rm -f $${locs}; \
 	}
-../common/$(am__dirstamp):
-	@$(MKDIR_P) ../common
-	@: > ../common/$(am__dirstamp)
-../common/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) ../common/$(DEPDIR)
-	@: > ../common/$(DEPDIR)/$(am__dirstamp)
-../common/libpaf_ebb_la-paf-hwcap.lo: ../common/$(am__dirstamp) \
-	../common/$(DEPDIR)/$(am__dirstamp)
-../common/libpaf_ebb_la-paf-interp.lo: ../common/$(am__dirstamp) \
-	../common/$(DEPDIR)/$(am__dirstamp)
 
 libpaf-ebb.la: $(libpaf_ebb_la_OBJECTS) $(libpaf_ebb_la_DEPENDENCIES) $(EXTRA_libpaf_ebb_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(libpaf_ebb_la_LINK) -rpath $(libdir) $(libpaf_ebb_la_OBJECTS) $(libpaf_ebb_la_LIBADD) $(LIBS)
@@ -831,15 +812,11 @@ test_ebb_pmu_reset$(EXEEXT): $(test_ebb_pmu_reset_OBJECTS) $(test_ebb_pmu_reset_
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
-	-rm -f ../common/*.$(OBJEXT)
-	-rm -f ../common/*.lo
 	-rm -f tests/*.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@../common/$(DEPDIR)/libpaf_ebb_la-paf-hwcap.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@../common/$(DEPDIR)/libpaf_ebb_la-paf-interp.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ebb-callback-ppc32.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ebb-callback-ppc64.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpaf_ebb_la-ebb-hook.Plo@am__quote@
@@ -942,26 +919,11 @@ libpaf_ebb_la-ebb-version.lo: ebb-version.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpaf_ebb_la_CFLAGS) $(CFLAGS) -c -o libpaf_ebb_la-ebb-version.lo `test -f 'ebb-version.c' || echo '$(srcdir)/'`ebb-version.c
 
-../common/libpaf_ebb_la-paf-hwcap.lo: ../common/paf-hwcap.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpaf_ebb_la_CFLAGS) $(CFLAGS) -MT ../common/libpaf_ebb_la-paf-hwcap.lo -MD -MP -MF ../common/$(DEPDIR)/libpaf_ebb_la-paf-hwcap.Tpo -c -o ../common/libpaf_ebb_la-paf-hwcap.lo `test -f '../common/paf-hwcap.c' || echo '$(srcdir)/'`../common/paf-hwcap.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ../common/$(DEPDIR)/libpaf_ebb_la-paf-hwcap.Tpo ../common/$(DEPDIR)/libpaf_ebb_la-paf-hwcap.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='../common/paf-hwcap.c' object='../common/libpaf_ebb_la-paf-hwcap.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpaf_ebb_la_CFLAGS) $(CFLAGS) -c -o ../common/libpaf_ebb_la-paf-hwcap.lo `test -f '../common/paf-hwcap.c' || echo '$(srcdir)/'`../common/paf-hwcap.c
-
-../common/libpaf_ebb_la-paf-interp.lo: ../common/paf-interp.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpaf_ebb_la_CFLAGS) $(CFLAGS) -MT ../common/libpaf_ebb_la-paf-interp.lo -MD -MP -MF ../common/$(DEPDIR)/libpaf_ebb_la-paf-interp.Tpo -c -o ../common/libpaf_ebb_la-paf-interp.lo `test -f '../common/paf-interp.c' || echo '$(srcdir)/'`../common/paf-interp.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ../common/$(DEPDIR)/libpaf_ebb_la-paf-interp.Tpo ../common/$(DEPDIR)/libpaf_ebb_la-paf-interp.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='../common/paf-interp.c' object='../common/libpaf_ebb_la-paf-interp.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpaf_ebb_la_CFLAGS) $(CFLAGS) -c -o ../common/libpaf_ebb_la-paf-interp.lo `test -f '../common/paf-interp.c' || echo '$(srcdir)/'`../common/paf-interp.c
-
 mostlyclean-libtool:
 	-rm -f *.lo
 
 clean-libtool:
 	-rm -rf .libs _libs
-	-rm -rf ../common/.libs ../common/_libs
 install-man3: $(dist_man3_MANS)
 	@$(NORMAL_INSTALL)
 	@list1='$(dist_man3_MANS)'; \
@@ -1381,8 +1343,6 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
-	-rm -f ../common/$(DEPDIR)/$(am__dirstamp)
-	-rm -f ../common/$(am__dirstamp)
 	-rm -f tests/$(DEPDIR)/$(am__dirstamp)
 	-rm -f tests/$(am__dirstamp)
 
@@ -1395,7 +1355,7 @@ clean-am: clean-checkPROGRAMS clean-generic clean-libLTLIBRARIES \
 	clean-libtool clean-noinstPROGRAMS mostlyclean-am
 
 distclean: distclean-am
-	-rm -rf ../common/$(DEPDIR) ./$(DEPDIR) tests/$(DEPDIR)
+	-rm -rf ./$(DEPDIR) tests/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -1441,7 +1401,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-	-rm -rf ../common/$(DEPDIR) ./$(DEPDIR) tests/$(DEPDIR)
+	-rm -rf ./$(DEPDIR) tests/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

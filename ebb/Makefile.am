@@ -15,18 +15,13 @@ LIBPPCEBB_PRIVATE_INCLUDE = ebb-callback.h \
                             ebb-priv.h \
                             ebb-sysdep.h
 lib_LTLIBRARIES = libpaf-ebb.la
-LIBPPCEBB_COMMON_SOURCES = ../common/paf-hwcap.c \
-                           ../common/paf-interp.c \
-                           ../common/paf-common.h \
-                           ../common/paf-hwcap.h
 libpaf_ebb_la_SOURCES = ebb.c \
                         ebb-init.c \
                         ebb-hwcap.c \
                         ebb-hook.c \
                         ebb-version.c \
                         $(include_HEADERS) \
-                        $(LIBPPCEBB_PRIVATE_INCLUDE) \
-                        $(LIBPPCEBB_COMMON_SOURCES)
+                        $(LIBPPCEBB_PRIVATE_INCLUDE)
 if POWERPC64
 libpaf_ebb_la_SOURCES += ebb-callback-ppc64.S
 else
@@ -34,7 +29,8 @@ libpaf_ebb_la_SOURCES += ebb-callback-ppc32.S
 endif
 libpaf_ebb_la_CFLAGS = -Wl,-entry=__paflib_ebb_main -fpic
 libpaf_ebb_la_LDFLAGS = -version-info $(LIBPAF_SO_VERSION) \
--e __paflib_ebb_main
+  -e __paflib_ebb_main \
+  -Wl,--whole-archive,../common/libpaf-common.a,--no-whole-archive
 
 dist_man3_MANS = doc/libpaf-ebb.3
 

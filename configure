@@ -17460,7 +17460,7 @@ else
 fi
 
 
-ac_config_files="$ac_config_files Makefile ebb/Makefile dsc/Makefile tb/Makefile"
+ac_config_files="$ac_config_files Makefile common/Makefile ebb/Makefile dsc/Makefile tb/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -18602,6 +18602,7 @@ do
     "libtool") CONFIG_COMMANDS="$CONFIG_COMMANDS libtool" ;;
     "config.h") CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
+    "common/Makefile") CONFIG_FILES="$CONFIG_FILES common/Makefile" ;;
     "ebb/Makefile") CONFIG_FILES="$CONFIG_FILES ebb/Makefile" ;;
     "dsc/Makefile") CONFIG_FILES="$CONFIG_FILES dsc/Makefile" ;;
     "tb/Makefile") CONFIG_FILES="$CONFIG_FILES tb/Makefile" ;;

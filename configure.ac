@@ -189,5 +189,9 @@ AC_CHECK_DECL([__NR_perf_event_open], [],
 2.6.32?]),
     [[#include <sys/syscall.h>]])
 
-AC_CONFIG_FILES([Makefile ebb/Makefile dsc/Makefile tb/Makefile])
+AC_CONFIG_FILES([Makefile
+		 common/Makefile
+		 ebb/Makefile
+		 dsc/Makefile
+		 tb/Makefile])
 AC_OUTPUT

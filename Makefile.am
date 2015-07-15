@@ -10,7 +10,7 @@ if TB
    DIR_TB = tb
 endif
 
-SUBDIRS = $(DIR_DSC) $(DIR_EBB) $(DIR_TB)
+SUBDIRS = common $(DIR_DSC) $(DIR_EBB) $(DIR_TB)
 
 dist_doc_DATA = ChangeLog.md
 
