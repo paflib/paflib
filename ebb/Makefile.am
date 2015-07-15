@@ -8,6 +8,8 @@ check_PROGRAMS =
 
 nobase_include_HEADERS = paf/ebb.h
 noinst_HEADERS = tests/test_ebb_common.h
+EXTRA_DIST = tests/test_ebb-skeleton.c $(check_SCRIPTS)
+
 LIBPPCEBB_PRIVATE_INCLUDE = ebb-callback.h \
                             ebb-common.h \
                             ebb-hwcap.h \
