@@ -52,56 +52,22 @@ if [ ! -e Makefile ]; then
 	exit 1
 fi
 
-# TODO: Fix sub makefile dependencies
-#
-# 'make distcheck' fails as part of its process involves
-# cleaning up the first subdir before moving onto the
-# next, which deletes computed dependencies during
-# configure.
-#
-echo "Running make dist"
-make dist >> ${logfile} 2>&1
-
-tarballs=$(awk '/.tar.gz/ { print gensub(">","","g",($NF)) }' ${logfile})
+echo "Running make distcheck"
+make distcheck >> ${logfile} 2>&1
 
 # Extract out the name of the tarball from the log.
 # There is probably a saner method to do this.
-#tarballs=$(awk '
-#/^=+$/ && doprint == 1                 { exit 0 }
-#doprint == 1                           { print $0 }
-#$0 ~ /archives ready for distribution/ { doprint = 1 }
-#' ${logfile})
-#
-#if [ "x${tarballs}" == "x" ]; then
-#	echo "Failed to build and verify tarballs"
-#	exit 1
-#fi
 
-# Attempt to make the tarball, in the absense of a functional
-# distclean, verify it at least builds and checks
-echo "Attempting to build from the dist tarball..."
-mkdir _tmp
-tar xf ${tarballs} -C _tmp
-cd _tmp/*
-mkdir _build
-cd _build
-echo "Configuring tarball..."
-if ! ../configure >> ${logfile} 2>&1; then
-	echo "Failed to configure"
-	exit 1;
+tarballs=$(awk '
+/^=+$/ && doprint == 1                 { exit 0 }
+doprint == 1                           { print $0 }
+$0 ~ /archives ready for distribution/ { doprint = 1 }
+' ${logfile})
+
+if [ "x${tarballs}" == "x" ]; then
+	echo "Failed to build and verify tarballs"
+	exit 1
 fi
-echo "Building..."
-if ! make >> ${logfile} 2>&1; then
-	echo "Failed to build"
-	exit 1;
-fi
-echo "Checking..."
-if ! make check >> ${logfile} 2>&1; then
-	echo "Failed to check"
-	exit 1;
-fi
-cd ../../../
-rm -rf _tmp
 
 echo "Found tarballs: ${tarballs}"
 
