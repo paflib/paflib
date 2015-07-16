@@ -12,6 +12,7 @@ AC_PREREQ([2.61])
 AC_INIT([libpaf], [MAJOR.MINOR.PATCH], [azanella@br.ibm.com emachado@br.ibm.com])
 AM_INIT_AUTOMAKE([1.10 no-define foreign -Wall -Werror subdir-objects])
 AC_CANONICAL_HOST
+AM_MAINTAINER_MODE
 
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -23,14 +24,9 @@ AC_SUBST(LIBPAF_SO_VERSION)
 
 AC_CONFIG_SRCDIR([ebb/ebb.c])
 
-# We want to prevent building/configuration in the source directory
-if test "`cd $srcdir; /bin/pwd`" = "`/bin/pwd`"; then
-	AC_MSG_ERROR([you must configure in a separate build directory])
-fi
-
 # Check for supported platforms (currently only Linux on POWER)
 case "$host_cpu-$host_os" in
-  powerpc64*-linux* | ppc64*-linux* | powerpc32*-linux | ppc32*-linux* )
+  powerpc64*-linux* | ppc64*-linux* | powerpc-linux* | ppc-linux* )
     # Supported platforms
   ;;
   *)
@@ -58,7 +54,16 @@ AC_ARG_ENABLE(ebb,
 	      AS_HELP_STRING([--disable-ebb],
 			     [disable EBB library build @<:@not default@:>@]),
 	      [enable_ebb=$enableval],
-	      [enable_ebb=yes]
+	      [AC_COMPILE_IFELSE(
+		[AC_LANG_SOURCE([[
+		  #ifdef _ARCH_PWR8
+		  # define SUCCESS 1
+		  #else
+		  # error "Support for EBB facility isn't available"
+		  #endif
+		]])],
+		[enable_ebb=yes],
+		[enable_ebb=no])]
 )
 AC_ARG_ENABLE(tb,
               AS_HELP_STRING([--disable-tb],
@@ -158,6 +163,11 @@ linux/perf_event.h])
 
 # Checks for typedefs, structures, and compiler characteristics
 AC_C_VOLATILE
+
+AC_CHECK_DECL([__NR_perf_event_open], [],
+    AC_MSG_ERROR([__NR_perf_event_open not found.  Are you using Linux >= \
+2.6.32?]),
+    [[#include <sys/syscall.h>]])
 
 AC_CONFIG_FILES([Makefile ebb/Makefile dsc/Makefile tb/Makefile])
 AC_OUTPUT

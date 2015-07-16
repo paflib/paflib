@@ -16,7 +16,6 @@
 
 
 
-
 VPATH = @srcdir@
 am__is_gnu_make = test -n '$(MAKEFILE_LIST)' && test -n '$(MAKELEVEL)'
 am__make_running_with_option = \
@@ -81,11 +80,12 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-noinst_PROGRAMS = test_ebb$(EXEEXT) test_ebb_pmu$(EXEEXT) \
+noinst_PROGRAMS = test_ebb_child$(EXEEXT) \
+	test_ebb_clear_on_close$(EXEEXT) test_ebb_nohandler$(EXEEXT) \
+	test_ebb_cpu$(EXEEXT)
+check_PROGRAMS = test_ebb$(EXEEXT) test_ebb_pmu$(EXEEXT) \
 	test_ebb_pmu_reset$(EXEEXT) test_ebb_backtrace$(EXEEXT) \
-	test_ebb_pmu_multi$(EXEEXT) test_ebb_pmu_clobber$(EXEEXT) \
-	test_ebb_child$(EXEEXT) test_ebb_clear_on_close$(EXEEXT) \
-	test_ebb_nohandler$(EXEEXT) test_ebb_cpu$(EXEEXT)
+	test_ebb_pmu_multi$(EXEEXT) test_ebb_pmu_clobber$(EXEEXT)
 @POWERPC64_TRUE@am__append_1 = ebb-callback-ppc64.S
 @POWERPC64_FALSE@am__append_2 = ebb-callback-ppc32.S
 TESTS = test_ebb$(EXEEXT) test_ebb_save_area_env.sh$(EXEEXT) \
@@ -144,6 +144,7 @@ am__libpaf_ebb_la_SOURCES_DIST = ebb.c ebb-init.c ebb-hwcap.c \
 	ebb-hook.c ebb-version.c ebb-callback.h ebb-common.h \
 	ebb-hwcap.h ebb-init.h ebb-priv.h ebb-sysdep.h \
 	../common/paf-hwcap.c ../common/paf-interp.c \
+	../common/paf-common.h ../common/paf-hwcap.h \
 	ebb-callback-ppc64.S ebb-callback-ppc32.S
 am__objects_1 =
 am__dirstamp = $(am__leading_dot)dirstamp
@@ -207,7 +208,6 @@ am_test_ebb_pmu_reset_OBJECTS = tests/test_ebb_pmu_reset.$(OBJEXT) \
 	tests/test_ebb_common.$(OBJEXT)
 test_ebb_pmu_reset_OBJECTS = $(am_test_ebb_pmu_reset_OBJECTS)
 test_ebb_pmu_reset_DEPENDENCIES = libpaf-ebb.la
-SCRIPTS = $(noinst_SCRIPTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -513,6 +513,7 @@ LIBTOOL = @LIBTOOL@
 LIPO = @LIPO@
 LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
+MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
 MANIFEST_TOOL = @MANIFEST_TOOL@
 MKDIR_P = @MKDIR_P@
@@ -590,7 +591,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AM_CFLAGS = -Wall -rdynamic
 AM_CPPFLAGS = -I$(top_srcdir)/common -I$(top_srcdir)/ebb
-noinst_SCRIPTS = $(test_ebb_save_area_env_sh_SOURCES)
+check_SCRIPTS = $(test_ebb_save_area_env_sh_SOURCES)
 nobase_include_HEADERS = paf/ebb.h
 LIBPPCEBB_PRIVATE_INCLUDE = ebb-callback.h \
                             ebb-common.h \
@@ -601,12 +602,14 @@ LIBPPCEBB_PRIVATE_INCLUDE = ebb-callback.h \
 
 lib_LTLIBRARIES = libpaf-ebb.la
 LIBPPCEBB_COMMON_SOURCES = ../common/paf-hwcap.c \
-                           ../common/paf-interp.c
+                           ../common/paf-interp.c \
+                           ../common/paf-common.h \
+                           ../common/paf-hwcap.h
 
 libpaf_ebb_la_SOURCES = ebb.c ebb-init.c ebb-hwcap.c ebb-hook.c \
 	ebb-version.c $(include_HEADERS) $(LIBPPCEBB_PRIVATE_INCLUDE) \
 	$(LIBPPCEBB_COMMON_SOURCES) $(am__append_1) $(am__append_2)
-libpaf_ebb_la_CFLAGS = -Wl,-entry=__paflib_ebb_main
+libpaf_ebb_la_CFLAGS = -Wl,-entry=__paflib_ebb_main -fpic
 libpaf_ebb_la_LDFLAGS = -version-info $(LIBPAF_SO_VERSION) \
 -e __paflib_ebb_main
 
@@ -654,7 +657,7 @@ all: all-am
 
 .SUFFIXES:
 .SUFFIXES: .S .c .lo .log .o .obj .test .test$(EXEEXT) .trs
-$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
+$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -679,9 +682,9 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 
-$(top_srcdir)/configure:  $(am__configure_deps)
+$(top_srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
-$(ACLOCAL_M4):  $(am__aclocal_m4_deps)
+$(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
 
@@ -732,6 +735,15 @@ clean-libLTLIBRARIES:
 
 libpaf-ebb.la: $(libpaf_ebb_la_OBJECTS) $(libpaf_ebb_la_DEPENDENCIES) $(EXTRA_libpaf_ebb_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(libpaf_ebb_la_LINK) -rpath $(libdir) $(libpaf_ebb_la_OBJECTS) $(libpaf_ebb_la_LIBADD) $(LIBS)
+
+clean-checkPROGRAMS:
+	@list='$(check_PROGRAMS)'; test -n "$$list" || exit 0; \
+	echo " rm -f" $$list; \
+	rm -f $$list || exit $$?; \
+	test -n "$(EXEEXT)" || exit 0; \
+	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
+	echo " rm -f" $$list; \
+	rm -f $$list
 
 clean-noinstPROGRAMS:
 	@list='$(noinst_PROGRAMS)'; test -n "$$list" || exit 0; \
@@ -1191,7 +1203,7 @@ check-TESTS:
 	log_list=`echo $$log_list`; trs_list=`echo $$trs_list`; \
 	$(MAKE) $(AM_MAKEFLAGS) $(TEST_SUITE_LOG) TEST_LOGS="$$log_list"; \
 	exit $$?;
-recheck: all 
+recheck: all $(check_PROGRAMS) $(check_SCRIPTS)
 	@test -z "$(TEST_SUITE_LOG)" || rm -f $(TEST_SUITE_LOG)
 	@set +e; $(am__set_TESTS_bases); \
 	bases=`for i in $$bases; do echo $$i; done \
@@ -1325,10 +1337,10 @@ distdir: $(DISTFILES)
 	  fi; \
 	done
 check-am: all-am
+	$(MAKE) $(AM_MAKEFLAGS) $(check_PROGRAMS) $(check_SCRIPTS)
 	$(MAKE) $(AM_MAKEFLAGS) check-TESTS
 check: check-am
-all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(SCRIPTS) $(MANS) \
-		$(HEADERS)
+all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(MANS) $(HEADERS)
 installdirs:
 	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(man3dir)" "$(DESTDIR)$(includedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
@@ -1372,8 +1384,8 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
-	clean-noinstPROGRAMS mostlyclean-am
+clean-am: clean-checkPROGRAMS clean-generic clean-libLTLIBRARIES \
+	clean-libtool clean-noinstPROGRAMS mostlyclean-am
 
 distclean: distclean-am
 	-rm -rf ../common/$(DEPDIR) ./$(DEPDIR) tests/$(DEPDIR)
@@ -1447,17 +1459,17 @@ uninstall-man: uninstall-man3
 .MAKE: check-am install-am install-strip
 
 .PHONY: CTAGS GTAGS TAGS all all-am check check-TESTS check-am clean \
-	clean-generic clean-libLTLIBRARIES clean-libtool \
-	clean-noinstPROGRAMS cscopelist-am ctags ctags-am distclean \
-	distclean-compile distclean-generic distclean-libtool \
-	distclean-tags distdir dvi dvi-am html html-am info info-am \
-	install install-am install-data install-data-am install-dvi \
-	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-info install-info-am \
-	install-libLTLIBRARIES install-man install-man3 \
-	install-nobase_includeHEADERS install-pdf install-pdf-am \
-	install-ps install-ps-am install-strip installcheck \
-	installcheck-am installdirs maintainer-clean \
+	clean-checkPROGRAMS clean-generic clean-libLTLIBRARIES \
+	clean-libtool clean-noinstPROGRAMS cscopelist-am ctags \
+	ctags-am distclean distclean-compile distclean-generic \
+	distclean-libtool distclean-tags distdir dvi dvi-am html \
+	html-am info info-am install install-am install-data \
+	install-data-am install-dvi install-dvi-am install-exec \
+	install-exec-am install-html install-html-am install-info \
+	install-info-am install-libLTLIBRARIES install-man \
+	install-man3 install-nobase_includeHEADERS install-pdf \
+	install-pdf-am install-ps install-ps-am install-strip \
+	installcheck installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
 	recheck tags tags-am uninstall uninstall-am \

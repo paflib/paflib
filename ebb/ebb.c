@@ -221,6 +221,7 @@ paf_ebb_enable_branches (void)
 
   /* Enable PMU Event-Based exception (PME - bit 31).  */
   mtspr (BESCRS, (1 << 31));
+  /* Make sure the handler is set before we return */
   mb ();
   return 0;
 }
@@ -236,6 +237,7 @@ paf_ebb_disable_branches (void)
 
   /* Disable PMU Event-Based exception (PME - bit 31).  */
   mtspr (BESCRR, (1 << 31));
+  /* Make sure the handler is set before we return */
   mb ();
   return 0;
 }

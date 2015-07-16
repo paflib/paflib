@@ -1,0 +1,4 @@
+#!/bin/bash
+set -e
+autoreconf -f -i
+autoscan
