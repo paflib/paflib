@@ -5,16 +5,11 @@
 tmp=$(mktemp)
 touch ${tmp}
 
-# Tagging has been rather ad-hoc in the repo thus far.
-# The 0.1-x tags are ignored as they live on a branch
-TAGS="paflib-0.1 "
-
-sane_tags=$(git tag -l [0-9]*.[0-9]*.[0-9]* | sort -V)
-sorted_tags="${TAGS} ${sane_tags}"
+tags=$(git tag -l [0-9]*.[0-9]*.[0-9]* | sort -V)
 
 prev_tag=""
 echo "# ChangeLog"
-for tag in ${sorted_tags}; do
+for tag in ${tags}; do
 	# Prepend tags to the output because we want the ChangeLog in the
 	# reverse order, e.g. 2.0.0, 1.0.1 and 1.0.0.
 	{
