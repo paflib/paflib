@@ -80,7 +80,7 @@ build_triplet = @build@
 host_triplet = @host@
 subdir = ppr
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(nobase_include_HEADERS)
+	$(dist_man3_MANS) $(nobase_include_HEADERS)
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
 	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
@@ -141,7 +141,7 @@ am__uninstall_files_from_dir = { \
 man3dir = $(mandir)/man3
 am__installdirs = "$(DESTDIR)$(man3dir)" "$(DESTDIR)$(includedir)"
 NROFF = nroff
-MANS = $(man3_MANS)
+MANS = $(dist_man3_MANS)
 HEADERS = $(nobase_include_HEADERS)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
@@ -291,7 +291,7 @@ AM_CFLAGS = -Wall
 AM_LDFLAGS = -rdynamic
 AM_CPPFLAGS = -I$(top_srcdir)/common -I$(top_srcdir)/ppr
 nobase_include_HEADERS = paf/ppr.h
-man3_MANS = doc/libpaf-ppr.3
+dist_man3_MANS = doc/libpaf-ppr.3
 all: all-am
 
 .SUFFIXES:
@@ -331,9 +331,9 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
-install-man3: $(man3_MANS)
+install-man3: $(dist_man3_MANS)
 	@$(NORMAL_INSTALL)
-	@list1='$(man3_MANS)'; \
+	@list1='$(dist_man3_MANS)'; \
 	list2=''; \
 	test -n "$(man3dir)" \
 	  && test -n "`echo $$list1$$list2`" \
@@ -367,7 +367,7 @@ install-man3: $(man3_MANS)
 
 uninstall-man3:
 	@$(NORMAL_UNINSTALL)
-	@list='$(man3_MANS)'; test -n "$(man3dir)" || exit 0; \
+	@list='$(dist_man3_MANS)'; test -n "$(man3dir)" || exit 0; \
 	files=`{ for i in $$list; do echo "$$i"; done; \
 	} | sed -e 's,.*/,,;h;s,.*\.,,;s,^[^3][0-9a-z]*$$,3,;x' \
 	      -e 's,\.[0-9a-z]*$$,,;$(transform);G;s,\n,.,'`; \

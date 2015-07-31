@@ -41,6 +41,10 @@ The Power Architecture Facilities - Program Priority Register
 .sp
 .BI "void paf_ppr_low(void);
 .sp
+.BI "void paf_ppr_med_high(void);
+.sp
+.BI "void paf_ppr_very_low(void);
+.sp
 
 .SH DESCRIPTION
 
@@ -87,11 +91,13 @@ Set the Program Priority Register to low value.
 The function
 .BR paf_ppr_med_high()
 Set the Program Priority Register to medium high value.
+This is available from Power ISA 2.07.
 
 .PP
 The function
-.BR paf_ppr_high()
-Set the Program Priority Register to high value.
+.BR paf_ppr_very_low()
+Set the Program Priority Register to very low value.
+This is available from Power ISA 2.07.
 .SH RETURN VALUE
 
 .SH EXAMPLES
