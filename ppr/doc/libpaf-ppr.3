@@ -27,7 +27,8 @@
 .SH NAME
 The Power Architecture Facilities - Program Priority Register
 .SH SYNOPSIS
-.B #include <paf/ppr.h>
+.sp
+.BI "#include <paf/ppr.h>
 .sp
 .BI "void paf_yield(void);
 .sp
@@ -35,15 +36,15 @@ The Power Architecture Facilities - Program Priority Register
 .sp
 .BI "void paf_mdoom(void);
 .sp
-.BI "void paf_ppr_med(void);
-.sp
-.BI "void paf_ppr_med_low(void);
+.BI "void paf_ppr_very_low(void);
 .sp
 .BI "void paf_ppr_low(void);
 .sp
-.BI "void paf_ppr_med_high(void);
+.BI "void paf_ppr_med_low(void);
 .sp
-.BI "void paf_ppr_very_low(void);
+.BI "void paf_ppr_med(void);
+.sp
+.BI "void paf_ppr_med_high(void);
 .sp
 
 .SH DESCRIPTION
@@ -74,13 +75,9 @@ accesses to cacheable storage for which the data is not in the cache have been c
 
 .PP
 The function
-.BR paf_ppr_med()
-Set the Program Priority Register to medium value (default).
-
-.PP
-The function
-.BR paf_ppr_med_low()
-Set the Program Priority Register to medium low value.
+.BR paf_ppr_very_low()
+Set the Program Priority Register to very low value.
+This is available from Power ISA 2.07.
 
 .PP
 The function
@@ -89,23 +86,19 @@ Set the Program Priority Register to low value.
 
 .PP
 The function
-.BR paf_ppr_med_high()
-Set the Program Priority Register to medium high value.
-This is available from Power ISA 2.07.
+.BR paf_ppr_med_low()
+Set the Program Priority Register to medium low value.
 
 .PP
 The function
-.BR paf_ppr_very_low()
-Set the Program Priority Register to very low value.
+.BR paf_ppr_med()
+Set the Program Priority Register to medium value (default).
+
+.PP
+The function
+.BR paf_ppr_med_high()
+Set the Program Priority Register to medium high value.
 This is available from Power ISA 2.07.
-.SH RETURN VALUE
-
-.SH EXAMPLES
-.SS Program source
-\&
-.nf
-
-.ED
 
 .SH REFERENCES
 .TP
@@ -119,9 +112,9 @@ This is available from Power ISA 2.07.
 
 .SH REPORTING BUGS
 .PP
-Email bug reports to Rajalakshmi S<raji@linux.vnet.ibm.com>.
+Email bug reports to Rajalakshmi S  <raji@linux.vnet.ibm.com>.
 .SH AUTHORS
-This manual page was written by Rajalakshmi S<raji@linux.vnet.ibm.com>
-and Adhemerval Zanella <azanella@linux.vnet.ibm.com>.
+This manual page was written by Rajalakshmi S  <raji@linux.vnet.ibm.com>
+and Adhemerval Zanella  <azanella@linux.vnet.ibm.com>.
 
 

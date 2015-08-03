@@ -29,6 +29,54 @@
 #ifndef _PAF_PPR_H
 #define _PAF_PPR_H
 
+
+/* ISA 2.05 and beyond support the Program Priority Register (PPR) to adjust
+   thread priorities based on lock acquisition, wait and release. The ISA
+   defines the use of form 'or Rx,Rx,Rx' as the way to modify the PRI field.
+   The unprivileged priorities are:
+     Rx = 1 (low)
+     Rx = 2 (medium)
+     Rx = 6 (medium-low/normal)
+   The 'or' instruction form is a nop in previous hardware, so it is safe to
+   use unguarded. The default value is 'medium'.
+   From ISA 2.07:
+     Rx = 5 (medium high)
+     Rx = 31 (very low)
+ */
+#ifdef _ARCH_PWR8
+static inline void
+paf_ppr_very_low (void)
+{
+  __asm__ volatile ("or 31,31,31");
+}
+#endif
+
+static inline void
+paf_ppr_low (void)
+{
+  __asm__ volatile ("or 1,1,1");
+}
+
+static inline void
+paf_ppr_med_low (void)
+{
+  __asm__ volatile ("or 6,6,6");
+}
+
+static inline void
+paf_ppr_med (void)
+{
+  __asm__ volatile ("or 2,2,2");
+}
+
+#ifdef _ARCH_PWR8
+static inline void
+paf_ppr_med_high (void)
+{
+  __asm__ volatile ("or 5,5,5");
+}
+#endif
+
 /* The following functions provide hints about the usage of shared processor
    resources, as defined in ISA 2.06 and newer. */
 
@@ -59,50 +107,6 @@ static inline void
 paf_mdoom (void)
 {
   __asm__ volatile ("or 30,30,30");
-}
-
-/* ISA 2.05 and beyond support the Program Priority Register (PPR) to adjust
-   thread priorities based on lock acquisition, wait and release. The ISA
-   defines the use of form 'or Rx,Rx,Rx' as the way to modify the PRI field.
-   The unprivileged priorities are:
-     Rx = 1 (low)
-     Rx = 2 (medium)
-     Rx = 6 (medium-low/normal)
-   The 'or' instruction form is a nop in previous hardware, so it is safe to
-   use unguarded. The default value is 'medium'.
-   From ISA 2.07:
-     Rx = 5 (medium high)
-     Rx = 31 (very low)
- */
-
-static inline void
-paf_ppr_med (void)
-{
-  __asm__ volatile ("or 2,2,2");
-}
-
-static inline void
-paf_ppr_med_low (void)
-{
-  __asm__ volatile ("or 6,6,6");
-}
-
-static inline void
-paf_ppr_low (void)
-{
-  __asm__ volatile ("or 1,1,1");
-}
-
-static inline void
-paf_ppr_med_high (void)
-{
-  __asm__ volatile ("or 5,5,5");
-}
-
-static inline void
-paf_ppr_very_low (void)
-{
-  __asm__ volatile ("or 31,31,31");
 }
 
 #endif
