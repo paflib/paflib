@@ -35,4 +35,6 @@
 
 extern int __paf_ebb_hwcap attribute_hidden;
 
+extern void __paf_ebb_init_hwcap (void);
+
 #endif
