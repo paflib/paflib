@@ -1,6 +1,6 @@
 /* Program Priority Register Facility API.  API implementation.
  *
- * Copyright IBM Corp. 2014
+ * Copyright IBM Corp. 2015
  *
  * The MIT License (MIT)
  *

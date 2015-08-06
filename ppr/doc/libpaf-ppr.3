@@ -1,4 +1,4 @@
-.\" Copyright IBM Corp. 2014
+.\" Copyright IBM Corp. 2015
 .\"
 .\" The MIT License (MIT)
 .\"
@@ -23,81 +23,83 @@
 .\" Contributors:
 .\"     IBM Corporation, Adhemerval Zanella - Initial implementation.
 .\"     IBM Corporation, Rajalakshmi S - Initial implementation.
-.TH LIBPAF 2014-04-13 "Linux" "Program Priority Register"
+.TH LIBPAF 2015-08-06 "Linux" "Program Priority Register"
 .SH NAME
 The Power Architecture Facilities - Program Priority Register
 .SH SYNOPSIS
 .sp
 .BI "#include <paf/ppr.h>
 .sp
-.BI "void paf_yield(void);
+.BI "void paf_yield (void);
 .sp
-.BI "void paf_mdoio(void);
+.BI "void paf_mdoio (void);
 .sp
-.BI "void paf_mdoom(void);
+.BI "void paf_mdoom (void);
 .sp
-.BI "void paf_ppr_very_low(void);
+.BI "void paf_ppr_very_low (void);
 .sp
-.BI "void paf_ppr_low(void);
+.BI "void paf_ppr_low (void);
 .sp
-.BI "void paf_ppr_med_low(void);
+.BI "void paf_ppr_med_low (void);
 .sp
-.BI "void paf_ppr_med(void);
+.BI "void paf_ppr_med (void);
 .sp
-.BI "void paf_ppr_med_high(void);
+.BI "void paf_ppr_med_high (void);
 .sp
 
 .SH DESCRIPTION
 
-The Program Priority Register header ppr.h provides a mechanism to adjust the
+The Program Priority Register header
+.I ppr.h
+provides a mechanism to adjust the
 thread priorities based on lock acquisition, wait and release
 available on Power Architecture.
 
 .PP
 The function
-.BR paf_yield()
-Provide a hint that performance will probably be improved if shared resources
+.BR paf_yield ()
+provides a hint that performance will probably be improved if shared resources
 dedicated to the executing processor are released for use by other processors.
 
 .PP
 The function
-.BR paf_mdoio()
-Provide a hint that performance will probably be improved if shared resources
+.BR paf_mdoio ()
+provides a hint that performance will probably be improved if shared resources
 dedicated to the executing processor are released until all outstanding storage
 accesses to caching-inhibited storage have been completed.
 
 .PP
 The function
-.BR paf_mdoom()
-Provide a hint that performance will probably be improved if shared resources
+.BR paf_mdoom ()
+provides a hint that performance will probably be improved if shared resources
 dedicated to the executing processor are released until all outstanding storage
 accesses to cacheable storage for which the data is not in the cache have been completed.
 
 .PP
 The function
-.BR paf_ppr_very_low()
-Set the Program Priority Register to very low value.
+.BR paf_ppr_very_low ()
+sets the Program Priority Register to very low value.
 This is available from Power ISA 2.07.
 
 .PP
 The function
-.BR paf_ppr_low()
-Set the Program Priority Register to low value.
+.BR paf_ppr_low ()
+sets the Program Priority Register to low value.
 
 .PP
 The function
-.BR paf_ppr_med_low()
-Set the Program Priority Register to medium low value.
+.BR paf_ppr_med_low ()
+sets the Program Priority Register to medium low value.
 
 .PP
 The function
-.BR paf_ppr_med()
-Set the Program Priority Register to medium value (default).
+.BR paf_ppr_med ()
+sets the Program Priority Register to medium value (default).
 
 .PP
 The function
-.BR paf_ppr_med_high()
-Set the Program Priority Register to medium high value.
+.BR paf_ppr_med_high ()
+sets the Program Priority Register to medium high value.
 This is available from Power ISA 2.07.
 
 .SH REFERENCES
