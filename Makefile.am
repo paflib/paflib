@@ -9,8 +9,11 @@ endif
 if TB
    DIR_TB = tb
 endif
+if PPR
+  DIR_PPR = ppr
+endif
 
-SUBDIRS = common $(DIR_DSC) $(DIR_EBB) $(DIR_TB)
+SUBDIRS = common $(DIR_DSC) $(DIR_EBB) $(DIR_TB) $(DIR_PPR)
 
 dist_doc_DATA = ChangeLog.md
 

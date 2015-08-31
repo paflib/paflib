@@ -55,5 +55,5 @@ __paflib_dsc_main (void)
           "For bug reporting please contact:\n"
           PACKAGE_BUGREPORT".\n", dscr_str);
           
-  _exit (0);
+  return(0);
 }
