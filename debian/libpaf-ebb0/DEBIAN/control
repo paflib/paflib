@@ -1,0 +1,19 @@
+Package: libpaf-ebb0
+Source: paflib
+Version: 0.2.0-1.1
+Architecture: ppc64el
+Maintainer: Carlos Eduardo Seo (ceseo) <contact@carlosseo.com>
+Installed-Size: 85
+Depends: libc6 (>= 2.17)
+Section: libs
+Priority: extra
+Homepage: https://github.com/paflib/paflib
+Description: library which exposes EBB Power Facilities to userspace via an API
+ PAFLib is a IBM written library which exposes Power Architecture Facilities to
+ userspace via an API. This includes the Data Stream Control Register Facility
+ (DSCR) and the Event-Based Branching facility (EBB). Linux kernel 3.9 has
+ exposed problem-state DSCR usage for ISA 2.06 (POWER7 – emulated) and ISA 2.07
+ (POWER8 – in hardware). Linux 3.10 has exposed the EBB facility.
+ .
+ Event Based Branches (EBBs) are a feature which allows the hardware to branch
+ directly to a specified user space address when certain events occur.

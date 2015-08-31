@@ -1,0 +1,264 @@
+.\" Copyright IBM Corp. 2013
+.\" 
+.\" The MIT License (MIT)
+.\" 
+.\" Permission is hereby granted, free of charge, to any person obtaining a copy
+.\" of this software and associated documentation files (the "Software"), to
+.\" deal in the Software without restriction, including without limitation the
+.\" rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+.\" sell copies of the Software, and to permit persons to whom the Software is
+.\" furnished to do so, subject to the following conditions:
+.\" 
+.\" The above copyright notice and this permission notice shall be included in
+.\" all copies or substantial portions of the Software.
+.\" 
+.\" THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+.\" IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+.\" FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+.\" AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+.\" LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+.\" FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+.\" IN THE SOFTWARE.
+.\" 
+.\" Contributors:
+.\"     IBM Corporation, Edjunior Barbosa Machado - Initial implementation.
+.TH LIBPAF-DSC 2 2013-08-13 "Linux" "Data Stream Control Library"
+.SH NAME
+libpaf-dsc \- The Power Architecture Facilities Data Stream Control Library
+.SH SYNOPSIS
+.B #include <paf/dsc.h>
+.sp
+.BI "uint64_t paf_dsc_check_support(void);
+.sp
+.BI "int paf_dsc_get(uint64_t " *dscr ");
+.sp
+.BI "int paf_dsc_set(uint64_t " dscr ");
+.sp
+Compile and link with \fI\-lpaf\-dsc\fP.
+
+.SH DESCRIPTION
+
+The Power Architecture\(rg Facilities
+.B Data Stream Control Library
+.RB ( libpaf-dsc )
+is a part of the Power Architecture Facilities Library
+.RB ( PAFLib )
+.
+
+The Data Stream Control Library provides a mechanism to interact with the Data
+Stream Control Register
+.RB ( DSCR )
+available on Power Architecture. This register follows the layout specified in
+the corresponding Power ISA, with the following defined flags.
+
+These are features supported by Power ISA 2.05:
+.TP
+.IP \[bu] 2
+.BR DSCR_SSE
+Store Stream Enable.
+
+.PP
+These features were added on Power ISA 2.06:
+.TP
+.IP \[bu] 2
+.BR DSCR_SNSE
+Stride-N Stream Enable.
+.PP
+These features were added on Power ISA 2.06+:
+.TP
+.IP \[bu] 2
+.BR DSCR_LSD
+Load Stream Disable.
+
+.PP
+These are supported only on Power ISA 2.07:
+.TP
+.IP \[bu] 2
+.BR DSCR_HWUE
+Hardware Unit count Enable.
+.TP
+.IP \[bu] 2
+.BR DSCR_SWUE
+Software Unit count Enable.
+.TP
+.IP \[bu]
+.BR DSCR_LTE
+Load Transient Enable.
+.TP
+.IP \[bu]
+.BR DSCR_STE
+Software Transient Enable.
+.TP
+.IP \[bu]
+.BR DSCR_HTE
+Hardware Transient Enable.
+.TP
+.IP \[bu]
+.BR DSCR_SWTE
+Software Transient Enable. 
+
+.PP
+There are also other settings whose variable value can be accessed using the following macros:
+.TP
+.BR DSCR_DPFD_GET(dscr)
+.TP
+.BR DSCR_DPFD_SET(dscr, value)
+Default Prefetch Depth. This field supplies a prefetch depth for
+hardware-detected streams and for software-defined streams. The possible values
+for this field are the following:
+.IP \[bu] 2
+0 default
+.IP \[bu]
+1 none
+.IP \[bu]
+2 shallowest
+.IP \[bu]
+3 shallow
+.IP \[bu]
+4 medium
+.IP \[bu]
+5 deep
+.IP \[bu]
+6 deeper
+.IP \[bu]
+7 deepest
+.IP
+This setting was introduced on Power ISA 2.05.
+.TP
+.BR DSCR_URG_GET(dscr)
+.TP
+.BR DSCR_URG_SET(dscr, value)
+Depth Attainment Urgency. This field indicates how quickly the prefetch depth
+should be reached for hardware-detected streams. These are the following
+possible values:
+.IP \[bu]
+0 default
+.IP \[bu]
+1 not urgent
+.IP \[bu]
+2 least urgent
+.IP \[bu]
+3 less urgent
+.IP \[bu]
+4 medium
+.IP \[bu]
+5 urgent
+.IP \[bu]
+6 more urgent
+.IP \[bu]
+7 most urgent
+.IP
+This setting was added on Power ISA 2.06+.
+
+.TP
+.BR DSCR_UNITCNT_GET(dscr)
+.TP
+.BR DSCR_UNITCNT_SET(dscr, value)
+Number of units in data stream. This field can have a value between 0 and 1023.
+This setting was added on Power ISA 2.07.
+
+.PP
+For tips about how to use the macros above, see the section EXAMPLES.
+
+.PP
+The function
+.BR paf_dsc_check_support()
+checks the available DSCR features, returning the bit flags and fields
+supported by the processor.
+ 
+.PP
+The function
+.BR paf_dsc_get()
+retrieves the current DSCR content and copies to
+.I *dscr
+.
+
+The function
+.BR paf_dsc_set()
+sets the current DSCR content to
+.I dscr
+.
+
+.SH RETURN VALUE
+.BR paf_dsc_check_support()
+returns a bitmask with the value of Data Stream Control Register or 0 if
+unsupported.
+
+.BR paf_dsc_get()
+return 0 in case of success or -1 otherwise.
+
+.BR paf_dsc_set()
+return 0 in case of success or -1 otherwise.
+
+.SH ERRORS
+.TP
+.B ENOSYS
+if the system does not support DSCR facility.
+
+.SH EXAMPLES
+.SS Program source
+\&
+.nf
+#include <inttypes.h>
+#include <paf/dsc.h>
+
+int main(void)
+{
+  uint64_t dscr, dscr_support;
+  int dpfd_value;
+
+  assert((dscr_support = paf_dsc_check_support()) > 0);
+
+  /* Check if the system supports DSCR_SSE */
+  if ((dscr_support | DSCR_SSE) == dscr_support)
+    {
+      assert(paf_dsc_get(&dscr) == 0);
+      assert(paf_dsc_set(dscr | DSCR_SSE) == 0);
+    }
+
+  assert(paf_dsc_get(&dscr) == 0);
+
+  /* Retrieve the current Default Prefetch Depth value */
+  dpfd_value = DSCR_DPFD_GET(dscr);
+
+  /* Check if the system supports DSCR_UNITCNT */
+  if ((dscr_support | DSCR_UNITCNT_SET(dscr, 256)) == dscr_support)
+    {
+       dscr = DSCR_UNITCNT_SET(dscr, 256);
+       assert(paf_dsc_set(dscr) == 0);
+    }
+
+  return 0;
+}
+
+.SH NOTES
+In order to check if the DSCR instructions are supported by the kernel, the
+library uses a signal handler for SIGILL during its initialization.
+
+.SH VERSIONS
+The Data Stream Control Register (DSCR) [Category: Stream] is a Power
+Architecture hardware facility available since Power ISA 2.05 as
+privileged-state, and ISA 2.07 as problem-state, that affects how the processor
+handles hardware-detected and software-defined data streams.
+
+DSCR emulation on pre-ISA 2.07 hardware is provided in Linux Kernel 3.10-cr1.
+DSCR problem-state availability is exported in Linux Kernel 3.10-rc1.
+
+.SH REFERENCES
+.TP
+.B Power ISA\(tm Version 2.05
+.TP
+.B Power ISA\(tm Version 2.06
+.TP
+.B Power ISA\(tm Version 2.06+
+.TP
+.B Power ISA\(tm Version 2.07
+
+.SH REPORTING BUGS
+.PP
+Email bug reports to Edjunior B. Machado <emachado@linux.vnet.ibm.com>.
+.SH AUTHORS
+This manual page was written by Edjunior B. Machado <emachado@linux.vnet.ibm.com>
+and Adhemerval Zanella <azanella@linux.vnet.ibm.com>.
+
+
