@@ -1,0 +1,328 @@
+.\" Copyright IBM Corp. 2013, 2014
+.\" 
+.\" The MIT License (MIT)
+.\" 
+.\" Permission is hereby granted, free of charge, to any person obtaining a copy
+.\" of this software and associated documentation files (the "Software"), to
+.\" deal in the Software without restriction, including without limitation the
+.\" rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+.\" sell copies of the Software, and to permit persons to whom the Software is
+.\" furnished to do so, subject to the following conditions:
+.\" 
+.\" The above copyright notice and this permission notice shall be included in
+.\" all copies or substantial portions of the Software.
+.\" 
+.\" THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+.\" IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+.\" FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+.\" AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+.\" LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+.\" FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+.\" IN THE SOFTWARE.
+.\" 
+.\" Contributors:
+.\"     IBM Corporation, Adhemerval Zanella - Initial implementation.
+.TH LIBPAF-EBB 2 2013-07-01 "Linux" "Event-Based Branch Library"
+.SH NAME
+libpaf-ebb \- The Power Architecture Facilities Event-Based Branch Library
+.SH SYNOPSIS
+.B #include <paf/ebb.h>
+.sp
+.B typedef void (*ebbhandler_t)(void*);
+.sp
+.BI "int paf_ebb_pmu_init(uint64_t " raw_event ", int " group ");
+.sp
+.BI "int paf_ebb_pmu_init_ex(uint64_t " raw_event ", int " group ", pid_t " pid ",
+unsigned int " flags");
+.sp
+.BI "void paf_ebb_pmu_set_period(uint32_t " sample_period ");
+.sp
+.BI "void paf_ebb_pmu_reset(void);
+.sp
+.BI "ebbhandler_t paf_ebb_register_handler(ebbhandler_t " handler ", \
+void * "context ", paf_ebb_callback_type_t " type ", int " flags ");
+.sp
+.BI "ebbhandler_t paf_ebb_handler(void);
+.sp
+.BI "int paf_ebb_enable_branches(void);
+.sp
+.BI "int paf_ebb_disable_branches(void);
+.sp
+.BI "void paf_ebb_enable_branches_fast(void);
+.sp
+.BI "void paf_ebb_disable_branches_fast(void);
+.sp
+.BI "int paf_ebb_event_close (int " fd ");
+.sp
+Compile and link with \fI\-lpaf\-ebb\fP.
+
+.SH DESCRIPTION
+
+The Power Architecture\(rg Facilities
+.B Event-Based Branch Library
+.RB ( libpaf-ebb )
+is a part of the Power Architecture Facilities Library
+.RB ( PAFLib )
+.
+
+The Event-Based Branch Library provides an easy-to-use framework for using the Power Architecture Event-Based Branch facility
+.RB ( EBB ).
+
+If enabled, the EBB facility generates an
+.I event-based exception
+when a user-specified event occurs, which causes the hardware to branch
+directly to a user-space address (EBB handler). The facility does not require
+any kernel handling besides initialization.  Only Performance Monitor Unit
+(PMU) events are supported.
+
+The Event-Based Branch Library framework registers a proxy-handler with the hardware, on behalf of a user program, so that the program doesn't need to directly control the Power Architecture EBB facility (which would require assembly language instructions and an understanding of the EBB ELF ABI).
+
+The EBB Library proxy-handler will properly stack an ELF ABI EBB exception frame on the user-stack, preserve the current register context in that stack frame, and then pass control to a user registered (thread specific) handler. When the user-space handler has completed its task and returned control to the EBB Library proxy-handler, the proxy-handler will perform the tasks necessary to restore the register context, pop the EBB exception frame, and return control to the code that was interrupted by the event-based exception.
+
+.BR paf_ebb_pmu_init()
+initializes the PMU event generation configuring the hardware
+counter
+.I raw_event
+with the specified
+.I group.
+The first call should use -1 to start a new group. Subsequent calls may create
+new groups or use the returned file descriptor from
+.BR paf_ebb_pmu_init
+to associate events in a group. The file descriptor returned should be closed when done to prevent resource leak.
+
+The
+.I event-based exception
+is triggered when the PMU counter overflows. To set the PMC to an initial value different from default (0) use
+.BR paf_ebb_pmu_set_period
+To reset it to potentially
+trigger another event call
+.BR paf_ebb_pmu_reset().
+
+.BR paf_ebb_pmu_init_ex()
+initializes the PMU event generation configuring the hardware
+counter
+.I raw_event
+with the specified
+.I group
+,
+.I pid
+,
+.I cpu
+and
+.I flags.
+The first call should use -1 to start a new group. Subsequent calls may create
+new groups or use the returned file descriptor from
+.BR paf_ebb_pmu_init
+to associate events in a group.
+The
+.I pid
+and
+.I cpu
+arguments allow specifying which process and CPU to monitor:
+.TP
+.BR "pid == 0" " and " "cpu == \-1"
+This measures the calling process/thread on any CPU.
+.TP
+.BR "pid == 0" " and " "cpu >= 0"
+This measures the calling process/thread only
+when running on the specified CPU.
+.TP
+.BR "pid > 0" " and " "cpu == \-1"
+This measures the specified process/thread on any CPU.
+.TP
+.BR "pid > 0" " and " "cpu >= 0"
+This measures the specified process/thread only
+when running on the specified CPU.
+.TP
+.BR "pid == \-1" " and " "cpu >= 0"
+This measures all processes/threads on the specified CPU.
+This requires
+.B CAP_SYS_ADMIN
+capability or a
+.I /proc/sys/kernel/perf_event_paranoid
+value of less than 1.
+.TP
+.BR "pid == \-1" " and " "cpu == \-1"
+This setting is invalid and will return an error.
+.P
+The
+.I flags
+argument is passed directly to
+.I perf_event_open
+syscall.
+
+.BR paf_ebb_register_handler()
+registers the user
+.I handler
+.RB ( ebbhandler_t )
+function to be called when the EBB is triggered with the argument
+.I context.
+Common state registers (LR, CR, CTR, XER) are always saved and
+.I type
+specifies which further set of registers will be saved and restored:
+
+.TP
+.BR PPCEBB_CALLBACK_GPR_SAVE:
+save/restore all General Purpose Registers.
+.TP
+.BR PPCEBB_CALLBACK_FPR_SAVE:
+save/restore all General Purpose Registers and all Floating-Point Register.
+.TP
+.BR PPCEBB_CALLBACK_VR_SAVE:
+save/restore all General Purpose Registers, all Floating-Point Register, and all
+Vector Registers (VMX).
+.TP
+.BR PPCEBB_CALLBACK_VSR_SAVE:
+save/restore all General Purpose Registers, all Floating-Point Register, all
+Vector Registers (VMX), and all Vector Scalar Registers (VSX).
+.PP
+
+The current support
+.I
+flags
+is either 0 or a multibyte mask of bits with one or more of the following options:
+
+.IP \[bu] 2
+.BR PAF_EBB_FLAGS_RESET_PMU
+after the callback activation the EBB machanism will be reset, similiar to a call to
+.BR paf_ebb_pmu_reset
+.PP
+
+.BR paf_ebb_handler()
+returns the registered handler previously issued by paf_ebb_register_handler().
+
+The
+.BR paf_ebb_enable_branches()
+and
+.BR paf_ebb_disable_branches()
+enable/disable EBB triggering and add required memory synchonizations.  They also check if EBB is available.
+
+The fast versions
+.BR paf_ebb_enable_branches_fast()
+and
+.BR paf_ebb_disable_branches_fast()
+aso enable/disable the EBB branches, however they do not check if EBB is available on the system, neither add memory synchonization after the mtspr call.
+
+
+.BR paf_ebb_event_close()
+closes PMU event.
+
+.SH "RETURN VALUE"
+
+.BR paf_ebb_pmu_init()
+returns a file descriptor to be used in group association or -1 case of error.
+
+.BR paf_ebb_pmu_init_ex()
+returns a file descriptor to be used in group association or -1 case of error.
+
+.BR paf_ebb_register_handler()
+returns the registered handler or EBB_REG_ERR on error. On error
+.I errno
+is set appropriately.
+
+.BR paf_ebb_handler()
+returns the previous registered handler or EBB_REG_ERR if no handler has been registered. On error
+.I errno
+is set appropriately.
+
+.BR paf_ebb_enable_branches()
+and
+.BR paf_ebb_disable_branches()
+return 0 in case of success or -1 otherwise. On error
+.I errno
+is set appropriately.
+
+.BR paf_ebb_event_close()
+return 0 in case of success or -1 otherwise.
+
+
+.SH ERRORS
+
+.TP
+.B ENOSYS
+system does not support EBB facility.
+
+.SH VERSIONS
+The EBB facility is part of Power ISA [category: Server] first appearing in Power ISA 2.07.
+
+Linux support for the EBB facility first appeared in Linux kernel version 3.10.
+
+Support for the ELF EBB ABI first appeared in glibc version 2.18 though the ABI is not runtime incompatible with backporting to earlier glibc versions.
+
+.SH EXAMPLE
+
+The following example show how to setup a simple EBB handler to update a global counter.
+
+.nf
+.sp
+#include <stdio.h>
+#include <paf/ebb.h>
+#include <unistd.h>
+
+#define PM_RUN_INST_CMPL  0x400FA
+
+/* Set it volatile to force memory read in loop below.  */
+static volatile int ebb_handler_triggered = 0;
+
+static void ebb_handler(void *context)
+{
+  int *trigger = (int*) (context);
+  *trigger += 1;
+}
+
+void do_work (void)
+{
+  while (1)
+    {
+      if (ebb_handler_triggered == 1000)
+        break;
+    }
+}
+
+int _do_ebb(void)
+{
+  ebbhandler_t handler;
+  ebb_handler_triggered = 0;
+  int ebb_fd;
+
+  ebb_fd = paf_ebb_pmu_init (PM_RUN_INST_CMPL, -1);
+
+  paf_ebb_pmu_set_period (500000);
+
+  handler = paf_ebb_register_handler (ebb_handler,
+                                      (void*)&ebb_handler_triggered,
+                                      PAF_EBB_CALLBACK_GPR_SAVE,
+                                      PAF_EBB_FLAGS_RESET_PMU);
+
+  paf_ebb_pmu_reset ();
+
+  paf_ebb_enable_branches ();
+
+  do_work ();
+
+  paf_ebb_disable_branches ();
+
+  printf ("Done; %d EBB interrupts handled\n", ebb_handler_triggered);
+
+  close (ebb_fd);
+
+  return 0;
+}
+
+int main (int argc, char *argv[])
+{
+  return do_ebb ();
+}
+.fi
+
+.SH "SEE ALSO"
+.BR libpaf-dsc (3)
+
+.SH REFERENCES
+.TP
+.B Power ISA\(tm Version 2.07
+.SH REPORTING BUGS
+.PP
+Email bug reports to Adhemerval Zanella <azanella@linux.vnet.ibm.com>.
+.SH AUTHORS
+This manual page was written by Adhemerval Zanella <azanella@linux.vnet.ibm.com> and Ryan S. Arnold.

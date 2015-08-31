@@ -1,0 +1,6 @@
+libpaf-dsc.so.0 libpaf-dsc0 #MINVER#
+ __invoke_dynamic_linker__@Base 0.2.0-1~
+ __paflib_dsc_main@Base 0.2.0-1~
+ paf_dsc_check_support@Base 0.2.0-1~
+ paf_dsc_get@Base 0.2.0-1~
+ paf_dsc_set@Base 0.2.0-1~

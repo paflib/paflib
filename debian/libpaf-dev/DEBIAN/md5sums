@@ -1,0 +1,9 @@
+d6c8594509fd8adb0757ab8b351f5a36  usr/include/paf/dsc.h
+fb28a9494b7a9fcc8c76e9568b7c20de  usr/include/paf/ebb.h
+8d4d3c9f60df4e582fe01f58b5c64503  usr/include/paf/ppr.h
+a82976004356865b6a3859a8a4054723  usr/include/paf/tb.h
+efc6bc46eabf9d12e6ce3e7ebfd61e30  usr/lib/powerpc64le-linux-gnu/libpaf-dsc.a
+00f2d7789528d024aacee54b673dd703  usr/lib/powerpc64le-linux-gnu/libpaf-ebb.a
+977a341470c15f7b6b2d480dc57d482a  usr/share/doc/libpaf-dev/changelog.Debian.gz
+aff7efec07a335484cd4e0c51ba83910  usr/share/doc/libpaf-dev/changelog.gz
+0c58938878c51dc2809b54f41ea0a7aa  usr/share/doc/libpaf-dev/copyright

@@ -1,6 +1,6 @@
-/* Event-Based Branch Facility API.
+/* Time Base Facility API.  API implementation.
  *
- * Copyright IBM Corp. 2013
+ * Copyright IBM Corp. 2014
  *
  * The MIT License (MIT)
  *
@@ -24,34 +24,48 @@
  *
  * Contributors:
  *     IBM Corporation, Adhemerval Zanella - Initial implementation.
+ *     IBM Corporation, Rajalakshmi S - Initial implementation.
  */
+#ifndef _PAF_TB_H
+#define _PAF_TB_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
+#include <stdint.h>
 
-#include "config.h"
-#include "paf-common.h"
+/* We use 64bit values for the times.  */
+typedef uint64_t timing;
 
-#include "ebb-hwcap.h"
-#include "ebb-init.h"
-
-void
-attribute_noreturn
-__paflib_ebb_main (void)
+static inline timing
+paf_timing_now ()
 {
-  __paf_ebb_init_hwcap ();
-  __paf_ebb_init_usage ();
-
-  printf ("POWER Platform Library " PACKAGE_STRING".\n"
-          "Copyright IBM Corp. 2013.\n"
-          "Compiled by GNU version "__VERSION__".\n"
-          "Runtime information:\n"
-          "    System EBB capable: %s\n"
-          "    Context data area: %s\n"
-          "For bug reporting please contact:\n"
-          PACKAGE_BUGREPORT".\n",
-          (__paf_ebb_hwcap & PAF_EBB_FEATURE_HAS_EBB) ? "yes" : "no",
-          (__paf_ebb_use_tcb) ? "TCB" : "TLS");
-  return(0);
+  /* Read the Time Base Register.   */
+#ifdef __powerpc64__
+  timing val;
+  __asm__ __volatile__ ("mfspr %0, 268":"=r" (val));
+  return val;
+#else
+    timing hi, lo, tmp;
+    __asm__ __volatile__ ("1:   mfspr   %0,269;"
+                          "     mfspr   %1,268;"
+                          "     mfspr   %2,269;"
+                          "     cmpw    %0,%2;"
+                          "     bne     1b;"
+                          : "=&r" (hi), "=&r" (lo), "=&r" (tmp));
+    return (((uint64_t) hi << 32) | lo);
+#endif
 }
+
+static inline void 
+paf_timing_accum (timing * sum, timing diff)
+{
+  *sum += diff;
+}
+
+static inline timing 
+paf_timing_diff (timing start, timing end)
+{
+  timing diff;
+  diff = end - start;
+  return diff;
+}
+
+#endif

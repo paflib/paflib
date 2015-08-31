@@ -1,0 +1,3 @@
+version=3
+opts=pgpsigurlmangle=s/.+\/v?(\d\S*)\.tar\.gz/paflib-$1\.tar\.gz/ \
+  https://github.com/paflib/paflib/tags .*/v?(\d\S*)\.tar\.gz
