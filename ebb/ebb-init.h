@@ -34,6 +34,4 @@
 /* Defined if GLIBC allocates the EBB fiels in TCB internal structure.  */
 extern int __paf_ebb_use_tcb attribute_hidden;
 
-extern void __paf_ebb_init_usage (void);
-
 #endif

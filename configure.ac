@@ -72,13 +72,6 @@ AC_ARG_ENABLE(tb,
               [enable_tb=yes]
 )
 
-AC_ARG_ENABLE(ppr,
-              AS_HELP_STRING([--disable-ppr],
-                             [disable PPR build @<:@not default@:>@]),
-              [enable_ppr=$enableval],
-              [enable_ppr=yes]
-)
-
 if test $enable_ebb != yes; then
   if test $enable_dsc != yes; then
     AC_MSG_ERROR([All the libraries are disabled. At least one library have to be enabled.])
@@ -88,7 +81,6 @@ fi
 AM_CONDITIONAL([DSC], [test "$enable_dsc" = yes])
 AM_CONDITIONAL([EBB], [test "$enable_ebb" = yes])
 AM_CONDITIONAL([TB], [test "$enable_tb" = yes])
-AM_CONDITIONAL([PPR], [test "$enable_ppr" = yes])
 
 # Checkings for libpaf-ebb
 AC_ARG_ENABLE([save-area],
@@ -201,6 +193,5 @@ AC_CONFIG_FILES([Makefile
 		 common/Makefile
 		 ebb/Makefile
 		 dsc/Makefile
-		 tb/Makefile
-		 ppr/Makefile])
+		 tb/Makefile])
 AC_OUTPUT

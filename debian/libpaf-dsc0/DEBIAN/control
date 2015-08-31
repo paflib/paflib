@@ -3,7 +3,7 @@ Source: paflib
 Version: 0.2.0-1.1
 Architecture: ppc64el
 Maintainer: Carlos Eduardo Seo (ceseo) <contact@carlosseo.com>
-Installed-Size: 87
+Installed-Size: 89
 Depends: libc6 (>= 2.17)
 Section: libs
 Priority: extra

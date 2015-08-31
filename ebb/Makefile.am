@@ -1,5 +1,5 @@
 ## Process this file with automake to produce Makefile.in
-AM_CFLAGS = -Wall -Werror -rdynamic
+AM_CFLAGS = -Wall -rdynamic
 AM_CPPFLAGS = -I$(top_srcdir)/common -I$(top_srcdir)/ebb
 
 noinst_PROGRAMS =

@@ -72,7 +72,7 @@ test_ebb_cpu (void)
 
   if (ebbfd == -1)
     {
-      printf ("Error: paf_ebb_pmu_init_ex () failed " "(errno = %i)\n", errno);
+      printf ("Error: paf_ebb_init_pmu () failed " "(errno = %i)\n", errno);
       return -1;
     }
 

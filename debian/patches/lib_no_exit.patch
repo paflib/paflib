@@ -12,7 +12,6 @@ Author: Thierry Fauck <tfauck@free.fr>
 ---
 
 Origin: vendor
-Bug: <url in upstream bugtracker>
 Bug-Debian: https://bugs.debian.org/#781117
 Forwarded: not-needed
 Reviewed-By: Breno Leitao <brenohl@br.ibm.com>

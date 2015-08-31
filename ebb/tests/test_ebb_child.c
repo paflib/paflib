@@ -200,7 +200,7 @@ ebb_on_child (void)
   printf ("Setting EBB on child\n");
   if (ebbfd == -1)
     {
-      printf ("Error: paf_ebb_pmu_init_ex () failed " "(errno = %i)\n",
+      printf ("Error: paf_ebb_pmu_init_with_pid () failed " "(errno = %i)\n",
 	      errno);
       return -1;
     }
