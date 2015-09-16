@@ -1,0 +1,31 @@
+Description: Lintian complains about exit() 
+ Lintian complains about library doing exit(). Changing exit() to return().
+ The *_main() functions from the ebb and dsc library are just informative.
+ .
+Author: Thierry Fauck <tfauck@free.fr>
+
+---
+
+Origin: vendor
+Forwarded: not-needed
+Reviewed-By: Breno Leitao <brenohl@br.ibm.com>
+Last-Update: <2015-08-31>
+
+--- paflib-0.2.0.orig/dsc/dsc-version.c
++++ paflib-0.2.0/dsc/dsc-version.c
+@@ -55,5 +55,5 @@ __paflib_dsc_main (void)
+           "For bug reporting please contact:\n"
+           PACKAGE_BUGREPORT".\n", dscr_str);
+           
+-  _exit (0);
++  return;
+ }
+--- paflib-0.2.0.orig/ebb/ebb-version.c
++++ paflib-0.2.0/ebb/ebb-version.c
+@@ -53,5 +53,5 @@ __paflib_ebb_main (void)
+           PACKAGE_BUGREPORT".\n",
+           (__paf_ebb_hwcap & PAF_EBB_FEATURE_HAS_EBB) ? "yes" : "no",
+           (__paf_ebb_use_tcb) ? "TCB" : "TLS");
+-  exit (0);
++  return;
+ }
