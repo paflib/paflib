@@ -1,18 +1,17 @@
 
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: paflib
-Source: https://github.com/leitao/paflib_deb
+Source: https://github.com/paflib/paflib
 
 Files: *
-Author:  Carlos Eduardo Seo (ceseo) <contact@carlosseo.com>
-Copyright: Copyright IBM Corp. 2013
-           2015 Carlos Eduardo Seo (ceseo) <contact@carlosseo.com>
-License: mit
+Author:  Tulio Magno Quites Machado Filho <tulioqm@br.ibm.com>
+Copyright: Copyright IBM Corp. 2013-2015
+License: MIT
 
 Files: debian/*
-Copyright: 2015 Breno Leita <breno.leitao@gmail.com>
-Author: Breno Leita <breno.leitao@gmail.com>
-License: GPL-2+
+Copyright: Copyright IBM Corp. 2013-2015
+Author: Thierry Fauck <tfauck@free.fr>
+License: GPL-2
  This package is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 2 of the License, or
@@ -29,7 +28,7 @@ License: GPL-2+
  On Debian systems, the complete text of the GNU General
  Public License version 2 can be found in "/usr/share/common-licenses/GPL-2".
 
-License: mit
+License: MIT
  * The MIT License (MIT)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy

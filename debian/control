@@ -1,6 +1,6 @@
 Source: paflib
 Section: libs
-Maintainer: Carlos Eduardo Seo (ceseo) <contact@carlosseo.com>
+Maintainer: Tulio Magno Quites Machado Filho <tulioqm@br.ibm.com>
 Uploaders: Breno Leitao <brenohl@br.ibm.com>, Thierry Fauck <tfauck@free.fr>
 Priority: optional
 Build-Depends: debhelper (>= 9), dh-autoreconf
