@@ -1,6 +1,6 @@
 /* Event-Based Branch Facility Tests.
  *
- * Copyright IBM Corp. 2013
+ * Copyright IBM Corp. 2013,2015
  *
  * The MIT License (MIT)
  *
@@ -61,13 +61,14 @@ ebb_handler_backtrace (void *context)
 #define NUM_FUNCTIONS 6
   void *buffer[NUM_FUNCTIONS];
   char **symbols;
+  int failed = 0;
 
   n = backtrace (buffer, NUM_FUNCTIONS);
   if (n < NUM_FUNCTIONS)
     {
       fprintf (stderr, "%s: backtrace() returned %i, expecting at least %i\n",
 	__FUNCTION__, n, NUM_FUNCTIONS);
-      exit (EXIT_FAILURE);
+      failed = 1;
     }
   printf ("%s: backtrace() returned %d addresses\n", __FUNCTION__, n);
 
@@ -76,11 +77,14 @@ ebb_handler_backtrace (void *context)
     {
       fprintf (stderr, "%s: backtrace_symbols() failed (ernro %i)\n",
 	__FUNCTION__, errno);
-      exit (EXIT_FAILURE);
+      failed = 1;
     }
 
   for (j = 0; j < n; j++)
     printf("%s [%i]: %s\n", __FUNCTION__, j, symbols[j]);
+
+  if (failed)
+    exit (EXIT_FAILURE);
 
   /* Check if the function names make sense, the backtrace expected is:
      test_paf_ebb_backtrace : ebb_handler_backtrace
@@ -91,7 +95,7 @@ ebb_handler_backtrace (void *context)
    */
   if (!match_sym (symbols[0], "ebb_handler_backtrace"))
     {
-      fprintf (stderr, "%s: symbol[0] (%s) does not math %s\n",
+      fprintf (stderr, "%s: symbol[0] (%s) does not match %s\n",
 	__FUNCTION__, symbols[0], "ebb_handler_backtrace");
       exit (EXIT_FAILURE);
     }
@@ -105,7 +109,7 @@ ebb_handler_backtrace (void *context)
     }
   if (!match_sym (symbols[3], "ebb_test_backtrace"))
     {
-      fprintf (stderr, "%s: symbol[3 || 4] (%s) does not math %s\n",
+      fprintf (stderr, "%s: symbol[3 || 4] (%s) does not match %s\n",
 	__FUNCTION__, symbols[0], "ebb_test_backtrace");
       exit (EXIT_FAILURE);
     }
