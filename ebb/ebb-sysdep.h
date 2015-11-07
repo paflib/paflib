@@ -226,9 +226,11 @@ LT_LABELSUFFIX(name,_name_end):;			\
 	.hidden name;					\
 	.type name,@function;				\
 	.align ALIGNARG(2);				\
-	C_LABEL(name)
+	C_LABEL(name)					\
+	.cfi_startproc;
 
 # define END(name)					\
+	.cfi_endproc;					\
 	.size name,.-name
 
 #endif
