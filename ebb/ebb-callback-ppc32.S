@@ -1,6 +1,6 @@
 /* Event-Based Branch Facility API.  PowerPC32 callback handler.
  *
- * Copyright IBM Corp. 2013
+ * Copyright IBM Corp. 2013,2015
  *
  * The MIT License (MIT)
  *
@@ -36,24 +36,48 @@
  *
  * The stack frame layout is:
  *
- * STACK_OFFSET is 288 (default stack size) to not clobber the interrupted
- * function stack.
- *
  * Stack pointer (r1) offset     |  Contents
- *   --------------  __paf_ebb_callback_handler_vsr_[tcb|tls]  -----------------
- *   r1 + STACK_OFFSET+936:1448  |  VSR VS1:VS32 (must be aligned to 16 bytes)
- *   --------------  __paf_ebb_callback_handler_vr_[tcb|tls]  ------------------
- *   r1 + STACK_OFFSET+932       |  VSCR (32-bits)
- *   r1 + STACK_OFFSET+416:928   |  VR  V1:V31 (must be aligned to 16 bytes)
- *   --------------  __paf_ebb_callback_handler_fpr_[tcb|tls]  -----------------
- *   r1 + STACK_OFFSET+152:408   |  FRP F1:F31
- *   r1 + STACK_OFFSET+148       |  FPSCR
  *   --------------  __paf_ebb_callback_handler_gpr_[tcb|tls]  -----------------
- *   r1 + STACK_OFFSET+16:144    |  GRP r0,r3-r31
- *   r1 + STACK_OFFSET+12        |  XER
- *   r1 + STACK_OFFSET+8         |  CTR
- *   r1 + STACK_OFFSET+4         |  LR
- *   r1 + STACK_OFFSET           |  CR
+ *   r1 + 152:160   |  Alignment padding
+ *   r1 + 32:152    |  GRP r0,r3-r31
+ *   r1 + 28        |  XER
+ *   r1 + 24        |  CTR
+ *   r1 + 20        |  LR
+ *   r1 + 16        |  CR
+ *
+ *   --------------  __paf_ebb_callback_handler_fpr_[tcb|tls]  -----------------
+ *   r1 + 408       |  FPSCR (64b store)
+ *   r1 + 152:408   |  FRP f0:f31
+ *   r1 + 32:152    |  GRP r0,r3-r31
+ *   r1 + 28        |  XER
+ *   r1 + 24        |  CTR
+ *   r1 + 20        |  LR
+ *   r1 + 16        |  CR
+ *
+ *   --------------  __paf_ebb_callback_handler_vr_[tcb|tls]  ------------------
+ *   r1 + 936:944   |  Alignment padding
+ *   r1 + 932       |  VRSAVE
+ *   r1 + 928       |  VSCR
+ *   r1 + 416:928   |  VR  V0:V31
+ *   r1 + 408       |  FPSCR (64b store)
+ *   r1 + 152:408   |  FRP f0:f31
+ *   r1 + 32:152    |  GRP r0,r3-r31
+ *   r1 + 28        |  XER
+ *   r1 + 24        |  CTR
+ *   r1 + 20        |  LR
+ *   r1 + 16        |  CR
+ *
+ *   --------------  __paf_ebb_callback_handler_vsr_[tcb|tls]  -----------------
+ *   r1 + 1192:1200 |  Alignment padding
+ *   r1 + 1188      |  VRSAVE
+ *   r1 + 1184      |  VSCR (Immediately after VSR63 for qw align)
+ *   r1 + 160:1184  |  VSR0-63
+ *   r1 + 152       |  FPSCR
+ *   r1 + 32:152    |  GRP r0,r3-r31
+ *   r1 + 28        |  XER
+ *   r1 + 24        |  CTR
+ *   r1 + 20        |  LR
+ *   r1 + 16        |  CR
  */
 
 #define CALLER_FRAME    16
@@ -68,16 +92,29 @@
 #define XER_SIZE        (4)
 #define GPR_SAVE(n)     (XER_SAVE + XER_SIZE + (4 * n))
 #define GPR_SIZE        (30 * 4)
-#define FPR_SAVE(n)     (GPR_SAVE(30) + GPR_SIZE + (4 * n))
+#define STACK_FRAME_GPR (GPR_SAVE(30) + 8)
+
+#define FPR_SAVE(n)     (GPR_SAVE(30) + (8 * n))
 #define FPR_SIZE        (32 * 8)
 #define FPSR_SAVE       (FPR_SAVE(32))
-#define FPSR_SIZE       (4)
-#define VR_SAVE         (FPSR_SAVE + FPSR_SIZE)
-#define VR_SIZE         (32 * 16)
-#define VSCR_SAVE       (VR_SAVE + VR_SIZE)
+#define FPSR_SIZE       (8)
+#define STACK_FRAME_FPR  (FPSR_SAVE + FPSR_SIZE)
+
+#define VR_SAVE(n)      (FPSR_SAVE + FPSR_SIZE + (16 * n))
 #define VSCR_SIZE       (4)
-#define VSR_SAVE        (VSCR_SAVE + VSCR_SIZE)
-#define VSR_SIZE        (32 * 16)
+#define VSCR_SAVE       (VR_SAVE(32))
+#define VRSAVE_SIZE     (4)
+#define VRSAVE_SAVE     (VSCR_SAVE + VSCR_SIZE)
+#define STACK_FRAME_VR  (VRSAVE_SAVE + VRSAVE_SIZE + 8)
+
+/* VSR registers overlap both FPR and VR registers. We take advantage of that
+   to reduce our burgeoning stack footprint.  */
+#define VSR_SIZE        (64 * 16)
+#define VSR_FPSR        (GPR_SAVE(30))
+#define VSR_SAVE(n)     (VSR_FPSR + FPSR_SIZE + (16 * n))
+#define VSR_VSCR        (VSR_SAVE(64))
+#define VSR_VRSAVE      (VSR_VSCR + VSCR_SIZE)
+#define STACK_FRAME_VSR (VSR_VRSAVE + VRSAVE_SIZE + 8)
 
 /* Save all General Purpose Register (GPR), but r1 (SP) and r2 (thr. id).  */
 #define SAVE_GPR                                                   \
@@ -241,295 +278,179 @@
   lfd      f30, FPR_SAVE(30)(r1);                                  \
   lfd      f31, FPR_SAVE(31)(r1);
 
-/* Save all VMX/Altive registers, VR0-VR31. Setup r9 with the VR base stack
- * address align to 16-bytes and r10 as r9 plus 16.  */
-#define SAVE_VR                                                    \
-  addi     r9,r1,(15+VR_SAVE);                                     \
-  rlwinm   r9,r9,0,0,27;                                           \
-  addi     r10,r9,16;                                              \
-  stvx     v0,0,r9;                                                \
-  stvx     v1,0,r10;                                               \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  stvx     v2,0,r9;                                                \
-  stvx     v3,0,r10;                                               \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  stvx     v4,0,r9;                                                \
-  stvx     v5,0,r10;                                               \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  stvx     v6,0,r9;                                                \
-  stvx     v7,0,r10;                                               \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  stvx     v8,0,r9;                                                \
-  stvx     v9,0,r10;                                               \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  stvx     v10,0,r9;                                               \
-  stvx     v11,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  stvx     v12,0,r9;                                               \
-  stvx     v13,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  stvx     v14,0,r9;                                               \
-  stvx     v15,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  stvx     v16,0,r9;                                               \
-  stvx     v17,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  stvx     v17,0,r9;                                               \
-  stvx     v18,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  stvx     v20,0,r9;                                               \
-  stvx     v21,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  stvx     v22,0,r9;                                               \
-  stvx     v23,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  stvx     v24,0,r9;                                               \
-  stvx     v25,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  stvx     v26,0,r9;                                               \
-  stvx     v27,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  stvx     v28,0,r9;                                               \
-  stvx     v29,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  stvx     v30,0,r9;                                               \
-  stvx     v31,0,r10;                                              \
-  addi     r10,r10,32;                                             \
-  mfspr    r0,VRSAVE;                                              \
-  stw      r0,0(r10);
+#define SAVE_VR_REGS(x,y) \
+  addi r9,r1,VR_SAVE(x);  \
+  addi r10,r1,VR_SAVE(y); \
+  stvx x,0,r9;            \
+  stvx y,0,r10;
 
-/* Restore all VMX/Altivec registers, VR0-VR31.  */
-#define RESTORE_VR                                                 \
-  addi     r9,r1,(15+VR_SAVE);                                     \
-  rlwinm   r9,r9,0,0,27;                                           \
-  addi     r10,r9,16;                                              \
-  lvx      v0,0,r9;                                                \
-  lvx      v1,0,r10;                                               \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  lvx      v2,0,r9;                                                \
-  lvx      v3,0,r10;                                               \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  lvx      v4,0,r9;                                                \
-  lvx      v5,0,r10;                                               \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  lvx      v6,0,r9;                                                \
-  lvx      v7,0,r10;                                               \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  lvx      v8,0,r9;                                                \
-  lvx      v9,0,r10;                                               \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  lvx      v10,0,r9;                                               \
-  lvx      v11,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  lvx      v12,0,r9;                                               \
-  lvx      v13,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  lvx      v14,0,r9;                                               \
-  lvx      v15,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  lvx      v16,0,r9;                                               \
-  lvx      v17,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  lvx      v17,0,r9;                                               \
-  lvx      v18,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  lvx      v20,0,r9;                                               \
-  lvx      v21,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  lvx      v22,0,r9;                                               \
-  lvx      v23,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  lvx      v24,0,r9;                                               \
-  lvx      v25,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  lvx      v26,0,r9;                                               \
-  lvx      v27,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  lvx      v28,0,r9;                                               \
-  lvx      v29,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  lvx      v30,0,r9;                                               \
-  lvx      v31,0,r10;                                              \
-  addi     r10,r10,32;                                             \
-  lwz      r0,0(r10);                                              \
-  mtspr    VRSAVE,r0;
+/* Save all VMX/Altive registers, VR0-VR31.  */
+#define SAVE_VR        \
+  SAVE_VR_REGS(0,1);   \
+  SAVE_VR_REGS(2,3);   \
+  SAVE_VR_REGS(4,5);   \
+  SAVE_VR_REGS(6,7);   \
+  SAVE_VR_REGS(8,9);   \
+  SAVE_VR_REGS(10,11); \
+  SAVE_VR_REGS(12,13); \
+  SAVE_VR_REGS(14,15); \
+  SAVE_VR_REGS(16,17); \
+  SAVE_VR_REGS(18,19); \
+  SAVE_VR_REGS(20,21); \
+  SAVE_VR_REGS(22,23); \
+  SAVE_VR_REGS(24,25); \
+  SAVE_VR_REGS(26,27); \
+  SAVE_VR_REGS(28,29); \
+  SAVE_VR_REGS(30,31); \
+  addi     r9,r1,VSCR_SAVE;    \
+  mfspr    r0,VRSAVE;          \
+  stw      r0,VRSAVE_SAVE(r1); \
+  mfvscr   v0;                 \
+  vspltw   v0,v0,3;            \
+  stvewx   v0,0,r9;
 
-/* Save all VSX registers, VSR0-VSR31. Setup r9 with the VR base stack
- * address align to 16-bytes and r10 as r9 plus 16.  */
-#define SAVE_VSR                                                   \
-  addi     r9,r1,(15+VSR_SAVE);                                    \
-  rlwinm   r9,r9,0,0,27;                                           \
-  addi     r10,r9,16;                                              \
-  stxvd2x  v0,0,r9;                                                \
-  stxvd2x  v1,0,r10;                                               \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  stxvd2x  v2,0,r9;                                                \
-  stxvd2x  v3,0,r10;                                               \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  stxvd2x  v4,0,r9;                                                \
-  stxvd2x  v5,0,r10;                                               \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  stxvd2x  v6,0,r9;                                                \
-  stxvd2x  v7,0,r10;                                               \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  stxvd2x  v8,0,r9;                                                \
-  stxvd2x  v9,0,r10;                                               \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  stxvd2x  v10,0,r9;                                               \
-  stxvd2x  v11,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  stxvd2x  v12,0,r9;                                               \
-  stxvd2x  v13,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  stxvd2x  v14,0,r9;                                               \
-  stxvd2x  v15,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  stxvd2x  v16,0,r9;                                               \
-  stxvd2x  v17,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  stxvd2x  v18,0,r9;                                               \
-  stxvd2x  v19,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  stxvd2x  v20,0,r9;                                               \
-  stxvd2x  v21,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  stxvd2x  v22,0,r9;                                               \
-  stxvd2x  v23,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  stxvd2x  v24,0,r9;                                               \
-  stxvd2x  v25,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  stxvd2x  v26,0,r9;                                               \
-  stxvd2x  v27,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  stxvd2x  v28,0,r9;                                               \
-  stxvd2x  v29,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  stxvd2x  v30,0,r9;                                               \
-  stxvd2x  v31,0,r11;
+#define RESTORE_VR_REGS(x,y) \
+  addi r9,r1,VR_SAVE(x);     \
+  addi r10,r1,VR_SAVE(y);    \
+  lvx x,0,r9;                \
+  lvx y,0,r10;
 
-/* Restore all VSR registers, VSR0-VSR31.  */
-#define RESTORE_VSR                                                \
-  addi     r9,r1,(15+VSR_SAVE);                                    \
-  rlwinm   r9,r9,0,0,27;                                           \
-  addi     r10,r9,16;                                              \
-  lxvd2x   v0,0,r9;                                                \
-  lxvd2x   v1,0,r10;                                               \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  lxvd2x   v2,0,r9;                                                \
-  lxvd2x   v3,0,r10;                                               \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  lxvd2x   v4,0,r9;                                                \
-  lxvd2x   v5,0,r10;                                               \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  lxvd2x   v6,0,r9;                                                \
-  lxvd2x   v7,0,r10;                                               \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  lxvd2x   v8,0,r9;                                                \
-  lxvd2x   v9,0,r10;                                               \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  lxvd2x   v10,0,r9;                                               \
-  lxvd2x   v11,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  lxvd2x   v12,0,r9;                                               \
-  lxvd2x   v13,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  lxvd2x   v14,0,r9;                                               \
-  lxvd2x   v15,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  lxvd2x   v16,0,r9;                                               \
-  lxvd2x   v17,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  lxvd2x   v18,0,r9;                                               \
-  lxvd2x   v19,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  lxvd2x   v20,0,r9;                                               \
-  lxvd2x   v21,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  lxvd2x   v22,0,r9;                                               \
-  lxvd2x   v23,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  lxvd2x   v24,0,r9;                                               \
-  lxvd2x   v25,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  lxvd2x   v26,0,r9;                                               \
-  lxvd2x   v27,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  lxvd2x   v28,0,r9;                                               \
-  lxvd2x   v29,0,r10;                                              \
-  addi     r9,r9,32;                                               \
-  addi     r10,r10,32;                                             \
-  lxvd2x   v30,0,r9;                                               \
-  lxvd2x   v31,0,r11;
+/* Restore all VMX/Altivec registers, VR0-VR31 VSCR VRSAVE. r8 is
+   dirtied to restore VSCR prior to restoring v0.  */
+#define RESTORE_VR             \
+  addi     r9,r1,VSCR_SAVE;   \
+  lvewx    v0,0,r9;            \
+  vspltw   v0,v0,0;            \
+  mtvscr   v0;                 \
+  lwz      r0,VRSAVE_SAVE(r1); \
+  mtspr    VRSAVE,r0;          \
+  RESTORE_VR_REGS(0,1);   \
+  RESTORE_VR_REGS(2,3);   \
+  RESTORE_VR_REGS(4,5);   \
+  RESTORE_VR_REGS(6,7);   \
+  RESTORE_VR_REGS(8,9);   \
+  RESTORE_VR_REGS(10,11); \
+  RESTORE_VR_REGS(12,13); \
+  RESTORE_VR_REGS(14,15); \
+  RESTORE_VR_REGS(16,17); \
+  RESTORE_VR_REGS(18,19); \
+  RESTORE_VR_REGS(20,21); \
+  RESTORE_VR_REGS(22,23); \
+  RESTORE_VR_REGS(24,25); \
+  RESTORE_VR_REGS(26,27); \
+  RESTORE_VR_REGS(28,29); \
+  RESTORE_VR_REGS(30,31);
+
+/* Save a pair of VSR registers to the stack.  */
+#define SAVE_VSR_REGS(x,y)  \
+  addi r9,r1,VSR_SAVE(x);  \
+  addi r10,r1,VSR_SAVE(y); \
+  stxvd2x x,0,r9;          \
+  stxvd2x y,0,r10;
+
+/* Save all VSX registers, VSR0-VSR63. FSCR, VRSAVE, and VSCR.  */
+#define SAVE_VSR        \
+  SAVE_VSR_REGS(0,1);   \
+  SAVE_VSR_REGS(2,3);   \
+  SAVE_VSR_REGS(4,5);   \
+  SAVE_VSR_REGS(6,7);   \
+  SAVE_VSR_REGS(8,9);   \
+  SAVE_VSR_REGS(10,11); \
+  SAVE_VSR_REGS(12,13); \
+  SAVE_VSR_REGS(14,15); \
+  SAVE_VSR_REGS(16,17); \
+  SAVE_VSR_REGS(18,19); \
+  SAVE_VSR_REGS(20,21); \
+  SAVE_VSR_REGS(22,23); \
+  SAVE_VSR_REGS(24,25); \
+  SAVE_VSR_REGS(26,27); \
+  SAVE_VSR_REGS(28,29); \
+  SAVE_VSR_REGS(30,31); \
+  SAVE_VSR_REGS(32,33); \
+  SAVE_VSR_REGS(34,35); \
+  SAVE_VSR_REGS(36,37); \
+  SAVE_VSR_REGS(38,39); \
+  SAVE_VSR_REGS(40,41); \
+  SAVE_VSR_REGS(42,43); \
+  SAVE_VSR_REGS(44,45); \
+  SAVE_VSR_REGS(46,47); \
+  SAVE_VSR_REGS(48,49); \
+  SAVE_VSR_REGS(50,51); \
+  SAVE_VSR_REGS(52,53); \
+  SAVE_VSR_REGS(54,55); \
+  SAVE_VSR_REGS(56,57); \
+  SAVE_VSR_REGS(58,59); \
+  SAVE_VSR_REGS(60,61); \
+  SAVE_VSR_REGS(62,63); \
+  addi     r9,r1,VSR_VSCR;     \
+  mfvscr   v0;                 \
+  vspltw   v0,v0,3;            \
+  stvewx   v0,0,r9;            \
+  mfspr    r0,VRSAVE;          \
+  stw      r0,VSR_VRSAVE(r1);  \
+  mffs     f0;                 \
+  stfd     f0,VSR_FPSR(r1);
+
+
+/* Reload an adjacent pair of VSR registers.  */
+#define RESTORE_VSR_REGS(x,y) \
+  addi r9,r1,VSR_SAVE(x);     \
+  addi r10,r1,VSR_SAVE(y);    \
+  lxvd2x x,0,r9;              \
+  lxvd2x y,0,r10;
+
+/* Restore all VSR registers, VSR0-VSR63, VRSAVE, VSCR, FPSR.  */
+#define RESTORE_VSR             \
+  lwz      r0,(VSR_VRSAVE)(r1); \
+  mtspr    VRSAVE,r0;           \
+  lfd      f0,(VSR_FPSR)(r1);   \
+  mtfsf    0xff,f0;             \
+  addi     r9,r1,VSR_VSCR;      \
+  lvewx    v0,0,r9;             \
+  vspltw   v0,v0,0;             \
+  mtvscr   v0;                  \
+  RESTORE_VSR_REGS(0,1);   \
+  RESTORE_VSR_REGS(2,3);   \
+  RESTORE_VSR_REGS(4,5);   \
+  RESTORE_VSR_REGS(6,7);   \
+  RESTORE_VSR_REGS(8,9);   \
+  RESTORE_VSR_REGS(10,11); \
+  RESTORE_VSR_REGS(12,13); \
+  RESTORE_VSR_REGS(14,15); \
+  RESTORE_VSR_REGS(16,17); \
+  RESTORE_VSR_REGS(18,19); \
+  RESTORE_VSR_REGS(20,21); \
+  RESTORE_VSR_REGS(22,23); \
+  RESTORE_VSR_REGS(24,25); \
+  RESTORE_VSR_REGS(26,27); \
+  RESTORE_VSR_REGS(28,29); \
+  RESTORE_VSR_REGS(30,31); \
+  RESTORE_VSR_REGS(32,33); \
+  RESTORE_VSR_REGS(34,35); \
+  RESTORE_VSR_REGS(36,37); \
+  RESTORE_VSR_REGS(38,39); \
+  RESTORE_VSR_REGS(40,41); \
+  RESTORE_VSR_REGS(42,43); \
+  RESTORE_VSR_REGS(44,45); \
+  RESTORE_VSR_REGS(46,47); \
+  RESTORE_VSR_REGS(48,49); \
+  RESTORE_VSR_REGS(50,51); \
+  RESTORE_VSR_REGS(52,53); \
+  RESTORE_VSR_REGS(54,55); \
+  RESTORE_VSR_REGS(56,57); \
+  RESTORE_VSR_REGS(58,59); \
+  RESTORE_VSR_REGS(60,61); \
+  RESTORE_VSR_REGS(62,63);
+
 
 .hidden __paf_ebb_ebb_hook
 #define CALL_EBB_HOOK                                              \
   bl       __paf_ebb_ebb_hook;
 
 
-#define STACK_FRAME_GPR  (CALLER_FRAME + CR_SIZE + LR_SIZE + XER_SIZE + GPR_SIZE)
-
 ENTRY(__paf_ebb_callback_handler_gpr)
   stwu  r1,-STACK_FRAME_GPR(r1)
+  .cfi_adjust_cfa_offset STACK_FRAME_GPR
 
   SAVE_GPR
 
@@ -547,10 +468,9 @@ ENTRY(__paf_ebb_callback_handler_gpr)
 END(__paf_ebb_callback_handler_gpr)
 
 
-#define STACK_FRAME_FPR  (STACK_FRAME_GPR + FPR_SIZE + FPSR_SIZE)
-
 ENTRY(__paf_ebb_callback_handler_fpr)
   stwu  r1,-STACK_FRAME_FPR(r1)
+  .cfi_adjust_cfa_offset STACK_FRAME_FPR
 
   SAVE_GPR
 
@@ -572,13 +492,11 @@ ENTRY(__paf_ebb_callback_handler_fpr)
 END(__paf_ebb_callback_handler_fpr)
 
 
-/* Add extra 16 in case the stack + VR_SAVE is not 16-bytes aligned.  */
-#define STACK_FRAME_VR  (STACK_FRAME_FPR + VR_SIZE + 16 + VSCR_SIZE)
-
   .machine "altivec"
 ENTRY(__paf_ebb_callback_handler_vr)
   /* Reserve stack-frame size.  */
   stwu  r1,-STACK_FRAME_VR(r1)
+  .cfi_adjust_cfa_offset STACK_FRAME_VR
 
   SAVE_GPR
 
@@ -604,31 +522,21 @@ ENTRY(__paf_ebb_callback_handler_vr)
 END(__paf_ebb_callback_handler_vr)
 
 
-/* Add extra 16 in case the stack + VSR_SAVE is not 16-bytes aligned.  */
-#define STACK_FRAME_VSR  (STACK_FRAME_VR + VSR_SIZE + 16)
-
   .machine "power7"
 ENTRY(__paf_ebb_callback_handler_vsr)
   /* Reserve stack-frame size.  */
   stwu  r1,-STACK_FRAME_VSR(r1)
+  .cfi_adjust_cfa_offset STACK_FRAME_VSR
 
   SAVE_GPR
 
   SAVE_SPEC_REG
-
-  SAVE_FPR
-
-  SAVE_VR
 
   SAVE_VSR
 
   CALL_EBB_HOOK
 
   RESTORE_VSR
-
-  RESTORE_VR
-
-  RESTORE_FPR
 
   RESTORE_SPEC_REG
 
