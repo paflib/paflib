@@ -193,6 +193,7 @@ test_ebb_pmu_OBJECTS = $(am_test_ebb_pmu_OBJECTS)
 test_ebb_pmu_DEPENDENCIES = libpaf-ebb.la
 am_test_ebb_pmu_clobber_OBJECTS =  \
 	tests/test_ebb_pmu_clobber.$(OBJEXT) \
+	tests/test_ebb_pmu_clobber_hooks.$(OBJEXT) \
 	tests/test_ebb_common.$(OBJEXT)
 test_ebb_pmu_clobber_OBJECTS = $(am_test_ebb_pmu_clobber_OBJECTS)
 test_ebb_pmu_clobber_DEPENDENCIES = libpaf-ebb.la
@@ -633,6 +634,7 @@ test_ebb_pmu_multi_SOURCES = tests/test_ebb_pmu_multi.c \
 
 test_ebb_pmu_multi_LDADD = libpaf-ebb.la
 test_ebb_pmu_clobber_SOURCES = tests/test_ebb_pmu_clobber.c \
+                                tests/test_ebb_pmu_clobber_hooks.S \
                                 tests/test_ebb_common.c
 
 test_ebb_pmu_clobber_LDADD = libpaf-ebb.la
@@ -794,6 +796,8 @@ test_ebb_pmu$(EXEEXT): $(test_ebb_pmu_OBJECTS) $(test_ebb_pmu_DEPENDENCIES) $(EX
 	$(AM_V_CCLD)$(LINK) $(test_ebb_pmu_OBJECTS) $(test_ebb_pmu_LDADD) $(LIBS)
 tests/test_ebb_pmu_clobber.$(OBJEXT): tests/$(am__dirstamp) \
 	tests/$(DEPDIR)/$(am__dirstamp)
+tests/test_ebb_pmu_clobber_hooks.$(OBJEXT): tests/$(am__dirstamp) \
+	tests/$(DEPDIR)/$(am__dirstamp)
 
 test_ebb_pmu_clobber$(EXEEXT): $(test_ebb_pmu_clobber_OBJECTS) $(test_ebb_pmu_clobber_DEPENDENCIES) $(EXTRA_test_ebb_pmu_clobber_DEPENDENCIES) 
 	@rm -f test_ebb_pmu_clobber$(EXEEXT)
@@ -834,6 +838,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_ebb_nohandler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_ebb_pmu.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_ebb_pmu_clobber.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_ebb_pmu_clobber_hooks.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_ebb_pmu_multi.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_ebb_pmu_reset.Po@am__quote@
 
