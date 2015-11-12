@@ -79,7 +79,7 @@
 #define FPSR_SAVE       (FPR_SAVE(32))
 #define FPSR_SIZE       (8)
 #define VR_SAVE         (FPSR_SAVE + FPSR_SIZE)
-#define VR_SIZE         (32 * 16)
+#define VR_SIZE         (32 * 17) /* TODO: VRSAVE is being stored imm after vr31.  */
 #define VSCR_SAVE       (VR_SAVE + VR_SIZE)
 #define VSCR_SIZE       (4)
 #define VSR_SAVE        (VSCR_SAVE + VSCR_SIZE)
@@ -387,7 +387,7 @@
   lvx      v30,0,r9;                                               \
   lvx      v31,0,r10;                                              \
   addi     r9,r9,32;                                               \
-  lwz      r0,0(r10);                                              \
+  lwz      r0,0(r9);                                               \
   mtspr    VRSAVE,r0;
 
 /* Save all VSX registers, VSR0-VSR31. Setup r9 with the VR base stack
@@ -551,7 +551,7 @@
 
 /* STACK_FRAME_GPR = 672 (aligned to 16 bytes).  */
 #define STACK_FRAME_GPR  (ABI_GAP + CALLER_FRAME + \
-                          CTR_SAVE + CR_SIZE + LR_SIZE + XER_SIZE + GPR_SIZE)
+                          CTR_SAVE + CR_SIZE + LR_SIZE + XER_SIZE + GPR_SIZE + 8)
 
 ENTRY(__paf_ebb_callback_handler_gpr)
   stdu  r1,-STACK_FRAME_GPR(r1)
@@ -574,7 +574,7 @@ END(__paf_ebb_callback_handler_gpr)
 
 
 /* STACK_FRAME_FPR + 8 = 944 (aligned to 16 bytes).  */
-#define STACK_FRAME_FPR  (STACK_FRAME_GPR + FPR_SIZE + FPSR_SIZE) + 8
+#define STACK_FRAME_FPR  (STACK_FRAME_GPR + FPR_SIZE + FPSR_SIZE + 8)
 
 ENTRY(__paf_ebb_callback_handler_fpr)
   /* Reserve stack-frame size.  */
@@ -602,7 +602,7 @@ END(__paf_ebb_callback_handler_fpr)
 
 
 /* STACK_FRAME_VR + 12 = 1472 (aligned to 16 bytes).  */
-#define STACK_FRAME_VR  (STACK_FRAME_FPR + VR_SIZE + VSCR_SIZE) + 12
+#define STACK_FRAME_VR  (STACK_FRAME_FPR + VR_SIZE + VSCR_SIZE + 12)
 
   .machine "altivec"
 ENTRY(__paf_ebb_callback_handler_vr)
@@ -655,11 +655,11 @@ ENTRY(__paf_ebb_callback_handler_vsr)
   SETUP_TOC (__paf_ebb_callback_handler_vsr)
   CALL_EBB_HOOK
 
+  RESTORE_FPR /* TODO: This is reduntant, sans the FPSCR load with VSR regs.  */
+
   RESTORE_VSR
 
   RESTORE_VR
-
-  RESTORE_FPR
 
   RESTORE_SPEC_REG
 
