@@ -80,32 +80,62 @@
  *   r1 + 16        |  CR
  */
 
-#define CALLER_FRAME    16
+#ifdef __powerpc64__
+#  if _CALL_ELF == 2 /* LE specific */
+#    define CALLER_FRAME 32
+#    define ABI_GAP      512
+#    define VRSPLT(x,y)  vspltw x,y,3;
+#  else	/* BE  */
+#    define CALLER_FRAME 112
+#    define ABI_GAP      288
+#    define VRSPLT(x,y)  vspltw x,y,0;
+#  endif
+#  define GPRLD  ld
+#  define GPRST  std
+#  define GPRSZ  8
+#  define FPSCR_PAD 8
+#  define GPR_STACK_PAD 0
+#  define VEC_STACK_PAD 8
+#  define TREG r2
+#else
+#  define ABI_GAP         0
+#  define CALLER_FRAME    16
+#  define GPRLD  lwz
+#  define GPRST  stw
+#  define GPRSZ  4
+#  define FPSCR_PAD 0
+#  define VRSPLT(x,y)  vspltw x,y,0;
+#  define GPR_STACK_PAD 8
+#  define VEC_STACK_PAD 8
+#  define TREG r13
+#endif
 
 #define CR_SAVE         (CALLER_FRAME)
-#define CR_SIZE         (4)
+#define CR_SIZE         (GPRSZ)
 #define LR_SAVE         (CR_SAVE + CR_SIZE)
-#define LR_SIZE         (4)
+#define LR_SIZE         (GPRSZ)
 #define CTR_SAVE        (LR_SAVE + LR_SIZE)
-#define CTR_SIZE        (4)
+#define CTR_SIZE        (GPRSZ)
 #define XER_SAVE        (CTR_SAVE + CTR_SIZE)
-#define XER_SIZE        (4)
-#define GPR_SAVE(n)     (XER_SAVE + XER_SIZE + (4 * n))
-#define GPR_SIZE        (30 * 4)
-#define STACK_FRAME_GPR (GPR_SAVE(30) + 8)
+#define XER_SIZE        (GPRSZ)
+#define GPR_SAVE(n)     (XER_SAVE + XER_SIZE + (GPRSZ * n))
+#define GPR_SIZE        (30 * GPRSZ)
+#define STACK_FRAME_GPR (ABI_GAP + GPR_SAVE(30) + GPR_STACK_PAD)
 
 #define FPR_SAVE(n)     (GPR_SAVE(30) + (8 * n))
 #define FPR_SIZE        (32 * 8)
 #define FPSR_SAVE       (FPR_SAVE(32))
-#define FPSR_SIZE       (8)
-#define STACK_FRAME_FPR  (FPSR_SAVE + FPSR_SIZE)
+
+/* PPC64 requires padding to get back onto 16B alignment for VR's.  */
+#define FPSR_SIZE       (8 + FPSCR_PAD)
+#define STACK_FRAME_FPR (ABI_GAP + FPSR_SAVE + FPSR_SIZE)
 
 #define VR_SAVE(n)      (FPSR_SAVE + FPSR_SIZE + (16 * n))
 #define VSCR_SIZE       (4)
 #define VSCR_SAVE       (VR_SAVE(32))
 #define VRSAVE_SIZE     (4)
 #define VRSAVE_SAVE     (VSCR_SAVE + VSCR_SIZE)
-#define STACK_FRAME_VR  (VRSAVE_SAVE + VRSAVE_SIZE + 8)
+#define STACK_FRAME_VR  (ABI_GAP + VRSAVE_SAVE + VRSAVE_SIZE + VEC_STACK_PAD)
 
 /* VSR registers overlap both FPR and VR registers. We take advantage of that
    to reduce our burgeoning stack footprint.  */
@@ -114,94 +144,94 @@
 #define VSR_SAVE(n)     (VSR_FPSR + FPSR_SIZE + (16 * n))
 #define VSR_VSCR        (VSR_SAVE(64))
 #define VSR_VRSAVE      (VSR_VSCR + VSCR_SIZE)
-#define STACK_FRAME_VSR (VSR_VRSAVE + VRSAVE_SIZE + 8)
+#define STACK_FRAME_VSR (ABI_GAP + VSR_VRSAVE + VRSAVE_SIZE + VEC_STACK_PAD)
 
 /* Save all General Purpose Register (GPR), but r1 (SP) and r2 (thr. id).  */
 #define SAVE_GPR                                                   \
-  stw       r0, GPR_SAVE(0)(r1);                                   \
-  stw       r3, GPR_SAVE(1)(r1);                                   \
-  stw       r4, GPR_SAVE(2)(r1);                                   \
-  stw       r5, GPR_SAVE(3)(r1);                                   \
-  stw       r6, GPR_SAVE(4)(r1);                                   \
-  stw       r7, GPR_SAVE(5)(r1);                                   \
-  stw       r8, GPR_SAVE(6)(r1);                                   \
-  stw       r9, GPR_SAVE(7)(r1);                                   \
-  stw      r10, GPR_SAVE(8)(r1);                                   \
-  stw      r11, GPR_SAVE(9)(r1);                                   \
-  stw      r12, GPR_SAVE(10)(r1);                                  \
-  stw      r13, GPR_SAVE(11)(r1);                                  \
-  stw      r14, GPR_SAVE(12)(r1);                                  \
-  stw      r15, GPR_SAVE(13)(r1);                                  \
-  stw      r16, GPR_SAVE(14)(r1);                                  \
-  stw      r17, GPR_SAVE(15)(r1);                                  \
-  stw      r18, GPR_SAVE(16)(r1);                                  \
-  stw      r19, GPR_SAVE(17)(r1);                                  \
-  stw      r20, GPR_SAVE(18)(r1);                                  \
-  stw      r21, GPR_SAVE(19)(r1);                                  \
-  stw      r22, GPR_SAVE(20)(r1);                                  \
-  stw      r23, GPR_SAVE(21)(r1);                                  \
-  stw      r24, GPR_SAVE(22)(r1);                                  \
-  stw      r25, GPR_SAVE(23)(r1);                                  \
-  stw      r26, GPR_SAVE(24)(r1);                                  \
-  stw      r27, GPR_SAVE(25)(r1);                                  \
-  stw      r28, GPR_SAVE(26)(r1);                                  \
-  stw      r29, GPR_SAVE(27)(r1);                                  \
-  stw      r30, GPR_SAVE(28)(r1);                                  \
-  stw      r31, GPR_SAVE(29)(r1);
+  GPRST       r0, GPR_SAVE(0)(r1);                                   \
+  GPRST       r3, GPR_SAVE(1)(r1);                                   \
+  GPRST       r4, GPR_SAVE(2)(r1);                                   \
+  GPRST       r5, GPR_SAVE(3)(r1);                                   \
+  GPRST       r6, GPR_SAVE(4)(r1);                                   \
+  GPRST       r7, GPR_SAVE(5)(r1);                                   \
+  GPRST       r8, GPR_SAVE(6)(r1);                                   \
+  GPRST       r9, GPR_SAVE(7)(r1);                                   \
+  GPRST      r10, GPR_SAVE(8)(r1);                                   \
+  GPRST      r11, GPR_SAVE(9)(r1);                                   \
+  GPRST      r12, GPR_SAVE(10)(r1);                                  \
+  GPRST      TREG, GPR_SAVE(11)(r1);                                 \
+  GPRST      r14, GPR_SAVE(12)(r1);                                  \
+  GPRST      r15, GPR_SAVE(13)(r1);                                  \
+  GPRST      r16, GPR_SAVE(14)(r1);                                  \
+  GPRST      r17, GPR_SAVE(15)(r1);                                  \
+  GPRST      r18, GPR_SAVE(16)(r1);                                  \
+  GPRST      r19, GPR_SAVE(17)(r1);                                  \
+  GPRST      r20, GPR_SAVE(18)(r1);                                  \
+  GPRST      r21, GPR_SAVE(19)(r1);                                  \
+  GPRST      r22, GPR_SAVE(20)(r1);                                  \
+  GPRST      r23, GPR_SAVE(21)(r1);                                  \
+  GPRST      r24, GPR_SAVE(22)(r1);                                  \
+  GPRST      r25, GPR_SAVE(23)(r1);                                  \
+  GPRST      r26, GPR_SAVE(24)(r1);                                  \
+  GPRST      r27, GPR_SAVE(25)(r1);                                  \
+  GPRST      r28, GPR_SAVE(26)(r1);                                  \
+  GPRST      r29, GPR_SAVE(27)(r1);                                  \
+  GPRST      r30, GPR_SAVE(28)(r1);                                  \
+  GPRST      r31, GPR_SAVE(29)(r1);
 
 /* Restore GRP registers, but r1 (stack) and r2 (thread id).  */
 #define RESTORE_GPR                                                \
-  lwz       r0, GPR_SAVE(0)(r1);                                   \
-  lwz       r3, GPR_SAVE(1)(r1);                                   \
-  lwz       r4, GPR_SAVE(2)(r1);                                   \
-  lwz       r5, GPR_SAVE(3)(r1);                                   \
-  lwz       r6, GPR_SAVE(4)(r1);                                   \
-  lwz       r7, GPR_SAVE(5)(r1);                                   \
-  lwz       r8, GPR_SAVE(6)(r1);                                   \
-  lwz       r9, GPR_SAVE(7)(r1);                                   \
-  lwz      r10, GPR_SAVE(8)(r1);                                   \
-  lwz      r11, GPR_SAVE(9)(r1);                                   \
-  lwz      r12, GPR_SAVE(10)(r1);                                  \
-  lwz      r13, GPR_SAVE(11)(r1);                                  \
-  lwz      r14, GPR_SAVE(12)(r1);                                  \
-  lwz      r15, GPR_SAVE(13)(r1);                                  \
-  lwz      r16, GPR_SAVE(14)(r1);                                  \
-  lwz      r17, GPR_SAVE(15)(r1);                                  \
-  lwz      r18, GPR_SAVE(16)(r1);                                  \
-  lwz      r19, GPR_SAVE(17)(r1);                                  \
-  lwz      r20, GPR_SAVE(18)(r1);                                  \
-  lwz      r21, GPR_SAVE(19)(r1);                                  \
-  lwz      r22, GPR_SAVE(20)(r1);                                  \
-  lwz      r23, GPR_SAVE(21)(r1);                                  \
-  lwz      r24, GPR_SAVE(22)(r1);                                  \
-  lwz      r25, GPR_SAVE(23)(r1);                                  \
-  lwz      r26, GPR_SAVE(24)(r1);                                  \
-  lwz      r27, GPR_SAVE(25)(r1);                                  \
-  lwz      r28, GPR_SAVE(26)(r1);                                  \
-  lwz      r29, GPR_SAVE(27)(r1);                                  \
-  lwz      r30, GPR_SAVE(28)(r1);                                  \
-  lwz      r31, GPR_SAVE(29)(r1);
+  GPRLD       r0, GPR_SAVE(0)(r1);                                   \
+  GPRLD       r3, GPR_SAVE(1)(r1);                                   \
+  GPRLD       r4, GPR_SAVE(2)(r1);                                   \
+  GPRLD       r5, GPR_SAVE(3)(r1);                                   \
+  GPRLD       r6, GPR_SAVE(4)(r1);                                   \
+  GPRLD       r7, GPR_SAVE(5)(r1);                                   \
+  GPRLD       r8, GPR_SAVE(6)(r1);                                   \
+  GPRLD       r9, GPR_SAVE(7)(r1);                                   \
+  GPRLD      r10, GPR_SAVE(8)(r1);                                   \
+  GPRLD      r11, GPR_SAVE(9)(r1);                                   \
+  GPRLD      r12, GPR_SAVE(10)(r1);                                  \
+  GPRLD      TREG, GPR_SAVE(11)(r1);                                 \
+  GPRLD      r14, GPR_SAVE(12)(r1);                                  \
+  GPRLD      r15, GPR_SAVE(13)(r1);                                  \
+  GPRLD      r16, GPR_SAVE(14)(r1);                                  \
+  GPRLD      r17, GPR_SAVE(15)(r1);                                  \
+  GPRLD      r18, GPR_SAVE(16)(r1);                                  \
+  GPRLD      r19, GPR_SAVE(17)(r1);                                  \
+  GPRLD      r20, GPR_SAVE(18)(r1);                                  \
+  GPRLD      r21, GPR_SAVE(19)(r1);                                  \
+  GPRLD      r22, GPR_SAVE(20)(r1);                                  \
+  GPRLD      r23, GPR_SAVE(21)(r1);                                  \
+  GPRLD      r24, GPR_SAVE(22)(r1);                                  \
+  GPRLD      r25, GPR_SAVE(23)(r1);                                  \
+  GPRLD      r26, GPR_SAVE(24)(r1);                                  \
+  GPRLD      r27, GPR_SAVE(25)(r1);                                  \
+  GPRLD      r28, GPR_SAVE(26)(r1);                                  \
+  GPRLD      r29, GPR_SAVE(27)(r1);                                  \
+  GPRLD      r30, GPR_SAVE(28)(r1);                                  \
+  GPRLD      r31, GPR_SAVE(29)(r1);
 
 /* Save status registers.  */
 #define SAVE_SPEC_REG                                              \
   mfcr     r0;                                                     \
-  stw      r0, CR_SAVE(r1);                                        \
+  GPRST    r0, CR_SAVE(r1);                                        \
   mflr     r0;                                                     \
-  stw      r0, LR_SAVE(r1);                                        \
+  GPRST    r0, LR_SAVE(r1);                                        \
   mfctr    r0;                                                     \
-  stw      r0, CTR_SAVE(r1);                                       \
+  GPRST    r0, CTR_SAVE(r1);                                       \
   mfxer    r0;                                                     \
-  stw      r0, XER_SAVE(r1);
+  GPRST    r0, XER_SAVE(r1);
 
 /* Restore state registers.  */
 #define RESTORE_SPEC_REG                                           \
-  lwz      r0, CR_SAVE(r1);                                        \
+  GPRLD    r0, CR_SAVE(r1);                                        \
   mtcr     r0;                                                     \
-  lwz      r0, LR_SAVE(r1);                                        \
+  GPRLD    r0, LR_SAVE(r1);                                        \
   mtlr     r0;                                                     \
-  lwz      r0, CTR_SAVE(r1);                                       \
+  GPRLD    r0, CTR_SAVE(r1);                                       \
   mtctr    r0;                                                     \
-  lwz      r0, XER_SAVE(r1);                                       \
+  GPRLD    r0, XER_SAVE(r1);                                       \
   mtxer    r0;
 
 /* Save all Floating-Point Registers (FPR).  */
@@ -320,7 +350,7 @@
 #define RESTORE_VR             \
   addi     r9,r1,VSCR_SAVE;   \
   lvewx    v0,0,r9;            \
-  vspltw   v0,v0,0;            \
+  VRSPLT(v0,v0)                \
   mtvscr   v0;                 \
   lwz      r0,VRSAVE_SAVE(r1); \
   mtspr    VRSAVE,r0;          \
@@ -407,7 +437,7 @@
   mtfsf    0xff,f0;             \
   addi     r9,r1,VSR_VSCR;      \
   lvewx    v0,0,r9;             \
-  vspltw   v0,v0,0;             \
+  VRSPLT(v0,v0)                 \
   mtvscr   v0;                  \
   RESTORE_VSR_REGS(0,1);   \
   RESTORE_VSR_REGS(2,3);   \
@@ -444,8 +474,31 @@
 
 
 .hidden __paf_ebb_ebb_hook
-#define CALL_EBB_HOOK                                              \
-  bl       __paf_ebb_ebb_hook;
+
+/* Restore our TOC pointer using our entry point */
+#if _CALL_ELF != 2 && defined( __powerpc64__)
+# define SETUP_TOC(__func)                                         \
+   bcl 20,31,1f;                                                   \
+1: mflr r12;                                                       \
+   addis r12,r12,(__func-1b)@ha;                                   \
+   addi r12,r12,(__func-1b)@l;                                     \
+   ld r2,8(r12);
+# define CALL_EBB_HOOK bl       __paf_ebb_ebb_hook; nop;
+
+#elif defined(__powerpc64__)
+
+# define SETUP_TOC(__func)                                         \
+   bcl 20,31,1f;                                                   \
+1: mflr r2;                                                        \
+   addis r2,r2,(.TOC.-1b)@ha;                                      \
+   addi r2,r2,(.TOC.-1b)@l;
+
+#define CALL_EBB_HOOK bl __paf_ebb_ebb_hook; nop;
+
+#else
+# define SETUP_TOC(__func)
+# define CALL_EBB_HOOK bl __paf_ebb_ebb_hook;
+#endif
 
 
 ENTRY(__paf_ebb_callback_handler_gpr)
@@ -456,6 +509,7 @@ ENTRY(__paf_ebb_callback_handler_gpr)
 
   SAVE_SPEC_REG
 
+  SETUP_TOC (__paf_ebb_callback_handler_gpr)
   CALL_EBB_HOOK
 
   RESTORE_SPEC_REG
@@ -478,6 +532,7 @@ ENTRY(__paf_ebb_callback_handler_fpr)
 
   SAVE_FPR
 
+  SETUP_TOC (__paf_ebb_callback_handler_fpr)
   CALL_EBB_HOOK
 
   RESTORE_FPR
@@ -506,6 +561,7 @@ ENTRY(__paf_ebb_callback_handler_vr)
 
   SAVE_VR
 
+  SETUP_TOC (__paf_ebb_callback_handler_vr)
   CALL_EBB_HOOK
 
   RESTORE_VR
@@ -534,6 +590,7 @@ ENTRY(__paf_ebb_callback_handler_vsr)
 
   SAVE_VSR
 
+  SETUP_TOC (__paf_ebb_callback_handler_vsr)
   CALL_EBB_HOOK
 
   RESTORE_VSR
