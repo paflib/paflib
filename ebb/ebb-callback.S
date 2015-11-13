@@ -1,6 +1,6 @@
-/* Event-Based Branch Facility API.  PowerPC32 callback handler.
+/* Event-Based Branch Facility API.  PowerPC{32,64,64le} callback handler.
  *
- * Copyright IBM Corp. 2013,2015
+ * Copyright IBM Corp. 2013-2015
  *
  * The MIT License (MIT)
  *
@@ -36,48 +36,56 @@
  *
  * The stack frame layout is:
  *
- * Stack pointer (r1) offset     |  Contents
- *   --------------  __paf_ebb_callback_handler_gpr_[tcb|tls]  -----------------
- *   r1 + 152:160   |  Alignment padding
- *   r1 + 32:152    |  GRP r0,r3-r31
- *   r1 + 28        |  XER
- *   r1 + 24        |  CTR
- *   r1 + 20        |  LR
- *   r1 + 16        |  CR
+ *   SP Offsets GPR
+ *   ppc32    | ppc64   | ppc64le |  Contents
+ *   ---------+---------+---------+----------
+ *   152:160  | 384:672 | 304:816 | Alignment padding / Reserved space
+ *   32:152   | 144:384 | 64:304  | GPRS
+ *   28       | 136     | 56      | XER
+ *   24       | 128     | 48      | CTR
+ *   20       | 120     | 40      | LR
+ *   16       | 112     | 32      | CR
  *
- *   --------------  __paf_ebb_callback_handler_fpr_[tcb|tls]  -----------------
- *   r1 + 408       |  FPSCR (64b store)
- *   r1 + 152:408   |  FRP f0:f31
- *   r1 + 32:152    |  GRP r0,r3-r31
- *   r1 + 28        |  XER
- *   r1 + 24        |  CTR
- *   r1 + 20        |  LR
- *   r1 + 16        |  CR
+ *   SP Offsets FPR
+ *   ppc32    | ppc64    | ppc64le  |  Contents
+ *   ---------+----------+----------+----------
+ *   408:416  | 648:944 | 568:1088 | Alignment Padding / Reserved space
+ *   408      | 640     | 560      | FPSCR (64b store)
+ *   152:408  | 384:640 | 304:560  | FPR f0:f31
+ *   32:152   | 144:384 | 64:304   | GPR
+ *   28       | 136     | 56       | XER
+ *   24       | 128     | 48       | CTR
+ *   20       | 120     | 40       | LR
+ *   16       | 112     | 32       | CR
  *
- *   --------------  __paf_ebb_callback_handler_vr_[tcb|tls]  ------------------
- *   r1 + 936:944   |  Alignment padding
- *   r1 + 932       |  VRSAVE
- *   r1 + 928       |  VSCR
- *   r1 + 416:928   |  VR  V0:V31
- *   r1 + 408       |  FPSCR (64b store)
- *   r1 + 152:408   |  FRP f0:f31
- *   r1 + 32:152    |  GRP r0,r3-r31
- *   r1 + 28        |  XER
- *   r1 + 24        |  CTR
- *   r1 + 20        |  LR
- *   r1 + 16        |  CR
+ *   SP Offsets VR
+ *   ppc32    | ppc64     | ppc64le   |  Contents
+ *   ---------+-----------+-----------+----------
+ *   936:944  | 1176:1472 | 1096:1616 | Alignment Padding / Reserved space
+ *   932      | 1172      | 1092      | VRSAVE
+ *   928      | 1168      | 1088      | VSCR
+ *   416:928  | 656:1168  | 576:1088  | VR v0:v31
+ *   408      | 640       | 560       | FPSCR (64b store) (+8B padding 64/64le)
+ *   152:408  | 384:640   | 304:560   | FPR f0:f31
+ *   32:152   | 144:384   | 64:304    | GPR
+ *   28       | 136       | 56        | XER
+ *   24       | 128       | 48        | CTR
+ *   20       | 120       | 40        | LR
+ *   16       | 112       | 32        | CR
  *
- *   --------------  __paf_ebb_callback_handler_vsr_[tcb|tls]  -----------------
- *   r1 + 1192:1200 |  Alignment padding
- *   r1 + 1188      |  VRSAVE
- *   r1 + 1184      |  VSCR (Immediately after VSR63 for qw align)
- *   r1 + 160:1184  |  VSR0-63
- *   r1 + 152       |  FPSCR
- *   r1 + 32:152    |  GRP r0,r3-r31
- *   r1 + 28        |  XER
- *   r1 + 24        |  CTR
- *   r1 + 20        |  LR
- *   r1 + 16        |  CR
+ *   SP Offsets VSR
+ *   ppc32    | ppc64     | ppc64le   |  Contents
+ *   ---------+-----------+-----------+----------
+ *   1200     | 1432:1728 | 1352:1872 | Alignment Padding / Reserved space
+ *   1188     | 1428      | 1348      | VRSAVE
+ *   1184     | 1424      | 1344      | VSCR
+ *   160:1184 | 400:1424  | 320:1344  | VSR vr0:vr63
+ *   152      | 384       | 304       | FPSCR (64b store) (+8B padding 64/64le)
+ *   32:152   | 144:384   | 64:304    | GPR
+ *   28       | 136       | 56        | XER
+ *   24       | 128       | 48        | CTR
+ *   20       | 120       | 40        | LR
+ *   16       | 112       | 32        | CR
  */
 
 #ifdef __powerpc64__
