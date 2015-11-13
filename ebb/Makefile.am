@@ -23,12 +23,9 @@ libpaf_ebb_la_SOURCES = ebb.c \
                         ebb-hook.c \
                         ebb-version.c \
                         $(include_HEADERS) \
-                        $(LIBPPCEBB_PRIVATE_INCLUDE)
-if POWERPC64
-libpaf_ebb_la_SOURCES += ebb-callback-ppc64.S
-else
-libpaf_ebb_la_SOURCES += ebb-callback-ppc32.S
-endif
+                        $(LIBPPCEBB_PRIVATE_INCLUDE) \
+                        ebb-callback-ppc32.S
+
 libpaf_ebb_la_CFLAGS = -Wl,-entry=__paflib_ebb_main -fpic
 libpaf_ebb_la_LDFLAGS = -version-info $(LIBPAF_SO_VERSION) \
   -e __paflib_ebb_main \
