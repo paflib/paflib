@@ -86,8 +86,6 @@ noinst_PROGRAMS = test_ebb_child$(EXEEXT) \
 check_PROGRAMS = test_ebb$(EXEEXT) test_ebb_pmu$(EXEEXT) \
 	test_ebb_pmu_reset$(EXEEXT) test_ebb_backtrace$(EXEEXT) \
 	test_ebb_pmu_multi$(EXEEXT) test_ebb_pmu_clobber$(EXEEXT)
-@POWERPC64_TRUE@am__append_1 = ebb-callback-ppc64.S
-@POWERPC64_FALSE@am__append_2 = ebb-callback-ppc32.S
 TESTS = test_ebb$(EXEEXT) test_ebb_save_area_env.sh$(EXEEXT) \
 	test_ebb_pmu$(EXEEXT) test_ebb_pmu_reset$(EXEEXT) \
 	test_ebb_backtrace$(EXEEXT) test_ebb_pmu_multi$(EXEEXT) \
@@ -141,17 +139,11 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(man3dir)" \
 	"$(DESTDIR)$(includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libpaf_ebb_la_LIBADD =
-am__libpaf_ebb_la_SOURCES_DIST = ebb.c ebb-init.c ebb-hwcap.c \
-	ebb-hook.c ebb-version.c ebb-callback.h ebb-common.h \
-	ebb-hwcap.h ebb-init.h ebb-priv.h ebb-sysdep.h \
-	ebb-callback-ppc64.S ebb-callback-ppc32.S
 am__objects_1 =
-@POWERPC64_TRUE@am__objects_2 = ebb-callback-ppc64.lo
-@POWERPC64_FALSE@am__objects_3 = ebb-callback-ppc32.lo
 am_libpaf_ebb_la_OBJECTS = libpaf_ebb_la-ebb.lo \
 	libpaf_ebb_la-ebb-init.lo libpaf_ebb_la-ebb-hwcap.lo \
 	libpaf_ebb_la-ebb-hook.lo libpaf_ebb_la-ebb-version.lo \
-	$(am__objects_1) $(am__objects_2) $(am__objects_3)
+	$(am__objects_1) ebb-callback.lo
 libpaf_ebb_la_OBJECTS = $(am_libpaf_ebb_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -193,6 +185,7 @@ test_ebb_pmu_OBJECTS = $(am_test_ebb_pmu_OBJECTS)
 test_ebb_pmu_DEPENDENCIES = libpaf-ebb.la
 am_test_ebb_pmu_clobber_OBJECTS =  \
 	tests/test_ebb_pmu_clobber.$(OBJEXT) \
+	tests/test_ebb_pmu_clobber_hooks.$(OBJEXT) \
 	tests/test_ebb_common.$(OBJEXT)
 test_ebb_pmu_clobber_OBJECTS = $(am_test_ebb_pmu_clobber_OBJECTS)
 test_ebb_pmu_clobber_DEPENDENCIES = libpaf-ebb.la
@@ -254,7 +247,7 @@ SOURCES = $(libpaf_ebb_la_SOURCES) $(test_ebb_SOURCES) \
 	$(test_ebb_nohandler_SOURCES) $(test_ebb_pmu_SOURCES) \
 	$(test_ebb_pmu_clobber_SOURCES) $(test_ebb_pmu_multi_SOURCES) \
 	$(test_ebb_pmu_reset_SOURCES)
-DIST_SOURCES = $(am__libpaf_ebb_la_SOURCES_DIST) $(test_ebb_SOURCES) \
+DIST_SOURCES = $(libpaf_ebb_la_SOURCES) $(test_ebb_SOURCES) \
 	$(test_ebb_backtrace_SOURCES) $(test_ebb_child_SOURCES) \
 	$(test_ebb_clear_on_close_SOURCES) $(test_ebb_cpu_SOURCES) \
 	$(test_ebb_nohandler_SOURCES) $(test_ebb_pmu_SOURCES) \
@@ -604,9 +597,15 @@ LIBPPCEBB_PRIVATE_INCLUDE = ebb-callback.h \
                             ebb-sysdep.h
 
 lib_LTLIBRARIES = libpaf-ebb.la
-libpaf_ebb_la_SOURCES = ebb.c ebb-init.c ebb-hwcap.c ebb-hook.c \
-	ebb-version.c $(include_HEADERS) $(LIBPPCEBB_PRIVATE_INCLUDE) \
-	$(am__append_1) $(am__append_2)
+libpaf_ebb_la_SOURCES = ebb.c \
+                        ebb-init.c \
+                        ebb-hwcap.c \
+                        ebb-hook.c \
+                        ebb-version.c \
+                        $(include_HEADERS) \
+                        $(LIBPPCEBB_PRIVATE_INCLUDE) \
+                        ebb-callback.S
+
 libpaf_ebb_la_CFLAGS = -Wl,-entry=__paflib_ebb_main -fpic
 libpaf_ebb_la_LDFLAGS = -version-info $(LIBPAF_SO_VERSION) \
   -e __paflib_ebb_main \
@@ -633,6 +632,7 @@ test_ebb_pmu_multi_SOURCES = tests/test_ebb_pmu_multi.c \
 
 test_ebb_pmu_multi_LDADD = libpaf-ebb.la
 test_ebb_pmu_clobber_SOURCES = tests/test_ebb_pmu_clobber.c \
+                                tests/test_ebb_pmu_clobber_hooks.S \
                                 tests/test_ebb_common.c
 
 test_ebb_pmu_clobber_LDADD = libpaf-ebb.la
@@ -794,6 +794,8 @@ test_ebb_pmu$(EXEEXT): $(test_ebb_pmu_OBJECTS) $(test_ebb_pmu_DEPENDENCIES) $(EX
 	$(AM_V_CCLD)$(LINK) $(test_ebb_pmu_OBJECTS) $(test_ebb_pmu_LDADD) $(LIBS)
 tests/test_ebb_pmu_clobber.$(OBJEXT): tests/$(am__dirstamp) \
 	tests/$(DEPDIR)/$(am__dirstamp)
+tests/test_ebb_pmu_clobber_hooks.$(OBJEXT): tests/$(am__dirstamp) \
+	tests/$(DEPDIR)/$(am__dirstamp)
 
 test_ebb_pmu_clobber$(EXEEXT): $(test_ebb_pmu_clobber_OBJECTS) $(test_ebb_pmu_clobber_DEPENDENCIES) $(EXTRA_test_ebb_pmu_clobber_DEPENDENCIES) 
 	@rm -f test_ebb_pmu_clobber$(EXEEXT)
@@ -818,8 +820,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ebb-callback-ppc32.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ebb-callback-ppc64.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ebb-callback.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpaf_ebb_la-ebb-hook.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpaf_ebb_la-ebb-hwcap.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpaf_ebb_la-ebb-init.Plo@am__quote@
@@ -834,6 +835,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_ebb_nohandler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_ebb_pmu.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_ebb_pmu_clobber.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_ebb_pmu_clobber_hooks.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_ebb_pmu_multi.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_ebb_pmu_reset.Po@am__quote@
 
