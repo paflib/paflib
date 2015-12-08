@@ -1,0 +1,16 @@
+libpaf-ebb.so.0 libpaf-ebb0 #MINVER#
+ __invoke_dynamic_linker__@Base 0.2.0-1~
+ __paf_ebb_callback_handler_fpr@Base 0.2.0-1~
+ __paf_ebb_callback_handler_gpr@Base 0.2.0-1~
+ __paf_ebb_callback_handler_vr@Base 0.2.0-1~
+ __paf_ebb_callback_handler_vsr@Base 0.2.0-1~
+ __paflib_ebb_main@Base 0.2.0-1~
+ paf_ebb_disable_branches@Base 0.2.0-1~
+ paf_ebb_enable_branches@Base 0.2.0-1~
+ paf_ebb_event_close@Base 0.2.0-1~
+ paf_ebb_handler@Base 0.2.0-1~
+ paf_ebb_pmu_init@Base 0.2.0-1~
+ paf_ebb_pmu_init_ex@Base 0.2.0-1~
+ paf_ebb_pmu_reset@Base 0.2.0-1~
+ paf_ebb_pmu_set_period@Base 0.2.0-1~
+ paf_ebb_register_handler@Base 0.2.0-1~

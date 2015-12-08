@@ -1,7 +1,19 @@
-/* Event-Based Branch Facility API.
- *
- * Copyright IBM Corp. 2013
- *
+
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: paflib
+Source: https://github.com/paflib/paflib
+
+Files: *
+Author:  Tulio Magno Quites Machado Filho <tulioqm@br.ibm.com>
+Copyright: Copyright IBM Corp. 2013-2015
+License: MIT
+
+Files: debian/*
+Copyright: Copyright IBM Corp. 2013-2015
+Author: Thierry Fauck <tfauck@free.fr>
+License: MIT
+
+License: MIT
  * The MIT License (MIT)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,37 +33,4 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- *
- * Contributors:
- *     IBM Corporation, Adhemerval Zanella - Initial implementation.
- */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-
-#include "config.h"
-#include "paf-common.h"
-
-#include "ebb-hwcap.h"
-#include "ebb-init.h"
-
-void
-attribute_noreturn
-__paflib_ebb_main (void)
-{
-  __paf_ebb_init_hwcap ();
-  __paf_ebb_init_usage ();
-
-  printf ("POWER Platform Library " PACKAGE_STRING".\n"
-          "Copyright IBM Corp. 2013.\n"
-          "Compiled by GNU version "__VERSION__".\n"
-          "Runtime information:\n"
-          "    System EBB capable: %s\n"
-          "    Context data area: %s\n"
-          "For bug reporting please contact:\n"
-          PACKAGE_BUGREPORT".\n",
-          (__paf_ebb_hwcap & PAF_EBB_FEATURE_HAS_EBB) ? "yes" : "no",
-          (__paf_ebb_use_tcb) ? "TCB" : "TLS");
-  return;
-}
