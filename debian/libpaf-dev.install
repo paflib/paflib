@@ -1,4 +1,2 @@
 usr/include/paf/*.h
 usr/lib/*/libpaf-*.a
-usr/lib/*/libpaf-dsc.so
-usr/lib/*/libpaf-ebb.so
