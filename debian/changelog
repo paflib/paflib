@@ -1,13 +1,12 @@
-paflib (0.2.0-1) unstable; urgency=medium
+paflib (0.2.0-1) UNRELEASED; urgency=medium
 
   * Release update to 0.2.0
-  * Closes: #781117
   * Update rules to compile eeb library
 
  -- Thierry Fauck <tfauck@free.fr>  Fri, 21 Aug 2015 12:07:24 -0400
 
 paflib (0.1.4-1) UNRELEASED; urgency=medium
 
-  * Initial release. (Closes: #781117)
+  * Initial release for 0.1.4
 
  -- Breno Leitao <brenohl@br.ibm.com>  Mon, 23 Mar 2015 10:44:12 -0400

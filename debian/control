@@ -6,8 +6,6 @@ Priority: optional
 Build-Depends: debhelper (>= 9), dh-autoreconf
 Standards-Version: 3.9.6
 Homepage: https://github.com/paflib/paflib
-#Vcs-Git: git://anonscm.debian.org/collab-maint/paflib.git
-#Vcs-Browser: https://anonscm.debian.org/gitweb/?p=collab-maint/paflib.git;a=summary
 
 Package: libpaf-dsc0
 Architecture: ppc64 ppc64el powerpc
