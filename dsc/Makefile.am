@@ -13,9 +13,8 @@ libpaf_dsc_la_SOURCES = init.c \
                         $(include_HEADERS) \
                         $(INTERNAL_INCLUDES)
 libpaf_dsc_la_CFLAGS = -Wl,-entry=__paflib_dsc_main
-libpaf_dsc_la_LIBADD = $(LIBAUXV)
-libpaf_dsc_la_LDFLAGS = -version-info $(LIBPAF_SO_VERSION) \
-  -Wl,--whole-archive,../common/libpaf-common.a,--no-whole-archive
+libpaf_dsc_la_LIBADD = $(LIBAUXV) ../common/libpaf-common.la
+libpaf_dsc_la_LDFLAGS = -version-info $(LIBPAF_SO_VERSION)
 
 dist_man3_MANS = doc/libpaf-dsc.3
 

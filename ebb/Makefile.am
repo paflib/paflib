@@ -27,9 +27,9 @@ libpaf_ebb_la_SOURCES = ebb.c \
                         ebb-callback.S
 
 libpaf_ebb_la_CFLAGS = -Wl,-entry=__paflib_ebb_main -fpic
+libpaf_ebb_la_LIBADD = ../common/libpaf-common.la
 libpaf_ebb_la_LDFLAGS = -version-info $(LIBPAF_SO_VERSION) \
-  -e __paflib_ebb_main \
-  -Wl,--whole-archive,../common/libpaf-common.a,--no-whole-archive
+  -e __paflib_ebb_main
 
 dist_man3_MANS = doc/libpaf-ebb.3
 

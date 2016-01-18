@@ -1,2 +1,2 @@
-noinst_LIBRARIES = libpaf-common.a
-libpaf_common_a_SOURCES = paf-hwcap.c paf-interp.c paf-common.h paf-hwcap.h
+noinst_LTLIBRARIES = libpaf-common.la
+libpaf_common_la_SOURCES = paf-hwcap.c paf-interp.c paf-common.h paf-hwcap.h
