@@ -11,4 +11,4 @@ dist_man3_MANS = doc/libpaf-tb.3
 TESTS = test_tb
 test_tb_SOURCES = tests/test_tb.c
 
-noinst_PROGRAMS = $(TESTS)
+check_PROGRAMS = $(TESTS)
