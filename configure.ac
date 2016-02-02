@@ -9,7 +9,7 @@ m4_define([MINOR], 2)
 m4_define([PATCH], 0)
 
 AC_PREREQ([2.61])
-AC_INIT([libpaf], [MAJOR.MINOR.PATCH], [tulioqm@br.ibm.com emachado@br.ibm.com])
+AC_INIT([libpaf], [MAJOR.MINOR.PATCH], [cseo@linux.vnet.ibm.com murphyp@linux.vnet.ibm.com emachado@br.ibm.com])
 AM_INIT_AUTOMAKE([1.10 no-define foreign -Wall -Werror subdir-objects])
 AC_CANONICAL_HOST
 AM_MAINTAINER_MODE
