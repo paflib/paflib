@@ -90,12 +90,12 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-noinst_PROGRAMS = test_ebb_child$(EXEEXT) \
-	test_ebb_clear_on_close$(EXEEXT) test_ebb_nohandler$(EXEEXT) \
-	test_ebb_cpu$(EXEEXT)
+noinst_PROGRAMS =
 check_PROGRAMS = test_ebb$(EXEEXT) test_ebb_pmu$(EXEEXT) \
 	test_ebb_pmu_reset$(EXEEXT) test_ebb_backtrace$(EXEEXT) \
-	test_ebb_pmu_multi$(EXEEXT) test_ebb_pmu_clobber$(EXEEXT)
+	test_ebb_pmu_multi$(EXEEXT) test_ebb_pmu_clobber$(EXEEXT) \
+	test_ebb_child$(EXEEXT) test_ebb_clear_on_close$(EXEEXT) \
+	test_ebb_nohandler$(EXEEXT) test_ebb_cpu$(EXEEXT)
 TESTS = test_ebb$(EXEEXT) test_ebb_save_area_env.sh$(EXEEXT) \
 	test_ebb_pmu$(EXEEXT) test_ebb_pmu_reset$(EXEEXT) \
 	test_ebb_backtrace$(EXEEXT) test_ebb_pmu_multi$(EXEEXT) \
