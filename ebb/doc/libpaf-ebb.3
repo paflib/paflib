@@ -279,7 +279,7 @@ void do_work (void)
     }
 }
 
-int _do_ebb(void)
+int do_ebb(void)
 {
   ebbhandler_t handler;
   ebb_handler_triggered = 0;
@@ -302,7 +302,7 @@ int _do_ebb(void)
 
   paf_ebb_disable_branches ();
 
-  printf ("Done; %d EBB interrupts handled\n", ebb_handler_triggered);
+  printf ("Done; %d EBB interrupts handled\\n", ebb_handler_triggered);
 
   close (ebb_fd);
 

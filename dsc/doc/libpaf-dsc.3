@@ -52,47 +52,40 @@ available on Power Architecture. This register follows the layout specified in
 the corresponding Power ISA, with the following defined flags.
 
 These are features supported by Power ISA 2.05:
-.TP
+.LP
 .IP \[bu] 2
 .BR DSCR_SSE
 Store Stream Enable.
 
-.PP
+.LP
 These features were added on Power ISA 2.06:
-.TP
 .IP \[bu] 2
 .BR DSCR_SNSE
 Stride-N Stream Enable.
-.PP
+
+.LP
 These features were added on Power ISA 2.06+:
-.TP
 .IP \[bu] 2
 .BR DSCR_LSD
 Load Stream Disable.
 
-.PP
+.LP
 These are supported only on Power ISA 2.07:
-.TP
 .IP \[bu] 2
 .BR DSCR_HWUE
 Hardware Unit count Enable.
-.TP
 .IP \[bu] 2
 .BR DSCR_SWUE
 Software Unit count Enable.
-.TP
 .IP \[bu]
 .BR DSCR_LTE
 Load Transient Enable.
-.TP
 .IP \[bu]
 .BR DSCR_STE
 Software Transient Enable.
-.TP
 .IP \[bu]
 .BR DSCR_HTE
 Hardware Transient Enable.
-.TP
 .IP \[bu]
 .BR DSCR_SWTE
 Software Transient Enable. 
@@ -201,6 +194,7 @@ if the system does not support DSCR facility.
 .nf
 #include <inttypes.h>
 #include <paf/dsc.h>
+#include <assert.h>
 
 int main(void)
 {
