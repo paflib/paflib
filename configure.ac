@@ -5,7 +5,7 @@
 # variables in AC_INIT.   We put these here because libtool mixes up the order
 # in the -version-info statement.
 m4_define([MAJOR], 0)
-m4_define([MINOR], 2)
+m4_define([MINOR], 3)
 m4_define([PATCH], 0)
 
 AC_PREREQ([2.61])
