@@ -1369,6 +1369,7 @@ clean-am: clean-checkPROGRAMS clean-generic clean-libLTLIBRARIES \
 
 distclean: distclean-am
 	-rm -rf ./$(DEPDIR) tests/$(DEPDIR)
+	-rm -f test_ebb_save_area_env.sh
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags

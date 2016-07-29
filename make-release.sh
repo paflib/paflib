@@ -55,6 +55,11 @@ fi
 echo "Running make distcheck"
 make distcheck >> ${logfile} 2>&1
 
+if [ $? != 0 ]; then
+	echo "make distcheck failed. Aborting"
+	exit 1
+fi
+
 # Extract out the name of the tarball from the log.
 # There is probably a saner method to do this.
 
