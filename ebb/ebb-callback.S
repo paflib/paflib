@@ -100,6 +100,7 @@
 #  endif
 #  define GPRLD  ld
 #  define GPRST  std
+#  define STU    stdu
 #  define GPRSZ  8
 #  define FPSCR_PAD 8
 #  define GPR_STACK_PAD 0
@@ -110,6 +111,7 @@
 #  define CALLER_FRAME    16
 #  define GPRLD  lwz
 #  define GPRST  stw
+#  define STU    stwu
 #  define GPRSZ  4
 #  define FPSCR_PAD 0
 #  define VRSPLT(x,y)  vspltw x,y,0;
@@ -510,7 +512,7 @@
 
 
 ENTRY(__paf_ebb_callback_handler_gpr)
-  stwu  r1,-STACK_FRAME_GPR(r1)
+  STU  r1,-STACK_FRAME_GPR(r1)
   .cfi_adjust_cfa_offset STACK_FRAME_GPR
 
   SAVE_GPR
@@ -531,7 +533,7 @@ END(__paf_ebb_callback_handler_gpr)
 
 
 ENTRY(__paf_ebb_callback_handler_fpr)
-  stwu  r1,-STACK_FRAME_FPR(r1)
+  STU  r1,-STACK_FRAME_FPR(r1)
   .cfi_adjust_cfa_offset STACK_FRAME_FPR
 
   SAVE_GPR
@@ -558,7 +560,7 @@ END(__paf_ebb_callback_handler_fpr)
   .machine "altivec"
 ENTRY(__paf_ebb_callback_handler_vr)
   /* Reserve stack-frame size.  */
-  stwu  r1,-STACK_FRAME_VR(r1)
+  STU  r1,-STACK_FRAME_VR(r1)
   .cfi_adjust_cfa_offset STACK_FRAME_VR
 
   SAVE_GPR
@@ -589,7 +591,7 @@ END(__paf_ebb_callback_handler_vr)
   .machine "power7"
 ENTRY(__paf_ebb_callback_handler_vsr)
   /* Reserve stack-frame size.  */
-  stwu  r1,-STACK_FRAME_VSR(r1)
+  STU  r1,-STACK_FRAME_VSR(r1)
   .cfi_adjust_cfa_offset STACK_FRAME_VSR
 
   SAVE_GPR
